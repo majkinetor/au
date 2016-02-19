@@ -30,11 +30,11 @@
     # Once it defines the 2 functions, it calls the Update-Package.
     import-module au
 
-    function au_SearchReplace {
+    function global:au_SearchReplace {
         @{".\tools\chocolateyInstall.ps1" = @{ "(^[$]url\s*=\s*)('.*')" = "`$1'$($Latest.URL)'" }}
     }
 
-    function au_GetLatest {
+    function global:au_GetLatest {
         $download_page = Invoke-WebRequest -Uri https://github.com/hluk/CopyQ/releases
 
         $re  = "copyq-.*-setup.exe"
