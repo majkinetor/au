@@ -48,6 +48,7 @@ For push to work, specify your API key in the file `api_key` in the script's dir
 
 This function is designed for scheduling. You can use `Install-AUScheduledTask` to install daily scheduled task that points to the `update_all.ps1` script. In this scenario, we want to be notified about possible errors during packages update procedure. If the update procedure fails for any reasons there is an option to send an email with results as an attachment in order to investigate the problem. This is the prototype of the `update_all.ps1`:
 
+    param($Name = $null)
     cd $PSScriptRoot
     import-module au
 
@@ -62,7 +63,7 @@ This function is designed for scheduling. You can use `Install-AUScheduledTask` 
         }
     }
 
-    Update-AUPackages -Options $options | Export-CliXML update_results.xml
+    Update-AUPackages -Name $Name -Options $options | Export-CliXML update_results.xml
 
 Use function parameter `Name` to specify package names via glob, for instance "d*" would update only packages which names start with the letter 'd'. Add `Push` among options to push sucesifully built packages to the chocolatey repository. The result may look like this:
 

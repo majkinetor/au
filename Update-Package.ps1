@@ -109,7 +109,9 @@ function Update-Package {
 
     if ($latest_version -eq $nuspec_version) {
         return 'No new version found'
-    } else { 'New version is available, updating' }
+    } else { 'New version is available' }
+
+    $sr = au_SearchReplace
 
     'Updating files'
     "  $(Split-Path $nuspecFile -Leaf)"
@@ -117,7 +119,6 @@ function Update-Package {
     $nu.package.metadata.version = "$latest_version"
     $nu.Save($nuspecFile)
 
-    $sr = au_SearchReplace
     $sr.Keys | % {
         $fileName = $_
         "  $fileName"
