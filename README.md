@@ -92,11 +92,11 @@ Other functions
 
 Apart from the functions used in the updating process, there are few suggars for regular maintenance of the package:
 
-- Test-Package   (alias `test`)
+- Test-Package (alias `test`)  
 Quickly cpack and install the package from the current directory
 
-- Push-Package   (alias `pp`)
+- Push-Package (alias `pp`)  
 Push the latest package using API key in the api_key file
 
-- Get-AuPackages (alias `gup`)
+- Get-AuPackages (alias `gup`)  
 Returns the list of the packages which have `update.ps1` script in its directory.
