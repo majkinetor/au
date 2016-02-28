@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 19-Feb-2016.
+# Last Change: 27-Feb-2016.
 
 <#
 .SYNOPSIS
@@ -22,7 +22,7 @@
 
     - Update the nuspec with the latest version
     - Do the necessary file replacements
-    - Check the returned URLs and Versions for validity (unless NoCheck is specified)
+    - Check the returned URLs and Versions for validity (unless NoCheckUrl is specified)
     - Pack the files into the nuget package
 .EXAMPLE
     PS> notepad update.ps1
@@ -50,7 +50,7 @@ function Update-Package {
     [CmdletBinding()]
     param(
         #Do not check URL and version
-        [switch] $NoCheck
+        [switch] $NoCheckUrl
     )
 
     function Load-NuspecFile() {
@@ -67,7 +67,7 @@ function Update-Package {
             try
             {
                 $request  = [System.Net.HttpWebRequest]::Create($url)
-                $request.Timeout = 5000
+                #$request.Timeout = 5000
                 $response = $request.GetResponse()
                 if ($response.ContentType -like '*text/html*') { $res = $false; $err='Invalid content type: text/html' }
                 else { $res = $true }
@@ -86,7 +86,6 @@ function Update-Package {
         if ($Latest.Version -notmatch $re) { throw "Version doesn't match the pattern '$re': '$Version'" }
     }
 
-    function check() { check_url; check_version}
 
     $packageName = Split-Path $pwd -Leaf
     $nuspecFile = gi "$packageName.nuspec" -ea ig
@@ -102,7 +101,8 @@ function Update-Package {
     }
     $latest_version = $Latest.version
 
-    if (!$NoCheck) { check }
+    if (!$NoCheckUrl) { check_url }
+    check_version
 
     "nuspec version: $nuspec_version"
     "remote version: $latest_version"
