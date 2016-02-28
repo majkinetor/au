@@ -16,9 +16,9 @@ Creating the package updater script
 - In the package directory, create the script `update.ps1`.
 - Import the module: `import-module au`
 - Implement two global functions:
-  - `au_GetLatest`   
+  - `global:au_GetLatest`   
   Function returns HashTable with the latest remote version along with other arbitrary user data which you can use elsewhere (for instance in search and replace). The returned version is then compared to the one in the nuspec file and if they are different, the files will be updated. This hashtable is available via global variable `$Latest`.
-  - `au_SearchReplace`  
+  - `global:au_SearchReplace`  
   Function returns HashTable containing search and replace data for any file in the form: 
   ~~~
     @{ 
