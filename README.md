@@ -37,8 +37,7 @@ This is best understood via the [example](https://github.com/majkinetor/chocolat
 
 With this set, you can call individual `update.ps1` from within its directory to update that specific package.
 
-Checks
-------
+### Checks
 
 The function does some rudimentary verifications of URLs and version strings:
 - Version will be checked to match a valid nuspec pattern
