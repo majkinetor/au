@@ -37,14 +37,18 @@ This is best understood via the [example](https://github.com/majkinetor/chocolat
 
 With this set, you can call individual `update.ps1` from within its directory to update that specific package.
 
+The function does some rudimentary verifications of URLs and version strings:
+- Version will be checked to match a valid nuspec pattern
+- Any hash key that contains `url` in it will be checked for existence and MIME textual type (since binary is expected here)
+
+If check fails, package will not be updated. In other to skip URL checks you can specify `-NoUrlCheck` argument to the `update` function.
+
 Updating all packages
 ---------------------
 
-You can update all packages and optionally push them to the chocolatey repository with a single command. 
+You can update all packages and optionally push them to the chocolatey repository with a single command. For push to work, specify your API key in the file `api_key` in the script's directory.
 
 Function `Update-AUPackages` will iterate over `update.ps1` scripts and execute each. If it detects that package is updated it will `cpack` it and push it. 
-The function does some rudimentary verifications of URLs and version strings.
-For push to work, specify your API key in the file `api_key` in the script's directory.
 
 This function is designed for scheduling. You can use `Install-AUScheduledTask` to install daily scheduled task that points to the `update_all.ps1` script. In this scenario, we want to be notified about possible errors during packages update procedure. If the update procedure fails for any reasons there is an option to send an email with results as an attachment in order to investigate the problem. This is the prototype of the `update_all.ps1`:
 
