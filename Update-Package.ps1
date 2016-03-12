@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 27-Feb-2016.
+# Last Change: 12-Mar-2016.
 
 <#
 .SYNOPSIS
@@ -24,6 +24,9 @@
     - Do the necessary file replacements
     - Check the returned URLs and Versions for validity (unless NoCheckUrl is specified)
     - Pack the files into the nuget package
+
+    You can also define au_BeforeUpdate and au_AfterUpdate function to integrate your code into the
+    update pipeline.
 .EXAMPLE
     PS> notepad update.ps1
     # The following script is used to update the package from the github releases page.
@@ -112,6 +115,10 @@ function Update-Package {
     } else { 'New version is available' }
 
     $sr = au_SearchReplace
+    if (Test-Path Function:\au_BeforeUpdate) {
+        'Running au_BeforeUpdate'
+        au_BeforeUpdate 
+    }
 
     'Updating files'
     "  $(Split-Path $nuspecFile -Leaf)"
@@ -133,6 +140,10 @@ function Update-Package {
     }
 
     cpack
+    if (Test-Path Function:\au_AfterUpdate) {
+        'Running au_AfterUpdate'
+        au_AfterUpdate
+    }
     return 'Package updated'
 }
 
