@@ -15,7 +15,11 @@ function Update-AUPackages($name, [switch]$Push, [hashtable]$Options) {
             $i.RemoteVersion = ($i.Result -match '^remote version: .+$').Substring(16)
             $i.NuspecVersion = ($i.Result -match '^nuspec version: .+$').Substring(16)
 
-            if ($i.Updated -and $Push) { $i.PushResult = push-package }
+            if ($i.Updated -and $Push) {
+                $i.PushResult = push-package
+                $failed = $i.PushResult -like 'Failed to process request*'
+                if ( $failed ) { throw ($failed.Substring(28) -replace '...$') }
+            }
 
             if ($i.Updated) {
                 $i.Message = '{0} is updated to {1}' -f $i.PackageName, $i.RemoteVersion
