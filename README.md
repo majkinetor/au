@@ -59,6 +59,7 @@ This function is designed for scheduling. You can use `Install-AUScheduledTask` 
     import-module au
 
     $options = @{
+        Timeout = 10
         Mail = @{
             To       = 'meh@gmail.com'
             Server   = 'smtp.gmail.com'

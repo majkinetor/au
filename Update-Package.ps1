@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 12-Mar-2016.
+# Last Change: 25-Mar-2016.
 
 <#
 .SYNOPSIS
@@ -52,8 +52,12 @@
 function Update-Package {
     [CmdletBinding()]
     param(
-        #Do not check URL and version
-        [switch] $NoCheckUrl
+        #Do not check URL and version for validity.
+        [switch] $NoCheckUrl,
+
+        #Timeout for all web operations. The default can be specified in global variable $global:au_timeout
+        #If not specified at all it defaults to 100 seconds.
+        [int]    $Timeout = $null
     )
 
     function Load-NuspecFile() {
@@ -70,7 +74,9 @@ function Update-Package {
             try
             {
                 $request  = [System.Net.HttpWebRequest]::Create($url)
-                #$request.Timeout = 5000
+                if ($Timeout -eq $null) { $Timeout = $global:au_timeout }
+                if ($Timeout -ne $null) { $request.Timeout = $Timeout*1000 }
+
                 $response = $request.GetResponse()
                 if ($response.ContentType -like '*text/html*') { $res = $false; $err='Invalid content type: text/html' }
                 else { $res = $true }
@@ -111,13 +117,15 @@ function Update-Package {
     "remote version: $latest_version"
 
     if ($latest_version -eq $nuspec_version) {
-        return 'No new version found'
-    } else { 'New version is available' }
+        'No new version found'
+        return
+    }
+    else { 'New version is available' }
 
     $sr = au_SearchReplace
     if (Test-Path Function:\au_BeforeUpdate) {
         'Running au_BeforeUpdate'
-        au_BeforeUpdate 
+        au_BeforeUpdate
     }
 
     'Updating files'

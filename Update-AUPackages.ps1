@@ -2,13 +2,18 @@ function Update-AUPackages($name, [switch]$Push, [hashtable]$Options) {
     $cd = $pwd
     Write-Host 'Updating all automatic packages'
 
+    if ($Options.Timeout -ne $null) { $global:au_timeout = $Options.Timeout }
+
     $result = @()
     $a = Get-AUPackages $name
     $a | % {
         $i = [ordered]@{PackageName=''; Updated=''; RemoteVersion=''; NuspecVersion=''; Message=''; Result=''; PushResult=''; Error=$null}
 
         Set-Location $_
+
         $i.PackageName = Split-Path $_ -Leaf
+        Write-Host -NoNewLine "  $($i.PackageName) "
+
         try {
             $i.Result        = .\update.ps1
             $i.Updated       = $i.Result[-1] -eq 'Package updated'
@@ -22,18 +27,20 @@ function Update-AUPackages($name, [switch]$Push, [hashtable]$Options) {
             }
 
             if ($i.Updated) {
-                $i.Message = '{0} is updated to {1}' -f $i.PackageName, $i.RemoteVersion
+                $i.Message = 'is updated to ' + $i.RemoteVersion
                 if ($Push) { $i.Message += ' and pushed' }
             }
-            else { $i.Message = $i.PackageName + ' has no updates' }
+            else { $i.Message = 'has no updates' }
 
         } catch {
             $i.Error = $_
-            $i.Message = $i.PackageName + " had errors during update"
+            $i.Message = "had errors during update"
             $i.Error -split '\n' | % { $i.Message += "`n    $_" }
         }
-        Write-Host "  $($i.Message)"
+        Write-Host $i.Message
         $result += [pscustomobject]$i
+
+        rm Function:/au_*
     }
     Set-Location $cd
 
