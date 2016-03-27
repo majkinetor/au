@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 25-Mar-2016.
+# Last Change: 27-Mar-2016.
 
 <#
 .SYNOPSIS
@@ -75,7 +75,6 @@ function Update-Package {
             {
                 $request  = [System.Net.HttpWebRequest]::Create($url)
                 if ($Timeout -eq $null) { $Timeout = $global:au_timeout }
-                if ($Timeout -ne $null) { $request.Timeout = $Timeout*1000 }
 
                 $response = $request.GetResponse()
                 if ($response.ContentType -like '*text/html*') { $res = $false; $err='Invalid content type: text/html' }
