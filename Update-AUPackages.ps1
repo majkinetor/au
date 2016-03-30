@@ -38,6 +38,8 @@ function Update-AUPackages($name, [switch]$Push, [hashtable]$Options) {
             $i.Error -split '\n' | % { $i.Message += "`n    $_" }
         }
         Write-Host $i.Message
+
+        $i.Message = $i.PackageName + $i.Message
         $result += [pscustomobject]$i
 
         rm Function:/au_*
