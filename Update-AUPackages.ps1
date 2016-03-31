@@ -39,7 +39,7 @@ function Update-AUPackages($name, [switch]$Push, [hashtable]$Options) {
         }
         Write-Host $i.Message
 
-        $i.Message = $i.PackageName + $i.Message
+        $i.Message = $i.PackageName + ' ' + $i.Message
         $result += [pscustomobject]$i
 
         rm Function:/au_*
