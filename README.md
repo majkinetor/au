@@ -60,6 +60,8 @@ This function is designed for scheduling. You can use `Install-AUScheduledTask` 
 
     $options = @{
         Timeout = 10
+        Threads = 10
+        Push    = $false
         Mail = @{
             To       = 'meh@gmail.com'
             Server   = 'smtp.gmail.com'
