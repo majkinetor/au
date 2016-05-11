@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 27-Mar-2016.
+# Last Change: 11-May-2016.
 
 <#
 .SYNOPSIS
@@ -57,7 +57,7 @@ function Update-Package {
 
         #Timeout for all web operations. The default can be specified in global variable $global:au_timeout
         #If not specified at all it defaults to 100 seconds.
-        [int]    $Timeout = $null
+        [int]    $Timeout
     )
 
     function Load-NuspecFile() {
@@ -74,7 +74,8 @@ function Update-Package {
             try
             {
                 $request  = [System.Net.HttpWebRequest]::Create($url)
-                if ($Timeout -eq $null) { $Timeout = $global:au_timeout }
+                if (!$Timeout) { $Timeout = $global:au_timeout }
+                if ($Timeout)  { $request.Timeout = $Timeout*1000 }
 
                 $response = $request.GetResponse()
                 if ($response.ContentType -like '*text/html*') { $res = $false; $err='Invalid content type: text/html' }
