@@ -96,6 +96,8 @@ Use function parameter `Name` to specify package names via glob, for instance "d
 
 The email attachment is a `$result` object that keeps all the information about each package which happened during update. It can be loaded with `Import-CliXml` and inspected.
 
+![update gif](update.gif)
+
 Other functions
 ---------------
 
