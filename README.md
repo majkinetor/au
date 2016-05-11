@@ -99,7 +99,7 @@ The email attachment is a `$result` object that keeps all the information about 
 	
 The accepted answer here isn't working with any Markdown editor available in Apps I have used till date like Ghost, Stackedit.io or even on Stackoverflow editor. I found a workaround here in the StackEdit.io issue tracker.
 
-<img src="update.gif" width="200" />
+<img src="update.gif" width="50%" />
 
 Other functions
 ---------------
