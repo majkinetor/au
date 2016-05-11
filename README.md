@@ -96,9 +96,6 @@ Use function parameter `Name` to specify package names via glob, for instance "d
 
 The email attachment is a `$result` object that keeps all the information about each package which happened during update. It can be loaded with `Import-CliXml` and inspected.
 
-	
-The accepted answer here isn't working with any Markdown editor available in Apps I have used till date like Ghost, Stackedit.io or even on Stackoverflow editor. I found a workaround here in the StackEdit.io issue tracker.
-
 <img src="update.gif" width="50%" />
 
 Other functions
