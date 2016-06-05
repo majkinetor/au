@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 11-May-2016.
+# Last Change: 05-Jun-2016.
 
 <#
 .SYNOPSIS
@@ -80,7 +80,10 @@ function Update-AUPackages {
                     }
 
                     Write-Host '  ' $i.Message
-                } else { $i.Updated = $false }
+                } else {
+                    $i.Updated = $false
+                    Write-Host ( "  ERROR: " + $err[0].ToString() )
+                }
 
                 $result += [pscustomobject]$i
             }
@@ -126,7 +129,12 @@ function Update-AUPackages {
     # Send email
     if ($errors -and $Options.Mail) {
         $errors = $result | ? Error
-        send-mail $Options.Mail ($errors | % Error | out-string)
+        $body =  $errors | % {
+            $s = "`nPackage: " + $_.PackageName + "`n"
+            $s += $_.Error | out-string
+            $s
+        }
+        send-mail $Options.Mail $body
         Write-Host ("Mail with errors sent to " + $Options.Mail.To)
     }
 
@@ -153,5 +161,3 @@ function send-mail($Mail, $Body) {
 }
 
 Set-Alias updateall Update-AuPackages
-
-#updateall p*
