@@ -95,6 +95,11 @@ Use function parameter `Name` to specify package names via glob, for instance "d
 
 The email attachment is a `$result` object that keeps all the information about each package which happened during update. It can be loaded with `Import-CliXml` and inspected.
 
+Use the following code in the directory where your `update_all.ps1` script is found to install scheduled task:
+
+    $At = '03:00'
+    schtasks /create /tn "Update-AUPackages" /tr "powershell -File '$pwd\update_all.ps1'" /sc daily /st $At
+
 <img src="update.gif" width="50%" />
 
 Other functions
@@ -102,11 +107,11 @@ Other functions
 
 Apart from the functions used in the updating process, there are few suggars for regular maintenance of the package:
 
-- Test-Package (alias `test`)  
-Quickly cpack and install the package from the current directory
+- Test-Package
+Quickly cpack and install the package from the current directory.
 
 - Push-Package (alias `pp`)  
-Push the latest package using API key in the api_key file
+Push the latest package using API key in the api_key file.
 
-- Get-AuPackages (alias `gup`)  
-Returns the list of the packages which have `update.ps1` script in its directory.
+- Get-AuPackages (alias `gau`)  
+Returns the list of the packages which have `update.ps1` script in its directory and which name doesn't start with '_'.
