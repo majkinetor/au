@@ -56,7 +56,6 @@ This function is designed for scheduling. You can use `Install-AUScheduledTask` 
 
     param($Name = $null)
     cd $PSScriptRoot
-    import-module au
 
     $options = @{
         Timeout = 10

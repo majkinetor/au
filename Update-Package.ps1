@@ -91,8 +91,8 @@ function Update-Package {
     }
 
     function check_version() {
-        $re = '^[\d.]+$'
-        if ($Latest.Version -notmatch $re) { throw "Version doesn't match the pattern '$re': '$Version'" }
+        $re = '^(\d)(\.\d){0,3}$'
+        if ($Latest.Version -notmatch $re) { throw "Version doesn't match the pattern '$re': '$($Latest.Version)'" }
     }
 
 
