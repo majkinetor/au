@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 11-May-2016.
+# Last Change: 05-Jun-2016.
 
 <#
 .SYNOPSIS
@@ -70,7 +70,7 @@ function Update-Package {
     function check_url() {
         $Latest.Keys | ? {$_ -like 'url*' } | % {
             $url = $Latest[ $_ ]
-            if ([string]::IsNullOrWhiteSpace($url)) {throw 'URL is empty'}
+            if ([string]::IsNullOrWhiteSpace($url)) {throw 'Latest $packageName URL is empty'}
             try
             {
                 $request  = [System.Net.HttpWebRequest]::Create($url)
@@ -78,7 +78,7 @@ function Update-Package {
                 if ($Timeout)  { $request.Timeout = $Timeout*1000 }
 
                 $response = $request.GetResponse()
-                if ($response.ContentType -like '*text/html*') { $res = $false; $err='Invalid content type: text/html' }
+                if ($response.ContentType -like '*text/html*') { $res = $false; $err='Latest $packageName URL content type is text/html' }
                 else { $res = $true }
             }
             catch {
@@ -86,13 +86,13 @@ function Update-Package {
                 $err = $_
             }
 
-            if (!$res) { throw "Can't validate URL '$url'`n$err" }
+            if (!$res) { throw "Can't validate latest $packageName URL '$url'`n$err" }
         }
     }
 
     function check_version() {
         $re = '^(\d)(\.\d){0,3}$'
-        if ($Latest.Version -notmatch $re) { throw "Version doesn't match the pattern '$re': '$($Latest.Version)'" }
+        if ($Latest.Version -notmatch $re) { throw "Latest $packageName version doesn't match the pattern '$re': '$($Latest.Version)'" }
     }
 
 
