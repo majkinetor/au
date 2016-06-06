@@ -11,6 +11,8 @@ Installation
 On Powershell 5+: `Install-Module au`.
 Otherwise, copy Powershell module to any of the directories in the `$Env:PSModulePath`.
 
+**NOTE**: All module functions work from within specific root folder. The folder contains all of your chocolatey packages.
+
 Creating the package updater script
 -----------------------------------
 
