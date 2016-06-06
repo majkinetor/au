@@ -8,7 +8,8 @@ It can be used instead of the [official method](https://github.com/chocolatey/ch
 Installation
 ------------
 
-Copy Powershell module to any of the directories in the $Env:PSModulePath.
+On Powershell 5+: `Install-Module au`.
+Otherwise, copy Powershell module to any of the directories in the `$Env:PSModulePath`.
 
 Creating the package updater script
 -----------------------------------
