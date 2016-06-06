@@ -53,7 +53,9 @@ You can update all packages and optionally push them to the chocolatey repositor
 
 Function `Update-AUPackages` will iterate over `update.ps1` scripts and execute each. If it detects that package is updated it will `cpack` it and push it. 
 
-This function is designed for scheduling. You can use `Install-AUScheduledTask` to install daily scheduled task that points to the `update_all.ps1` script. In this scenario, we want to be notified about possible errors during packages update procedure. If the update procedure fails for any reasons there is an option to send an email with results as an attachment in order to investigate the problem. This is the prototype of the `update_all.ps1`:
+This function is designed for scheduling. You can pass it a number of options, save a script and call it via task scheduler. For example, you can get notified about possible errors during packages update procedure - if the update procedure fails for any reasons there is an option to send an email with results as an attachment in order to investigate the problem. 
+
+You can use the following script as a prototype - `update_all.ps1`:
 
     param($Name = $null)
     cd $PSScriptRoot
