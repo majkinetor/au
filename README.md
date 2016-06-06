@@ -42,9 +42,9 @@ With this set, you can call individual `update.ps1` from within its directory to
 
 The function does some rudimentary verifications of URLs and version strings:
 - Version will be checked to match a valid nuspec pattern
-- Any hash key that contains `url` in it will be checked for existence and MIME textual type (since binary is expected here)
+- Any hash key that contains word `url`, will be checked for existence and MIME textual type (since binary is expected here)
 
-If check fails, package will not be updated. In other to skip URL checks you can specify `-NoUrlCheck` argument to the `update` function.
+If check fails, package will not be updated. To skip URL checks you can specify `-NoUrlCheck` argument to the `update` function.
 
 Updating all packages
 ---------------------
