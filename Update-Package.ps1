@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 05-Jun-2016.
+# Last Change: 28-Jun-2016.
 
 <#
 .SYNOPSIS
@@ -95,6 +95,11 @@ function Update-Package {
         if ($Latest.Version -notmatch $re) { throw "Latest $packageName version doesn't match the pattern '$re': '$($Latest.Version)'" }
     }
 
+    function updated() {
+        #Updated only if nuspec version is lower then online version. That will allow to update package revision manually on package errors.
+        [version]($latest_version) -gt [version]($nuspec_version)
+    }
+
 
     $packageName = Split-Path $pwd -Leaf
     $nuspecFile = gi "$packageName.nuspec" -ea ig
@@ -115,12 +120,8 @@ function Update-Package {
 
     "nuspec version: $nuspec_version"
     "remote version: $latest_version"
-
-    if ($latest_version -eq $nuspec_version) {
-        'No new version found'
-        return
-    }
-    else { 'New version is available' }
+    if (!(updated)) { 'No new version found'; return }
+    'New version is available'
 
     $sr = au_SearchReplace
     if (Test-Path Function:\au_BeforeUpdate) {
