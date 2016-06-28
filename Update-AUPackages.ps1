@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 05-Jun-2016.
+# Last Change: 28-Jun-2016.
 
 <#
 .SYNOPSIS
@@ -118,18 +118,19 @@ function Update-AUPackages {
     }
 
     # Write some stats
-    $minutes = ((Get-Date) - $now).TotalMinutes.ToString('#.##')
-    $updated = $result | ? Updated | measure | % count
-    $pushed  = $result | ? Pushed -eq $true | measure | % count
-    $errors  = $result | ? { $_.Error.Length } | measure | % count
+    $minutes  = ((Get-Date) - $now).TotalMinutes.ToString('#.##')
+    $updated  = $result | ? Updated | measure | % count
+    $pushed   = $result | ? Pushed -eq $true | measure | % count
+    $errors   = $result | ? { $_.Error.Length }
+    $error_no = $errors | measure | % count
     Write-Host ( "Finished {0} packages after {1} minutes." -f $aup.length, $minutes )
     Write-Host ( "{0} packages updated and {1} pushed." -f $updated, $pushed )
-    Write-Host ( "{0} errors total." -f $errors )
+    Write-Host ( "{0} errors total." -f $error_no )
 
     # Send email
-    if ($errors -and $Options.Mail) {
-        $errors = $result | ? Error
-        $body =  $errors | % {
+    if ($error_no -and $Options.Mail) {
+        $body = "$error_no errors during update`n`n"
+        $body +=  $errors | % {
             $s = "`nPackage: " + $_.PackageName + "`n"
             $s += $_.Error | out-string
             $s
@@ -143,7 +144,7 @@ function Update-AUPackages {
 function send-mail($Mail, $Body) {
     $from = "Update-AUPackages@{0}.{1}" -f $Env:UserName, $Env:ComputerName
     $msg  = New-Object System.Net.Mail.MailMessage $from, $Mail.To
-    $msg.Subject    = "$total_errors errors during update"
+    $msg.Subject    = "$error_no errors during update"
     $msg.IsBodyHTML = $true
     $msg.Body       = "<body><pre>$Body</pre></body>"
 
