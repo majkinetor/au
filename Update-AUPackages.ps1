@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 28-Jun-2016.
+# Last Change: 30-Jun-2016.
 
 <#
 .SYNOPSIS
@@ -82,7 +82,8 @@ function Update-AUPackages {
                     Write-Host '  ' $i.Message
                 } else {
                     $i.Updated = $false
-                    Write-Host ( "  ERROR: " + $err[0].ToString() )
+                    Write-Host "   $($i.PackageName) ERROR:"
+                    $err[0].ToString() -split "`n" | % { Write-Host (' '*5 + $_) }
                 }
 
                 $result += [pscustomobject]$i
@@ -123,7 +124,7 @@ function Update-AUPackages {
     $pushed   = $result | ? Pushed -eq $true | measure | % count
     $errors   = $result | ? { $_.Error.Length }
     $error_no = $errors | measure | % count
-    Write-Host ( "Finished {0} packages after {1} minutes." -f $aup.length, $minutes )
+    Write-Host ( "`nFinished {0} packages after {1} minutes." -f $aup.length, $minutes )
     Write-Host ( "{0} packages updated and {1} pushed." -f $updated, $pushed )
     Write-Host ( "{0} errors total." -f $error_no )
 
@@ -135,8 +136,11 @@ function Update-AUPackages {
             $s += $_.Error | out-string
             $s
         }
-        send-mail $Options.Mail $body
-        Write-Host ("Mail with errors sent to " + $Options.Mail.To)
+
+        try {
+            send-mail $Options.Mail $body -ea stop 
+            Write-Host ("Mail with errors sent to " + $Options.Mail.To)
+        } catch { Write-Error $_ }
     }
 
     $result
