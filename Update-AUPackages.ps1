@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 30-Jun-2016.
+# Last Change: 07-Jul-2016.
 
 <#
 .SYNOPSIS
@@ -28,23 +28,29 @@ function Update-AUPackages {
         #  Timeout - WebRequest timeout in seconds, by default 100
         #  Push    - Set to true to push updated packages to chocolatey repository
         #  Mail    - Hashtable with mail notification options: To, Server, UserName, Password, Port, EnableSsl
+        #  Script  - Specify script to be executed at the start and after update. Script accepts two arguments:
+        #               $PHASE  - can be 'start' or 'end'
+        #               $ARG    - in start phase it is list of packages to be updated;
+        #                         in end phase it is info object that contains various info about previous run;
         [HashTable] $Options=@{}
     )
 
     $cd = $pwd
-    $now = Get-Date
-    Write-Host 'Updating all automatic packages:' $now
+    $startTime = Get-Date
+    Write-Host 'Updating all automatic packages:' $startTime
 
     if (!$Options.Threads) { $Options.Threads = 10}
     if (!$Options.Timeout) { $Options.Timeout = 100 }
     if (!$Options.Push)    { $Options.Push = $false}
 
-    $threads = New-Object object[] $Options.Threads
-    $result = @()
+    $threads    = New-Object object[] $Options.Threads
+    $result     = @()
+    $script_err = 0
 
     $aup = Get-AUPackages $Name
     $j = 0
 
+    if ($Options.Script) { try { & $Options.Script 'START' $aup | Write-Host } catch { Write-Error $_; $script_err += 1 } }
     Remove-Job * -force
     while( $true ) {
 
@@ -61,8 +67,9 @@ function Update-AUPackages {
                 $i = [ordered]@{PackageName=''; Updated=''; Pushed=''; RemoteVersion=''; NuspecVersion=''; Message=''; Result=''; Error=@()}
                 $i.PackageName = $job.Name
 
-                $i.Result = Receive-Job $_ -ErrorAction SilentlyContinue -ErrorVariable err
-                $i.Error = $err
+                $i.Result  = Receive-Job $_ -ErrorAction SilentlyContinue -ErrorVariable err
+                $i.Error   = $err
+                $i.Updated = $false
                 if ($i.Result)
                 {
                     $i.Updated       = $i.Result -contains 'Package updated'
@@ -71,7 +78,7 @@ function Update-AUPackages {
                     $i.Message       = $i.PackageName + ' '
                     $i.Message      += if ($i.Updated) { 'is updated to ' + $i.RemoteVersion } else { 'has no updates' }
 
-                    if ($Options.Push -and $i.Updated) {
+                    if ($i.Updated -and $Options.Push) {
                         $i.Pushed = ($i.Result -like 'Failed to process request*').Length -eq 0
                         if (!$i.Pushed) {
                             $i.Message += ' but push failed!'
@@ -80,10 +87,11 @@ function Update-AUPackages {
                     }
 
                     Write-Host '  ' $i.Message
-                } else {
-                    $i.Updated = $false
+                }
+
+                if ($i.Error) {
                     Write-Host "   $($i.PackageName) ERROR:"
-                    $err[0].ToString() -split "`n" | % { Write-Host (' '*5 + $_) }
+                    $i.Error[0].ToString() -split "`n" | % { Write-Host (' '*5 + $_) }
                 }
 
                 $result += [pscustomobject]$i
@@ -118,15 +126,10 @@ function Update-AUPackages {
         } | out-null
     }
 
-    # Write some stats
-    $minutes  = ((Get-Date) - $now).TotalMinutes.ToString('#.##')
-    $updated  = $result | ? Updated | measure | % count
-    $pushed   = $result | ? Pushed -eq $true | measure | % count
-    $errors   = $result | ? { $_.Error.Length }
-    $error_no = $errors | measure | % count
-    Write-Host ( "`nFinished {0} packages after {1} minutes." -f $aup.length, $minutes )
-    Write-Host ( "{0} packages updated and {1} pushed." -f $updated, $pushed )
-    Write-Host ( "{0} errors total." -f $error_no )
+    $info = get-info
+    if ($Options.Script) { try { & $Options.Script 'END' $info | Write-Host } catch { Write-Error $_; $script_err += 1 } }
+
+    show-stats
 
     # Send email
     if ($error_no -and $Options.Mail) {
@@ -136,15 +139,40 @@ function Update-AUPackages {
             $s += $_.Error | out-string
             $s
         }
-
         try {
-            send-mail $Options.Mail $body -ea stop 
+            send-mail $Options.Mail $body -ea Stop
             Write-Host ("Mail with errors sent to " + $Options.Mail.To)
         } catch { Write-Error $_ }
     }
 
     $result
 }
+
+function get-info {
+    $errors   = $result | ? { $_.Error.Length }
+    $info = [PSCustomObject]@{
+        errors = $errors
+        error_count = [PSCustomObject]@{
+            update  = $errors | ? !Updated | measure | % count
+            push    = $errors | ? {$_.Updated -and !$_.Pushed} | measure | % count
+            total   = $errors | measure | % count
+        }
+        minutes  = ((Get-Date) - $startTime).TotalMinutes.ToString('#.##')
+        packages = $aup
+        pushed   = $result | ? Pushed | measure | % count
+        updated  = $result | ? Updated | measure | % count
+        result   = $result
+    }
+    return $info
+}
+
+function show-stats {
+    Write-Host ( "`nFinished {0} packages after {1} minutes." -f $info.packages.length, $info.minutes )
+    Write-Host ( "{0} packages updated and {1} pushed." -f $info.updated, $info.pushed )
+    Write-Host ( "{0} total errors; {1} update, {0} push" -f $info.error_count.total, $info.error_count.update, $info.error_count.push )
+    if ($Options.Script) { Write-Host "There are $script_err user script errors" }
+}
+
 function send-mail($Mail, $Body) {
     $from = "Update-AUPackages@{0}.{1}" -f $Env:UserName, $Env:ComputerName
     $msg  = New-Object System.Net.Mail.MailMessage $from, $Mail.To

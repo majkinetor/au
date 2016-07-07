@@ -94,11 +94,15 @@ Use function parameter `Name` to specify package names via glob, for instance "d
         Can't validate URL 'https://www.yworks.com'
         Invalid content type: text/html
 
-    Automatic packages processed: 6
-    Total errors: 2
+    Finished 6 packages after .3 minutes.
+    1 packages updated and 1 pushed.
+    2 total errors; 2 update, 0 push.
+
     Mail with errors sent to meh@gmail.com
 
 The email attachment is a `$result` object that keeps all the information about each package which happened during update. It can be loaded with `Import-CliXml` and inspected.
+
+Take a look at real life example of [update_all.ps1]() script.
 
 Use the following code in the directory where your `update_all.ps1` script is found to install scheduled task:
 
