@@ -102,7 +102,7 @@ Use function parameter `Name` to specify package names via glob, for instance "d
 
 The email attachment is a `$result` object that keeps all the information about each package which happened during update. It can be loaded with `Import-CliXml` and inspected.
 
-Take a look at real life example of [update_all.ps1](https://github.com/majkinetor/chocolatey/blob/master/update_all.ps1) script.
+Take a look at [real life example](https://gist.github.com/majkinetor/44c248fc1e58059e09a4f760928425f0).
 
 Use the following code in the directory where your `update_all.ps1` script is found to install scheduled task:
 
