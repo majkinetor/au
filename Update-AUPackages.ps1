@@ -132,7 +132,7 @@ function Update-AUPackages {
     $info = get-info
     if ($Options.Script) { try { & $Options.Script 'END' $info | Write-Host } catch { Write-Error $_; $script_err += 1 } }
 
-    show-stats
+    $info.stats | Write-Host
     send-notification
 
     $result
@@ -143,11 +143,7 @@ function send-notification() {
 
     $body = "$($info.error_count.total) errors during update`n"
     $body += "Attachment contains complete output of the run, you can load it using Import-CliXML cmdlet.`n`n"
-    $body +=  $info.errors | % {
-        $s = "`nPackage: " + $_.PackageName + "`n"
-        $s += $_.Error | out-string
-        $s
-    }
+    $body += get-errorinfo
 
     try {
         send-mail $Options.Mail $body -ea Stop
@@ -164,21 +160,34 @@ function get-info {
             push    = $errors | ? {$_.Updated -and !$_.Pushed} | measure | % count
             total   = $errors | measure | % count
         }
+        error_info = ''
         startTime = $startTime
         minutes   = ((Get-Date) - $startTime).TotalMinutes.ToString('#.##')
         packages  = $aup
         pushed    = $result | ? Pushed  | measure | % count
         updated   = $result | ? Updated | measure | % count
         result    = $result
+        stats     = ''
     }
+    $info.stats = get-stats
+    $info.error_info = get-errorinfo
+
     $info
 }
 
-function show-stats {
-    Write-Host ( "`nFinished {0} packages after {1} minutes." -f $info.packages.length, $info.minutes )
-    Write-Host ( "{0} packages updated and {1} pushed." -f $info.updated, $info.pushed )
-    Write-Host ( "{0} total errors - {1} update, {2} push." -f $info.error_count.total, $info.error_count.update, $info.error_count.push )
-    if ($Options.Script) { Write-Host "$script_err user script errors" }
+function get-errorinfo {
+    $info.errors | % {
+        $s = "`nPackage: " + $_.PackageName + "`n"
+        $s += $_.Error | out-string
+        $s
+    }
+}
+
+function get-stats {
+    "`nFinished {0} packages after {1} minutes." -f $info.packages.length, $info.minutes
+    "{0} packages updated and {1} pushed." -f $info.updated, $info.pushed
+    "{0} total errors - {1} update, {2} push." -f $info.error_count.total, $info.error_count.update, $info.error_count.push
+    if ($Options.Script) { "$script_err user script errors" }
 }
 
 function send-mail($Mail, $Body) {
