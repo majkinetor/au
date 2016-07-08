@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 07-Jul-2016.
+# Last Change: 08-Jul-2016.
 
 <#
 .SYNOPSIS
@@ -169,7 +169,7 @@ function get-info {
 function show-stats {
     Write-Host ( "`nFinished {0} packages after {1} minutes." -f $info.packages.length, $info.minutes )
     Write-Host ( "{0} packages updated and {1} pushed." -f $info.updated, $info.pushed )
-    Write-Host ( "{0} total errors; {1} update, {0} push" -f $info.error_count.total, $info.error_count.update, $info.error_count.push )
+    Write-Host ( "{0} total errors - {1} update, {0} push." -f $info.error_count.total, $info.error_count.update, $info.error_count.push )
     if ($Options.Script) { Write-Host "There are $script_err user script errors" }
 }
 
