@@ -22,22 +22,22 @@ function Update-AUPackages {
         # Filter package names. Supports globs.
         [string] $Name,
 
-        # Hashtable with options
-        # Available options:
-        #  Threads - Number of background jobs to use, by default 10
-        #  Timeout - WebRequest timeout in seconds, by default 100
-        #  Push    - Set to true to push updated packages to chocolatey repository
-        #  Mail    - Hashtable with mail notification options: To, Server, UserName, Password, Port, EnableSsl
-        #  Script  - Specify script to be executed at the start and after update. Script accepts two arguments:
-        #               $PHASE  - can be 'start' or 'end'
-        #               $ARG    - in start phase it is list of packages to be updated;
-        #                         in end phase it is info object that contains various info about previous run;
+        <#
+        Hashtable with options:
+          Threads     - Number of background jobs to use, by default 10
+          Timeout     - WebRequest timeout in seconds, by default 100
+          Push        - Set to true to push updated packages to chocolatey repository
+          Mail        - Hashtable with mail notification options: To, Server, UserName, Password, Port, EnableSsl
+          Script      - Specify script to be executed at the start and after the update. Script accepts two arguments:
+                          $PHASE  - can be 'start' or 'end'
+                          $ARG    - in start phase it is the list of packages to be updated;
+                                    in end phase it is the info object that contains information about the previous run;
+        #>
         [HashTable] $Options=@{}
     )
 
     $cd = $pwd
     $startTime = Get-Date
-    Write-Host 'Updating all automatic packages:' $startTime
 
     if (!$Options.Threads) { $Options.Threads = 10}
     if (!$Options.Timeout) { $Options.Timeout = 100 }
@@ -50,11 +50,13 @@ function Update-AUPackages {
     $aup = Get-AUPackages $Name
     $j = 0
 
+    Write-Host 'Updating' $aup.Length  'automatic packages at' $startTime
+
     if ($Options.Script) { try { & $Options.Script 'START' $aup | Write-Host } catch { Write-Error $_; $script_err += 1 } }
     Remove-Job * -force
     while( $true ) {
 
-        # Check for complted jobs
+        # Check for completed jobs
         Get-Job | ? state -ne 'Running' | % {
             $job = $_
 
@@ -69,7 +71,7 @@ function Update-AUPackages {
 
                 $i.Result  = Receive-Job $_ -ErrorAction SilentlyContinue -ErrorVariable err
                 $i.Error   = $err
-                $i.Updated = $false
+                $i.Updated = $i.Pushed = $false
                 if ($i.Result)
                 {
                     $i.Updated       = $i.Result -contains 'Package updated'
@@ -125,63 +127,69 @@ function Update-AUPackages {
             $res
         } | out-null
     }
+    $result = $result | sort PackageName
 
     $info = get-info
     if ($Options.Script) { try { & $Options.Script 'END' $info | Write-Host } catch { Write-Error $_; $script_err += 1 } }
 
     show-stats
-
-    # Send email
-    if ($error_no -and $Options.Mail) {
-        $body = "$error_no errors during update`n`n"
-        $body +=  $errors | % {
-            $s = "`nPackage: " + $_.PackageName + "`n"
-            $s += $_.Error | out-string
-            $s
-        }
-        try {
-            send-mail $Options.Mail $body -ea Stop
-            Write-Host ("Mail with errors sent to " + $Options.Mail.To)
-        } catch { Write-Error $_ }
-    }
+    send-notification
 
     $result
 }
 
+function send-notification() {
+    if (!($info.error_count.total -and $Options.Mail)) { return }
+
+    $body = "$($info.error_count.total) errors during update`n"
+    $body += "Attachment contains complete output of the run, you can load it using Import-CliXML cmdlet.`n`n"
+    $body +=  $info.errors | % {
+        $s = "`nPackage: " + $_.PackageName + "`n"
+        $s += $_.Error | out-string
+        $s
+    }
+
+    try {
+        send-mail $Options.Mail $body -ea Stop
+        Write-Host ("Mail with errors sent to " + $Options.Mail.To)
+    } catch { Write-Error $_ }
+}
+
 function get-info {
-    $errors   = $result | ? { $_.Error.Length }
+    $errors = $result | ? { $_.Error.Length }
     $info = [PSCustomObject]@{
         errors = $errors
         error_count = [PSCustomObject]@{
-            update  = $errors | ? !Updated | measure | % count
+            update  = $errors | ? {!$_.Updated} | measure | % count
             push    = $errors | ? {$_.Updated -and !$_.Pushed} | measure | % count
             total   = $errors | measure | % count
         }
-        minutes  = ((Get-Date) - $startTime).TotalMinutes.ToString('#.##')
-        packages = $aup
-        pushed   = $result | ? Pushed | measure | % count
-        updated  = $result | ? Updated | measure | % count
-        result   = $result
+        startTime = $startTime
+        minutes   = ((Get-Date) - $startTime).TotalMinutes.ToString('#.##')
+        packages  = $aup
+        pushed    = $result | ? Pushed  | measure | % count
+        updated   = $result | ? Updated | measure | % count
+        result    = $result
     }
-    return $info
+    $info
 }
 
 function show-stats {
     Write-Host ( "`nFinished {0} packages after {1} minutes." -f $info.packages.length, $info.minutes )
     Write-Host ( "{0} packages updated and {1} pushed." -f $info.updated, $info.pushed )
-    Write-Host ( "{0} total errors - {1} update, {0} push." -f $info.error_count.total, $info.error_count.update, $info.error_count.push )
-    if ($Options.Script) { Write-Host "There are $script_err user script errors" }
+    Write-Host ( "{0} total errors - {1} update, {2} push." -f $info.error_count.total, $info.error_count.update, $info.error_count.push )
+    if ($Options.Script) { Write-Host "$script_err user script errors" }
 }
 
 function send-mail($Mail, $Body) {
     $from = "Update-AUPackages@{0}.{1}" -f $Env:UserName, $Env:ComputerName
     $msg  = New-Object System.Net.Mail.MailMessage $from, $Mail.To
-    $msg.Subject    = "$error_no errors during update"
+    $msg.Subject    = "$($info.error_count.total) errors during update"
     $msg.IsBodyHTML = $true
     $msg.Body       = "<body><pre>$Body</pre></body>"
 
-    $result | Export-CliXML "$Env:TEMP\au_result.xml"
-    $attachment = new-object Net.Mail.Attachment( "$Env:TEMP\au_result.xml" )
+    $info | Export-CliXML "$Env:TEMP\au_info.xml"
+    $attachment = new-object Net.Mail.Attachment( "$Env:TEMP\au_info.xml" )
     $msg.Attachments.Add($attachment)
 
     $smtp = new-object Net.Mail.SmtpClient($Mail.Server)
