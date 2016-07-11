@@ -51,7 +51,7 @@ If check fails, package will not be updated. To skip URL checks you can specify 
 Updating all packages
 ---------------------
 
-You can update all packages and optionally push them to the chocolatey repository with a single command. For push to work, specify your API key in the file `api_key` in the script's directory.
+You can update all packages and optionally push them to the chocolatey repository with a single command. For push to work, specify your API key in the file `api_key` in the script's directory (or its parent directory) or set environment variable `$Env:api_key`.
 
 Function `Update-AUPackages` will iterate over `update.ps1` scripts and execute each. If it detects that package is updated it will `cpack` it and push it. 
 

@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 08-Jul-2016.
+# Last Change: 11-Jul-2016.
 
 <#
 .SYNOPSIS
@@ -168,6 +168,7 @@ function get-info {
         updated   = $result | ? Updated | measure | % count
         result    = $result
         stats     = ''
+        options   = $Options
     }
     $info.stats = get-stats
     $info.error_info = get-errorinfo
