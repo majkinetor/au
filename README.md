@@ -38,7 +38,25 @@ Creating the package updater script
 
 This is best understood via the [example](https://github.com/majkinetor/chocolatey/blob/master/dngrep/update.ps1).
 
-With this set, you can call individual `update.ps1` from within its directory to update that specific package.
+With this set, you can call individual `update.ps1` from within its directory to update that specific package:
+
+```
+PS c:\chocolatey\dbeaver> ./update.ps1
+
+dbeaver - checking updates
+nuspec version: 3.6.1
+remote version: 3.7.1
+New version is available
+Updating files
+  dbeaver.nuspec
+    updating version:  3.6.1 -> 3.7.1
+  .\tools\chocolateyInstall.ps1
+    (^[$]url32\s*=\s*)('.*') = $1'http://dbeaver.jkiss.org/files/3.7.1/dbeaver-ee-3.7.1-x86-setup.exe'
+    (^[$]url64\s*=\s*)('.*') = $1'http://dbeaver.jkiss.org/files/3.7.1/dbeaver-ee-3.7.1-x86_64-setup.exe'
+Attempting to build package from 'dbeaver.nuspec'.
+Successfully created package 'dbeaver.3.7.1.nupkg'
+Package updated
+```
 
 ### Checks
 
