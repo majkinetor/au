@@ -134,7 +134,7 @@ Other functions
 
 Apart from the functions used in the updating process, there are few suggars for regular maintenance of the package:
 
-- Test-Package
+- Test-Package  
 Quickly cpack and install the package from the current directory.
 
 - Push-Package (alias `pp`)  
