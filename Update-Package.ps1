@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 28-Jun-2016.
+# Last Change: 13-Jul-2016.
 
 <#
 .SYNOPSIS
@@ -78,7 +78,7 @@ function Update-Package {
                 if ($Timeout)  { $request.Timeout = $Timeout*1000 }
 
                 $response = $request.GetResponse()
-                if ($response.ContentType -like '*text/html*') { $res = $false; $err='Latest $packageName URL content type is text/html' }
+                if ($response.ContentType -like '*text/html*') { $res = $false; $err="Latest $packageName URL content type is text/html" }
                 else { $res = $true }
             }
             catch {
