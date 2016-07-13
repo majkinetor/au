@@ -1,20 +1,17 @@
-Automatic Chocolatey Package Update Module
-==========================================
+# Automatic Chocolatey Package Update Module
 
 This Powershell module implements functions that can be used to automate [Chocolatey](https://chocolatey.org) package updates.
 
 It can be used instead of the [official method](https://github.com/chocolatey/choco/wiki/AutomaticPackages).
 
-Installation
-------------
+## Installation
 
 On Powershell 5+: `Install-Module au`.
 Otherwise, copy Powershell module to any of the directories in the `$Env:PSModulePath`.
 
 **NOTE**: All module functions work from within specific root folder. The folder contains all of your chocolatey packages.
 
-Creating the package updater script
------------------------------------
+## Creating the package updater script
 
 - In the package directory, create the script `update.ps1`.
 - Import the module: `import-module au`
@@ -67,8 +64,7 @@ The function does some rudimentary verifications of URLs and version strings:
 
 If check fails, package will not be updated. To skip URL checks you can specify `-NoUrlCheck` argument to the `update` function.
 
-Updating all packages
----------------------
+## Updating all packages
 
 You can update all packages and optionally push them to the chocolatey repository with a single command. For push to work, specify your API key in the file `api_key` in the script's directory (or its parent directory) or set environment variable `$Env:api_key`.
 
@@ -130,8 +126,14 @@ Use the following code in the directory where your `update_all.ps1` script is fo
 
 <img src="update.gif" width="50%" />
 
-Other functions
----------------
+
+### Custom script
+
+It is possible to specify custom user script in Update-AUPackages `Options` parameter (key `Options.Script`) that will be called before and after update. The script receives two arguments: `$Phase` and `$Info`. Currently phase can be one of the words `start` or `end`. Info contains all details about that run. Use `$Info | Get-Members` to see what information is available.
+
+The purpose of this function is to attach custom logic at the end of the process (save results to gist, push to git or svn etc.).
+
+## Other functions
 
 Apart from the functions used in the updating process, there are few suggars for regular maintenance of the package:
 
@@ -139,7 +141,7 @@ Apart from the functions used in the updating process, there are few suggars for
 Quickly cpack and install the package from the current directory.
 
 - Push-Package (alias `pp`)  
-Push the latest package using API key in the api_key file.
+Push the latest package using your API key.
 
 - Get-AuPackages (alias `gau`)  
 Returns the list of the packages which have `update.ps1` script in its directory and which name doesn't start with '_'.

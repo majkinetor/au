@@ -67,7 +67,6 @@ function Update-AUPackages {
         Get-Job | ? state -ne 'Running' | % {
             $job = $_
 
-
             if ( 'Failed', 'Completed' -notcontains $job.State) { 
                 Write-Host "Invalid job state for $($job.Name): " + $job.State 
             }
@@ -101,7 +100,7 @@ function Update-AUPackages {
                 if ($i.Error) {
                     #When packages ./update.ps1 fails no nuspec version is available in the output
                     $nuspecFile = "$pwd\{0}\{0}.nuspec" -f $i.PackageName
-                    $i.NuspecVersion = Load-NuspecFile($nuspecFile).package.metadata.version
+                    $i.NuspecVersion = (Load-NuspecFile($nuspecFile)).package.metadata.version
 
                     Write-Host "   $($i.PackageName) ERROR:"
                     $i.Error[0].ToString() -split "`n" | % { Write-Host (' '*5 + $_) }
@@ -143,7 +142,7 @@ function Update-AUPackages {
     $info = get-info
     if ($Options.Script) { try { & $Options.Script 'END' $info | Write-Host } catch { Write-Error $_; $script_err += 1 } }
 
-    $info.stats | Write-Host
+    "", $info.stats | Write-Host
     send-notification
 
     $result
@@ -154,7 +153,7 @@ function send-notification() {
 
     $body = "$($info.error_count.total) errors during update`n"
     $body += "Attachment contains complete output of the run, you can load it using Import-CliXML cmdlet.`n`n"
-    $body += get-errorinfo
+    $body += $info.error_info
 
     try {
         send-mail $Options.Mail $body -ea Stop
@@ -165,41 +164,43 @@ function send-notification() {
 function get-info {
     $errors = $result | ? { $_.Error.Length }
     $info = [PSCustomObject]@{
-        errors = $errors
+        result = [PSCustomObject]@{
+            all     = $result
+            errors  = $errors
+            ok      = $result | ? { !$_.Error.Length }
+            pushed  = $result | ? Pushed
+            updated = $result | ? Updated
+        }
+
         error_count = [PSCustomObject]@{
             update  = $errors | ? {!$_.Updated} | measure | % count
             push    = $errors | ? {$_.Updated -and !$_.Pushed} | measure | % count
             total   = $errors | measure | % count
         }
-        error_info = ''
+        error_info  = ''
+
+        packages  = $aup
         startTime = $startTime
         minutes   = ((Get-Date) - $startTime).TotalMinutes.ToString('#.##')
-        packages  = $aup
         pushed    = $result | ? Pushed  | measure | % count
         updated   = $result | ? Updated | measure | % count
-        result    = $result
         stats     = ''
         options   = $Options
     }
     $info.stats = get-stats
-    $info.error_info = get-errorinfo
+    $info.error_info = $errors | % {
+        $s = "`nPackage: " + $_.PackageName + "`n"
+        $_.Error | out-string
+    }
 
     $info
 }
 
-function get-errorinfo {
-    $info.errors | % {
-        $s = "`nPackage: " + $_.PackageName + "`n"
-        $s += $_.Error | out-string
-        $s
-    }
-}
-
 function get-stats {
-    "`nFinished {0} packages after {1} minutes." -f $info.packages.length, $info.minutes
+    "Finished {0} packages after {1} minutes." -f $info.packages.all.length, $info.minutes
     "{0} packages updated and {1} pushed." -f $info.updated, $info.pushed
     "{0} total errors - {1} update, {2} push." -f $info.error_count.total, $info.error_count.update, $info.error_count.push
-    if ($Options.Script) { "$script_err user script errors" }
+    if ($Options.Script) { "$script_err user script errors." }
 }
 
 function send-mail($Mail, $Body) {
