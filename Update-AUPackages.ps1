@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 11-Jul-2016.
+# Last Change: 13-Jul-2016.
 
 <#
 .SYNOPSIS
@@ -35,6 +35,13 @@ function Update-AUPackages {
         #>
         [HashTable] $Options=@{}
     )
+
+    function Load-NuspecFile() {
+        $nu = New-Object xml
+        $nu.psbase.PreserveWhitespace = $true
+        $nu.Load($nuspecFile)
+        $nu
+    }
 
     $cd = $pwd
     $startTime = Get-Date
@@ -92,6 +99,10 @@ function Update-AUPackages {
                 }
 
                 if ($i.Error) {
+                    #When packages ./update.ps1 fails no nuspec version is available in the output
+                    $nuspecFile = "$pwd\{0}\{0}.nuspec" -f $i.PackageName
+                    $i.NuspecVersion = Load-NuspecFile($nuspecFile).package.metadata.version
+
                     Write-Host "   $($i.PackageName) ERROR:"
                     $i.Error[0].ToString() -split "`n" | % { Write-Host (' '*5 + $_) }
                 }

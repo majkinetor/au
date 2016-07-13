@@ -33,6 +33,7 @@ Creating the package updater script
         file_path2 = @{ ... }
     }
   ~~~
+  The function can use `$Latest` hashtable to get any type of information obtained when `au_GetLatest` was executed. Besides this info, the script can access `$global:nuspec_version`.
 
 - Call the `Update-Package` (alias `update`) function from the `au` module to update the package.
 
