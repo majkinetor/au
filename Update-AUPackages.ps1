@@ -142,7 +142,7 @@ function Update-AUPackages {
     $info = get-info
     if ($Options.Script) { try { & $Options.Script 'END' $info | Write-Host } catch { Write-Error $_; $script_err += 1 } }
 
-    "", $info.stats | Write-Host
+    @('') + $info.stats + '' | Write-Host
     send-notification
 
     $result
@@ -197,7 +197,7 @@ function get-info {
 }
 
 function get-stats {
-    "Finished {0} packages after {1} minutes." -f $info.packages.all.length, $info.minutes
+    "Finished {0} packages after {1} minutes." -f $info.packages.length, $info.minutes
     "{0} packages updated and {1} pushed." -f $info.updated, $info.pushed
     "{0} total errors - {1} update, {2} push." -f $info.error_count.total, $info.error_count.update, $info.error_count.push
     if ($Options.Script) { "$script_err user script errors." }
