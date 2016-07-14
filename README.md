@@ -2,7 +2,7 @@
 
 This Powershell module implements functions that can be used to automate [Chocolatey](https://chocolatey.org) package updates.
 
-It can be used instead of the [official method](https://github.com/chocolatey/choco/wiki/AutomaticPackages).
+The learn more about automatic packages for Chocolatey please refer to the relevant [documentation](https://github.com/chocolatey/choco/wiki/AutomaticPackages).
 
 ## Installation
 
