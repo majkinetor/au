@@ -14,12 +14,12 @@ Otherwise, copy Powershell module to any of the directories in the `$Env:PSModul
 ## Creating the package updater script
 
 - In the package directory, create the script `update.ps1`.
-- Import the module: `import-module au`
+- Import the module: `import-module au`.
 - Implement two global functions:
   - `global:au_GetLatest`   
-  Function returns HashTable with the latest remote version along with other arbitrary user data which you can use elsewhere (for instance in search and replace). The returned version is then compared to the one in the nuspec file and if they are different, the files will be updated. This hashtable is available via global variable `$Latest`.
+  Function returns HashTable with the latest remote version along with other arbitrary user data which you can use elsewhere (for instance in search and replace). The returned version is then compared to the one in the nuspec file and if remote version is higher, the files will be updated. This hashtable is available via global variable `$Latest`.
   - `global:au_SearchReplace`  
-  Function returns HashTable containing search and replace data for any file in the form: 
+  Function returns HashTable containing search and replace data for any package file in the form: 
   ~~~
     @{ 
         file_path1 = @{ 
@@ -36,7 +36,7 @@ Otherwise, copy Powershell module to any of the directories in the `$Env:PSModul
 
 This is best understood via the [example](https://github.com/majkinetor/chocolatey/blob/master/dngrep/update.ps1).
 
-With this set, you can call individual `update.ps1` from within its directory to update that specific package:
+With this set, you can update individual packages by calling appropriate `update.ps1` from within package directory:
 
 ```
 PS c:\chocolatey\dbeaver> ./update.ps1
@@ -62,13 +62,13 @@ The function does some rudimentary verifications of URLs and version strings:
 - Version will be checked to match a valid nuspec pattern
 - Any hash key that contains word `url`, will be checked for existence and MIME textual type (since binary is expected here)
 
-If check fails, package will not be updated. To skip URL checks you can specify `-NoUrlCheck` argument to the `update` function.
+If check fails, package will not be updated. To skip URL checks you can specify `-NoCheckUrl` argument to the `update` function.
 
 ## Updating all packages
 
-You can update all packages and optionally push them to the chocolatey repository with a single command. For push to work, specify your API key in the file `api_key` in the script's directory (or its parent directory) or set environment variable `$Env:api_key`.
+You can update all packages and optionally push them to the chocolatey repository with a single command.Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each. If it detects that package is updated it will `cpack` it and push it. 
 
-Function `Update-AUPackages` will iterate over `update.ps1` scripts and execute each. If it detects that package is updated it will `cpack` it and push it. 
+For push to work, specify your API key in the file `api_key` in the script's directory (or its parent directory) or set environment variable `$Env:api_key`.
 
 This function is designed for scheduling. You can pass it a number of options, save a script and call it via task scheduler. For example, you can get notified about possible errors during packages update procedure - if the update procedure fails for any reasons there is an option to send an email with results as an attachment in order to investigate the problem. 
 
@@ -91,7 +91,7 @@ You can use the following script as a prototype - `update_all.ps1`:
         }
     }
 
-    Update-AUPackages -Name $Name -Options $options | Export-CliXML update_results.xml
+    Update-AUPackages -Name $Name -Options $options | Export-CliXML update_info.xml
 
 Use function parameter `Name` to specify package names via glob, for instance "d*" would update only packages which names start with the letter 'd'. Add `Push` among options to push sucesifully built packages to the chocolatey repository. The result may look like this:
 
@@ -115,11 +115,11 @@ Use function parameter `Name` to specify package names via glob, for instance "d
 
     Mail with errors sent to meh@gmail.com
 
-The email attachment is a `$result` object that keeps all the information about each package which happened during update. It can be loaded with `Import-CliXml` and inspected.
+The email attachment is a `$info` object that keeps all the information about that particular run, such as what happened to each package during update, how long the operation took etc. It can be loaded with `Import-CliXml result_info.xml` and inspected.
 
-Take a look at [real life example](https://gist.github.com/majkinetor/181b18886fdd363158064baf817fa2ff).
+Take a look at [real life example](https://gist.github.com/majkinetor/181b18886fdd363158064baf817fa2ff) of the update_all.ps1 script.
 
-Use the following code in the directory where your `update_all.ps1` script is found to install scheduled task:
+To make a local scheduled task, use the following code in the directory where your `update_all.ps1` script is found to install it:
 
     $At = '03:00'
     schtasks /create /tn "Update-AUPackages" /tr "powershell -File '$pwd\update_all.ps1'" /sc daily /st $At
@@ -129,9 +129,9 @@ Use the following code in the directory where your `update_all.ps1` script is fo
 
 ### Custom script
 
-It is possible to specify custom user script in Update-AUPackages `Options` parameter (key `Options.Script`) that will be called before and after update. The script receives two arguments: `$Phase` and `$Info`. Currently phase can be one of the words `start` or `end`. Info contains all details about that run. Use `$Info | Get-Members` to see what information is available.
+It is possible to specify custom user script in Update-AUPackages `Options` parameter (key `Options.Script`) that will be called before and after the update. The script receives two arguments: `$Phase` and `$Arg`. Currently phase can be one of the words `start` or `end`. Arg contains list of packages to be checked in the start phase and `info` object in the 'end' phase which contains all the details about that run. Use `$Arg | Get-Members` to see what kind of information is available.
 
-The purpose of this function is to attach custom logic at the end of the process (save results to gist, push to git or svn etc.).
+The purpose of this script is to attach custom logic at the end of the process (save results to gist, push to git or svn etc.).
 
 ## Other functions
 
