@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 13-Jul-2016.
+# Last Change: 17-Jul-2016.
 
 <#
 .SYNOPSIS
@@ -22,10 +22,10 @@
 
     - Update the nuspec with the latest version
     - Do the necessary file replacements
-    - Check the returned URLs and Versions for validity (unless NoCheckUrl is specified)
+    - Check the returned URLs and Versions for validity (unless NoCheckXXX variables are specified)
     - Pack the files into the nuget package
 
-    You can also define au_BeforeUpdate and au_AfterUpdate function to integrate your code into the
+    You can also define au_BeforeUpdate and au_AfterUpdate functions to integrate your code into the
     update pipeline.
 .EXAMPLE
     PS> notepad update.ps1
@@ -55,6 +55,9 @@ function Update-Package {
         #Do not check URL and version for validity.
         [switch] $NoCheckUrl,
 
+        #Do not check if latest returned version already exists in the Chocolatey repository.
+        [switch] $NoCheckChocoVersion,
+
         #Timeout for all web operations. The default can be specified in global variable $global:au_timeout
         #If not specified at all it defaults to 100 seconds.
         [int]    $Timeout
@@ -70,14 +73,9 @@ function Update-Package {
     function check_url() {
         $Latest.Keys | ? {$_ -like 'url*' } | % {
             $url = $Latest[ $_ ]
-            if ([string]::IsNullOrWhiteSpace($url)) {throw 'Latest $packageName URL is empty'}
             try
             {
-                $request  = [System.Net.HttpWebRequest]::Create($url)
-                if (!$Timeout) { $Timeout = $global:au_timeout }
-                if ($Timeout)  { $request.Timeout = $Timeout*1000 }
-
-                $response = $request.GetResponse()
+                $response = request $url
                 if ($response.ContentType -like '*text/html*') { $res = $false; $err="Latest $packageName URL content type is text/html" }
                 else { $res = $true }
             }
@@ -90,6 +88,13 @@ function Update-Package {
         }
     }
 
+    function request( $url ) {
+        if ([string]::IsNullOrWhiteSpace($url)) {throw 'The URL is empty'}
+        $request = [System.Net.HttpWebRequest]::Create($url)
+        if ($Timeout)  { $request.Timeout = $Timeout*1000 }
+        $request.GetResponse()
+    }
+
     function check_version() {
         $re = '^(\d+)(\.\d+){0,3}$'
         if ($Latest.Version -notmatch $re) { throw "Latest $packageName version doesn't match the pattern '$re': '$($Latest.Version)'" }
@@ -100,6 +105,8 @@ function Update-Package {
         [version]($latest_version) -gt [version]($nuspec_version)
     }
 
+
+    if (!$Timeout) { $Timeout = $global:au_timeout }
 
     $packageName = Split-Path $pwd -Leaf
     $nuspecFile = gi "$packageName.nuspec" -ea ig
@@ -120,7 +127,18 @@ function Update-Package {
 
     "nuspec version: $nuspec_version"
     "remote version: $latest_version"
+
     if (!(updated)) { 'No new version found'; return }
+
+    if (!$NoCheckChocolatey) {
+        $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $packageName, $latest_version
+        try {
+            request $choco_url | out-null
+            "New version is available but it already exists in chocolatey:`n  $choco_url"
+            return
+        } catch { }
+    }
+
     'New version is available'
 
     $sr = au_SearchReplace
