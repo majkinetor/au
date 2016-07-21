@@ -107,6 +107,8 @@ function Update-Package {
 
 
     if (!$Timeout) { $Timeout = $global:au_timeout }
+    if ($PSBoundParameters.Keys -notcontains 'NoCheckChocoVersion') { if ($global:NoCheckChocoVersion) { $NoCheckChocoVersion = $global:NoCheckChocoVersion } }
+    if ($PSBoundParameters.Keys -notcontains 'NoCheckUrl') { if ($global:NoCheckUrl) { $NoCheckUrl = $global:NoCheckUrl } }
 
     $packageName = Split-Path $pwd -Leaf
     $nuspecFile = gi "$packageName.nuspec" -ea ig
@@ -130,7 +132,7 @@ function Update-Package {
 
     if (!(updated)) { 'No new version found'; return }
 
-    if (!$NoCheckChocolatey) {
+    if (!$NoCheckChocoVersion) {
         $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $packageName, $latest_version
         try {
             request $choco_url | out-null

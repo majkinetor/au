@@ -67,9 +67,9 @@ If check fails, package will not be updated. To skip URL checks you can specify 
 
 ## Updating all packages
 
-You can update all packages and optionally push them to the chocolatey repository with a single command.Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each. If it detects that package is updated it will `cpack` it and push it. 
+You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each. If it detects that package is updated it will try to push it. 
 
-For push to work, specify your API key in the file `api_key` in the script's directory (or its parent directory) or set environment variable `$Env:api_key`.
+For push to work, specify your Choocolatey API key in the file `api_key` in the script's directory (or its parent directory) or set environment variable `$Env:api_key`.
 
 This function is designed for scheduling. You can pass it a number of options, save a script and call it via task scheduler. For example, you can get notified about possible errors during packages update procedure - if the update procedure fails for any reasons there is an option to send an email with results as an attachment in order to investigate the problem. 
 
@@ -146,3 +146,7 @@ Push the latest package using your API key.
 
 - Get-AuPackages (alias `gau`)  
 Returns the list of the packages which have `update.ps1` script in its directory and which name doesn't start with '_'.
+
+---
+
+**License**: [MIT](https://opensource.org/licenses/MIT)
