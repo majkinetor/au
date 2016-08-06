@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 17-Jul-2016.
+# Last Change: 06-Aug-2016.
 
 <#
 .SYNOPSIS
@@ -20,10 +20,13 @@
 
     With those 2 functions defined, calling Update-Package will:
 
-    - Update the nuspec with the latest version
-    - Do the necessary file replacements
-    - Check the returned URLs and Versions for validity (unless NoCheckXXX variables are specified)
-    - Pack the files into the nuget package
+    - Call your au_GetLatest function to get remote version. It will also set $nuspec_version.
+    - If remote version is higher then the nuspec version:
+        - Check the returned URLs and Versions for validity (unless NoCheckXXX variables are specified).
+        - Download files and calculate the checksum, (unless Checksum is set to '').
+        - Update the nuspec with the latest version.
+        - Do the necessary file replacements.
+        - Pack the files into the nuget package.
 
     You can also define au_BeforeUpdate and au_AfterUpdate functions to integrate your code into the
     update pipeline.
@@ -44,7 +47,7 @@
         $url = $download_page.links | ? href -match $re | select -First 1 -expand href
         $version = $url -split '-|.exe' | select -Last 1 -Skip 2
 
-        return $Latest = @{ URL = $url; Version = $version }
+        return @{ URL = $url; Version = $version }
     }
 
     Update-Package
@@ -58,9 +61,14 @@ function Update-Package {
         #Do not check if latest returned version already exists in the Chocolatey repository.
         [switch] $NoCheckChocoVersion,
 
+        #Specify checksum type, this requires elevation as AU will patch the choco Get-WebFile function temporarilly.
+        [ValidateSet('all', 'x32', 'x64', '')]
+        [string] $Checksum='all',
+
         #Timeout for all web operations. The default can be specified in global variable $global:au_timeout
         #If not specified at all it defaults to 100 seconds.
         [int]    $Timeout
+
     )
 
     function Load-NuspecFile() {
@@ -105,6 +113,52 @@ function Update-Package {
         [version]($latest_version) -gt [version]($nuspec_version)
     }
 
+    function get_checksum() {
+        "Determining checksum(s)"
+
+        # Patch Get-WebFile
+        $choco_tmp_path = "$Env:TEMP\chocolatey\au\chocolatey"
+        rm -recurse -ea ignore $choco_tmp_path
+        cp -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
+        cp -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions
+
+        $fun_path = "$choco_tmp_path\helpers\functions\Get-WebFile.ps1"
+        (gc $fun_path) -replace "^}", "  throw 'au_dummy'`n}" | sc $fun_path
+
+        # Clear TMP
+        $pkg_path = "$Env:TEMP\chocolatey\$packageName"
+        Import-Module "$choco_tmp_path\helpers\chocolateyInstaller.psm1" -Force
+        $env:chocolateyPackageName = "chocolatey\$packageName"
+
+        if (('all','x64') -contains $Checksum) {
+            $env:chocolateyForceX86 = ''
+            try {
+                rm -force -recurse -ea ignore $pkg_path
+                .\tools\chocolateyInstall.ps1
+            } catch {
+                if ( "$_" -ne 'au_dummy') { throw $_ } else {
+                    $item = gi $pkg_path\*
+                    $global:Latest.Checksum64 = Get-FileHash $item | % Hash
+                    "Package downloaded and hash calculated for 64x version"
+                }
+            }
+        }
+
+        if (('all','x32') -contains $Checksum) {
+            $env:chocolateyForceX86 = 'true'
+            try {
+                rm -force -recurse -ea ignore $pkg_path
+                .\tools\chocolateyInstall.ps1
+            } catch {
+                if ( "$_" -ne 'au_dummy') { throw $_ } else {
+                    $item = gi $pkg_path\*
+                    $global:Latest.Checksum32 = Get-FileHash $item | % Hash
+                    "Package downloaded and hash calculated for 32x version"
+                }
+            }
+        }
+    }
+
 
     if (!$Timeout) { $Timeout = $global:au_timeout }
     if ($PSBoundParameters.Keys -notcontains 'NoCheckChocoVersion') { if ($global:NoCheckChocoVersion) { $NoCheckChocoVersion = $global:NoCheckChocoVersion } }
@@ -114,11 +168,11 @@ function Update-Package {
     $nuspecFile = gi "$packageName.nuspec" -ea ig
     if (!$nuspecFile) {throw 'No nuspec file' }
     $nu = Load-NuspecFile
-    $global:nuspec_version = $nu.package.metadata.version
+    $nuspec_version = $nu.package.metadata.version
 
     "$packageName - checking updates"
     try {
-        $global:Latest  = au_GetLatest
+        $global:Latest = au_GetLatest
     } catch {
         throw "au_GetLatest failed`n$_"
     }
@@ -143,6 +197,8 @@ function Update-Package {
 
     'New version is available'
 
+    if ($Checksum) { get_checksum }
+  
     $sr = au_SearchReplace
     if (Test-Path Function:\au_BeforeUpdate) {
         'Running au_BeforeUpdate'
