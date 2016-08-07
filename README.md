@@ -67,6 +67,34 @@ The function does some rudimentary verifications of URLs and version strings:
 
 If check fails, package will not be updated. To skip URL checks you can specify `-NoCheckUrl` argument to the `update` function.
 
+
+### Automatic checksums
+
+When new version is available, the `update` function will by default download both x32 and x64 versions of the installer and calculate the SHA256 checksum. It will inject this info in the `$global:Latest` variable so you can use it in `au_SearchReplace` to update hashes. The parameter `ChecksumFor` can contain words 'all', 'none', '32' and '64' to further control this behavior. 
+
+You can disable this feature by calling update like this:
+
+    update -ChecksumFor none
+
+**NOTE**: For this feature to work chocolatey must download the package in `"$Env:TMP\chocolatey\$packageName\$Env:chocolateyPackageVersion"`
+
+
+### Force update
+
+You can force the update even if no new version is found by using the parameter `Force`. This can be useful for recalculating the checksum after the package is created and already pushed to Chocolatey or if URLs to installer changed without version.
+
+
+### Global variables
+
+To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up `update` parameters via global variables. As an example, the following code will change the update behavior so that the new package version is not searched on the Chocolatey site and update is forced: 
+
+    $au_NoCheckChocoVersion = $au_Force = $true
+    ./update.ps1
+
+This is the same as if you added the parameters to `update` function inside the `./update.ps1` script:
+
+    update -NoCheckChocoVersion -Force
+
 ## Updating all packages
 
 You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each. If it detects that package is updated it will try to push it. 

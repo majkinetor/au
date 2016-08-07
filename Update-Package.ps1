@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 06-Aug-2016.
+# Last Change: 07-Aug-2016.
 
 <#
 .SYNOPSIS
@@ -23,7 +23,7 @@
     - Call your au_GetLatest function to get remote version. It will also set $nuspec_version.
     - If remote version is higher then the nuspec version:
         - Check the returned URLs and Versions for validity (unless NoCheckXXX variables are specified).
-        - Download files and calculate the checksum, (unless Checksum is set to '').
+        - Download files and calculate the checksum, (unless ChecksumFor is set to 'none').
         - Update the nuspec with the latest version.
         - Do the necessary file replacements.
         - Pack the files into the nuget package.
@@ -34,10 +34,14 @@
     PS> notepad update.ps1
     # The following script is used to update the package from the github releases page.
     # Once it defines the 2 functions, it calls the Update-Package.
+    # Checksums are automatically calculated for 32 bit version (the only one in this case)
     import-module au
 
     function global:au_SearchReplace {
-        @{".\tools\chocolateyInstall.ps1" = @{ "(^[$]url\s*=\s*)('.*')" = "`$1'$($Latest.URL)'" }}
+        ".\tools\chocolateyInstall.ps1" = @{
+            "(^[$]url32\s*=\s*)('.*')"      = "`$1'$($Latest.URL32)'"
+            "(^[$]checksum32\s*=\s*)('.*')" = "`$1'$($Latest.Checksum32)'"
+        }
     }
 
     function global:au_GetLatest {
@@ -47,28 +51,33 @@
         $url = $download_page.links | ? href -match $re | select -First 1 -expand href
         $version = $url -split '-|.exe' | select -Last 1 -Skip 2
 
-        return @{ URL = $url; Version = $version }
+        return @{ URL32 = $url; Version = $version }
     }
 
-    Update-Package
+    Update-Package -ChecksumFor 32
 #>
 function Update-Package {
     [CmdletBinding()]
     param(
         #Do not check URL and version for validity.
+        #Defaults to global variable $au_NoCheckUrl if not specified.
         [switch] $NoCheckUrl,
 
         #Do not check if latest returned version already exists in the Chocolatey repository.
+        #Defaults to global variable $au_NoCheckChocoVersion if not specified.
         [switch] $NoCheckChocoVersion,
 
-        #Specify checksum type, this requires elevation as AU will patch the choco Get-WebFile function temporarilly.
-        [ValidateSet('all', 'x32', 'x64', '')]
-        [string] $Checksum='all',
+        #Specify for which architectures to calculate checksum - all, 32 bit, 64 bit or none.
+        [ValidateSet('all', '32', '64', 'none')]
+        [string] $ChecksumFor='all',
 
-        #Timeout for all web operations. The default can be specified in global variable $global:au_timeout
+        #Timeout for all web operations. The default can be specified in global variable $:au_Timeout.
         #If not specified at all it defaults to 100 seconds.
-        [int]    $Timeout
+        [int]    $Timeout,
 
+        #Force package update even if no new version is found. This is useful for troubleshooting and updating checksums etc.
+        #Defaults to global variable $au_Force if not specified.
+        [switch] $Force
     )
 
     function Load-NuspecFile() {
@@ -113,56 +122,77 @@ function Update-Package {
         [version]($latest_version) -gt [version]($nuspec_version)
     }
 
-    function get_checksum() {
-        "Determining checksum(s)"
+    function get_checksum()
+    {
+        function invoke_installer() {
+            Import-Module "$choco_tmp_path\helpers\chocolateyInstaller.psm1" -Force
+            $env:chocolateyPackageName = "chocolatey\$packageName"
 
-        # Patch Get-WebFile
-        $choco_tmp_path = "$Env:TEMP\chocolatey\au\chocolatey"
-        rm -recurse -ea ignore $choco_tmp_path
-        cp -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
-        cp -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions
+            if ($ChecksumFor -eq 'none') { "Automatic checksum calculation is disabled"; return }
+            if ($ChecksumFor -eq 'all')  { $arch = '32','64' } else { $arch = $ChecksumFor }
 
-        $fun_path = "$choco_tmp_path\helpers\functions\Get-WebFile.ps1"
-        (gc $fun_path) -replace "^}", "  throw 'au_dummy'`n}" | sc $fun_path
+            $pkg_path = "$Env:TEMP\chocolatey\$packageName\" + $global:Latest.Version
+            $env:chocolateyPackageVersion = $global:Latest.Version
+            foreach ($a in $arch) {
+                $Env:chocolateyForceX86 = if ($a -eq '32') { 'true' } else { '' }
+                try {
+                    rm -force -recurse -ea ignore $pkg_path
+                    .\tools\chocolateyInstall.ps1
+                } catch {
+                    if ( "$_" -ne 'au_dummy') { throw $_ } else {
+                        $item = gi $pkg_path\*
+                        $hash = Get-FileHash $item | % Hash
 
-        # Clear TMP
-        $pkg_path = "$Env:TEMP\chocolatey\$packageName"
-        Import-Module "$choco_tmp_path\helpers\chocolateyInstaller.psm1" -Force
-        $env:chocolateyPackageName = "chocolatey\$packageName"
-
-        if (('all','x64') -contains $Checksum) {
-            $env:chocolateyForceX86 = ''
-            try {
-                rm -force -recurse -ea ignore $pkg_path
-                .\tools\chocolateyInstall.ps1
-            } catch {
-                if ( "$_" -ne 'au_dummy') { throw $_ } else {
-                    $item = gi $pkg_path\*
-                    $global:Latest.Checksum64 = Get-FileHash $item | % Hash
-                    "Package downloaded and hash calculated for 64x version"
+                        $global:Latest.Add('Checksum' + $a, $hash)
+                        "Package downloaded and hash calculated for $a bit version"
+                    }
                 }
             }
         }
 
-        if (('all','x32') -contains $Checksum) {
-            $env:chocolateyForceX86 = 'true'
-            try {
-                rm -force -recurse -ea ignore $pkg_path
-                .\tools\chocolateyInstall.ps1
-            } catch {
-                if ( "$_" -ne 'au_dummy') { throw $_ } else {
-                    $item = gi $pkg_path\*
-                    $global:Latest.Checksum32 = Get-FileHash $item | % Hash
-                    "Package downloaded and hash calculated for 32x version"
-                }
+        function fix_choco {
+            # Copy choco modules
+            rm -recurse -ea ignore $choco_tmp_path
+            cp -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
+            cp -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions
+
+            # Patch Get-WebFile
+            $fun_path = "$choco_tmp_path\helpers\functions\Get-WebFile.ps1"
+            (gc $fun_path) -replace "^}", "  throw 'au_dummy'`n}" | sc $fun_path
+        }
+
+        "Determining checksum(s)"
+        $choco_tmp_path = "$Env:TEMP\chocolatey\au\chocolatey"
+        fix_choco
+        invoke_installer
+    }
+
+    function update_files()
+    {
+        'Updating files'
+        "  $(Split-Path $nuspecFile -Leaf)"
+        "    updating version:  $nuspec_version -> $latest_version"
+        $nu.package.metadata.version = "$latest_version"
+        $nu.Save($nuspecFile)
+
+        $sr.Keys | % {
+            $fileName = $_
+            "  $fileName"
+
+            $fileContent = gc $fileName
+            $sr[ $fileName ].GetEnumerator() | % {
+                ('    {0} = {1} ' -f $_.name, $_.value)
+                $fileContent = $fileContent -replace $_.name, $_.value
             }
+
+            $fileContent | Out-File -Encoding UTF8 $fileName
         }
     }
 
-
-    if (!$Timeout) { $Timeout = $global:au_timeout }
-    if ($PSBoundParameters.Keys -notcontains 'NoCheckChocoVersion') { if ($global:NoCheckChocoVersion) { $NoCheckChocoVersion = $global:NoCheckChocoVersion } }
-    if ($PSBoundParameters.Keys -notcontains 'NoCheckUrl') { if ($global:NoCheckUrl) { $NoCheckUrl = $global:NoCheckUrl } }
+    if (!$Timeout) { $Timeout = $global:au_Timeout }
+    if ($PSBoundParameters.Keys -notcontains 'NoCheckChocoVersion') { if ($global:au_NoCheckChocoVersion) { $NoCheckChocoVersion = $global:au_NoCheckChocoVersion } }
+    if ($PSBoundParameters.Keys -notcontains 'NoCheckUrl')          { if ($global:au_NoCheckUrl) { $NoCheckUrl = $global:au_NoCheckUrl } }
+    if ($PSBoundParameters.Keys -notcontains 'Force')               { if ($global:au_Force) { $Force = $global:au_Force } }
 
     $packageName = Split-Path $pwd -Leaf
     $nuspecFile = gi "$packageName.nuspec" -ea ig
@@ -184,7 +214,10 @@ function Update-Package {
     "nuspec version: $nuspec_version"
     "remote version: $latest_version"
 
-    if (!(updated)) { 'No new version found'; return }
+    if (!(updated)) {
+        if (!$Force) { 'No new version found'; return }
+        else { 'No new version found, but update is forced' }
+    }
 
     if (!$NoCheckChocoVersion) {
         $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $packageName, $latest_version
@@ -195,40 +228,17 @@ function Update-Package {
         } catch { }
     }
 
-    'New version is available'
+    if (updated) { 'New version is available' }
 
-    if ($Checksum) { get_checksum }
-  
+    if ($ChecksumFor -ne 'none') { get_checksum }
+
     $sr = au_SearchReplace
-    if (Test-Path Function:\au_BeforeUpdate) {
-        'Running au_BeforeUpdate'
-        au_BeforeUpdate
-    }
 
-    'Updating files'
-    "  $(Split-Path $nuspecFile -Leaf)"
-    "    updating version:  $nuspec_version -> $latest_version"
-    $nu.package.metadata.version = "$latest_version"
-    $nu.Save($nuspecFile)
-
-    $sr.Keys | % {
-        $fileName = $_
-        "  $fileName"
-
-        $fileContent = gc $fileName
-        $sr[ $fileName ].GetEnumerator() | % {
-            ('    {0} = {1} ' -f $_.name, $_.value)
-            $fileContent = $fileContent -replace $_.name, $_.value
-        }
-
-        $fileContent | Out-File -Encoding UTF8 $fileName
-    }
+    if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate'; au_BeforeUpdate }
+    update_files
+    if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate'; au_AfterUpdate }
 
     cpack
-    if (Test-Path Function:\au_AfterUpdate) {
-        'Running au_AfterUpdate'
-        au_AfterUpdate
-    }
     return 'Package updated'
 }
 
