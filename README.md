@@ -82,17 +82,17 @@ If check fails, package will not be updated. To skip URL checks you can specify 
 
 ### Automatic checksums
 
-When new version is available, the `update` function will by default download both x32 and x64 versions of the installer and calculate the SHA256 checksum. It will inject this info in the `$global:Latest` variable so you can use it in `au_SearchReplace` to update hashes. The parameter `ChecksumFor` can contain words 'all', 'none', '32' and '64' to further control this behavior. 
+When new version is available, the `update` function will by default download both x32 and x64 versions of the installer and calculate the SHA256 checksum. It will inject this info in the `$global:Latest` hashtable variable so you can use it via `au_SearchReplace` function to update hashes. The parameter `ChecksumFor` can contain words `all`, `none`, `32` or `64` to further control the behavior. 
 
 You can disable this feature by calling update like this:
 
     update -ChecksumFor none
 
-**NOTE**: This feature works by monkey patching the `Get-ChocolateyWebFile` helper function and invoking the `chocolateyInstall.ps1` afterwards for the package it updates. This means that it downloads the files using whatever method is specified in the package installation script.
+**NOTE**: This feature works by monkey patching the `Get-ChocolateyWebFile` helper function and invoking the `chocolateyInstall.ps1` afterwards for the package in question. This means that it downloads the files using whatever method is specified in the package installation script.
 
 ### Force update
 
-You can force the update even if no new version is found by using the parameter `Force`. This can be useful for recalculating the checksum after the package is created and already pushed to Chocolatey or if URLs to installer changed without version.
+You can force the update even if no new version is found by using the parameter `Force` (or global variable `$au_Force`). This can be useful for troubleshooting, recalculating the checksum after the package was created and already pushed to Chocolatey or if URLs to installer changed without adequate version change.
 
 
 ### Global variables
@@ -105,6 +105,8 @@ To avoid changing the `./update.ps1` when troubleshooting or experimenting you c
 This is the same as if you added the parameters to `update` function inside the `./update.ps1` script:
 
     update -NoCheckChocoVersion -Force
+
+however, its way easier to setup global variable with manual intervention on multiple packages.
 
 ## Updating all packages
 
