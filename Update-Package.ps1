@@ -101,7 +101,7 @@ function Update-Package {
                 $err = $_
             }
 
-            if (!$res) { throw "Can't validate latest $packageName URL '$url'`n$err" }
+            if (!$res) { throw "Can't validate latest $packageName URL (disable using $NoCheckUrl) '$url'`n$err" }
         }
     }
 
@@ -243,7 +243,7 @@ function Update-Package {
         $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $packageName, $latest_version
         try {
             request $choco_url | out-null
-            "New version is available but it already exists in chocolatey:`n  $choco_url"
+            "New version is available but it already exists in chocolatey (disable using $NoCheckChocoVersion):`n  $choco_url"
             return
         } catch { }
     }
