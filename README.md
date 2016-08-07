@@ -76,8 +76,7 @@ You can disable this feature by calling update like this:
 
     update -ChecksumFor none
 
-**NOTE**: For this feature to work chocolatey must download the package in `"$Env:TMP\chocolatey\$packageName\$Env:chocolateyPackageVersion"`
-
+**NOTE**: This feature works by monkey patching the `Get-ChocolateyWebFile` helper function and invoking the `chocolateyInstall.ps1` afterwards for the package it updates. This means that it downloads the files using whatever method is specified in the package installation script.
 
 ### Force update
 

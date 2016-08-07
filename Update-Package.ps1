@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 07-Aug-2016.
+# Last Change: 08-Aug-2016.
 
 <#
 .SYNOPSIS
@@ -139,8 +139,11 @@ function Update-Package {
                     rm -force -recurse -ea ignore $pkg_path
                     .\tools\chocolateyInstall.ps1
                 } catch {
-                    if ( "$_" -ne 'au_dummy') { throw $_ } else {
-                        $item = gi $pkg_path\*
+                    if ( "$_" -notlike 'au_break: *') { throw $_ } else {
+                        $filePath = "$_" -replace 'au_break: '
+                        if (!(Test-Path $filePath)) { throw "Can't find file path to checksum" }
+
+                        $item = gi $filePath
                         $hash = Get-FileHash $item -Algorithm 'SHA256'| % Hash
 
                         $global:Latest.Add('Checksum' + $a, $hash)
@@ -156,27 +159,41 @@ function Update-Package {
             cp -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
             cp -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions
 
-            # Patch Get-WebFile and Get-FTPWebFile
-            'Get-WebFile', 'Get-FTPFile' | % {
-                $fun_path = "$choco_tmp_path\helpers\functions\$_.ps1"
-                (gc $fun_path) -replace "^}", "  throw 'au_dummy'`n}" | sc $fun_path
-            }
+            $fun_path = "$choco_tmp_path\helpers\functions\Get-ChocolateyWebFile.ps1"
+            (gc $fun_path) -replace '^\s+return \$fileFullPath\s*$', '  throw "au_break: $fileFullPath"' | sc $fun_path
         }
 
-        "Determining checksum(s)"
+        "Automatic checksum started"
+
+        # Copy choco powershell functions to TEMP dir and monkey patch the Get-ChocolateyWebFile function
         $choco_tmp_path = "$Env:TEMP\chocolatey\au\chocolatey"
         fix_choco
+
+        # This will set the new URLS before the files are downloaded but will replace checksums to empty ones so download will not fail
+        #  because those still contain the checksums for the previous version.
+        # SkipNuspecFile is passed so that if things fail here, nuspec file isn't updated; otherwise, on next run
+        #  AU will think that package is most recent
+        #
+        update_files -SkipNuspecFile | out-null
+
+        # Invoke installer for each architecture to download files
         invoke_installer
     }
 
-    function update_files()
+    function update_files( [switch]$SkipNuspecFile )
     {
         'Updating files'
-        "  $(Split-Path $nuspecFile -Leaf)"
-        "    updating version:  $nuspec_version -> $latest_version"
-        $nu.package.metadata.version = "$latest_version"
-        $nu.Save($nuspecFile)
 
+        if (!$SkipNuspecFile) {
+            "  $(Split-Path $nuspecFile -Leaf)"
+            if (updated) {
+                "    updating version:  $nuspec_version -> $latest_version"
+                $nu.package.metadata.version = "$latest_version"
+                $nu.Save($nuspecFile)
+            } else { "    skipped because update is forced, current version is: $nuspec_version" }
+        }
+
+        $sr = au_SearchReplace
         $sr.Keys | % {
             $fileName = $_
             "  $fileName"
@@ -184,6 +201,7 @@ function Update-Package {
             $fileContent = gc $fileName
             $sr[ $fileName ].GetEnumerator() | % {
                 ('    {0} = {1} ' -f $_.name, $_.value)
+                if (!($fileContent -match $_.name)) { throw "Search pattern not found: '$($_.name)'" }
                 $fileContent = $fileContent -replace $_.name, $_.value
             }
 
@@ -233,8 +251,6 @@ function Update-Package {
     if (updated) { 'New version is available' }
 
     if ($ChecksumFor -ne 'none') { get_checksum }
-
-    $sr = au_SearchReplace
 
     if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate'; au_BeforeUpdate }
     update_files
