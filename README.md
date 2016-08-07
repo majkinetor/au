@@ -37,7 +37,7 @@ AU module requires minimally Powershell version 4.
 
 - Call the `Update-Package` (alias `update`) function from the `au` module to update the package.
 
-This is best understood via the [example](https://github.com/majkinetor/chocolatey/blob/master/dngrep/update.ps1).
+This is best understood via the example - take a look at the real life package [installer script](https://github.com/majkinetor/chocolatey/blob/master/dngrep/tools/chocolateyInstall.ps1) and its [AU updater](https://github.com/majkinetor/chocolatey/blob/master/dngrep/update.ps1).
 
 With this set, you can update individual packages by calling appropriate `update.ps1` from within package directory:
 
