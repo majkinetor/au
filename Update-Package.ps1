@@ -141,7 +141,7 @@ function Update-Package {
                 } catch {
                     if ( "$_" -ne 'au_dummy') { throw $_ } else {
                         $item = gi $pkg_path\*
-                        $hash = Get-FileHash $item | % Hash
+                        $hash = Get-FileHash $item -Algorithm 'SHA256'| % Hash
 
                         $global:Latest.Add('Checksum' + $a, $hash)
                         "Package downloaded and hash calculated for $a bit version"
