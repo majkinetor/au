@@ -156,9 +156,11 @@ function Update-Package {
             cp -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
             cp -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions
 
-            # Patch Get-WebFile
-            $fun_path = "$choco_tmp_path\helpers\functions\Get-WebFile.ps1"
-            (gc $fun_path) -replace "^}", "  throw 'au_dummy'`n}" | sc $fun_path
+            # Patch Get-WebFile and Get-FTPWebFile
+            'Get-WebFile', 'Get-FTPFile' | % {
+                $fun_path = "$choco_tmp_path\helpers\functions\$_.ps1"
+                (gc $fun_path) -replace "^}", "  throw 'au_dummy'`n}" | sc $fun_path
+            }
         }
 
         "Determining checksum(s)"
