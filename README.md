@@ -42,20 +42,32 @@ This is best understood via the [example](https://github.com/majkinetor/chocolat
 With this set, you can update individual packages by calling appropriate `update.ps1` from within package directory:
 
 ```
-PS c:\chocolatey\dbeaver> ./update.ps1
+PS C:\chocolatey\dngrep> .\update.ps1
+dngrep - checking updates
+nuspec version: 2.8.15.0
+remote version: 2.8.16.0
+New version found
+Automatic checksum started
+Downloading dngrep 32 bit
+  from 'https://github.com/dnGrep/dnGrep/releases/download/v2.8.16.0/dnGREP.2.8.16.x86.msi'
 
-dbeaver - checking updates
-nuspec version: 3.6.1
-remote version: 3.7.1
-New version is available
+Download of dnGREP.2.8.16.x86.msi (3.36 MB) completed.
+Package downloaded and hash calculated for 32 bit version
+Downloading dngrep 64 bit
+  from 'https://github.com/dnGrep/dnGrep/releases/download/v2.8.16.0/dnGREP.2.8.16.x64.msi'
+
+Download of dnGREP.2.8.16.x64.msi (3.39 MB) completed.
+Package downloaded and hash calculated for 64 bit version
 Updating files
-  dbeaver.nuspec
-    updating version:  3.6.1 -> 3.7.1
-  .\tools\chocolateyInstall.ps1
-    (^[$]url32\s*=\s*)('.*') = $1'http://dbeaver.jkiss.org/files/3.7.1/dbeaver-ee-3.7.1-x86-setup.exe'
-    (^[$]url64\s*=\s*)('.*') = $1'http://dbeaver.jkiss.org/files/3.7.1/dbeaver-ee-3.7.1-x86_64-setup.exe'
-Attempting to build package from 'dbeaver.nuspec'.
-Successfully created package 'dbeaver.3.7.1.nupkg'
+  dngrep.nuspec
+    updating version:  2.8.15.0 -> 2.8.16.0
+  tools\chocolateyInstall.ps1
+    (^[$]url32\s*=\s*)('.*') = $1'https://github.com/dnGrep/dnGrep/releases/download/v2.8.16.0/dnGREP.2.8.16.x86.msi'
+    (^[$]url64\s*=\s*)('.*') = $1'https://github.com/dnGrep/dnGrep/releases/download/v2.8.16.0/dnGREP.2.8.16.x64.msi'
+    (^[$]checksum32\s*=\s*)('.*') = $1'CE4753735148E1F48FE0E1CD9AA4DFD019082F4F43C38C4FF4157F08D346700C'
+    (^[$]checksum64\s*=\s*)('.*') = $1'025BD4101826932E954AACD3FE6AEE9927A7198FEEFFB24F82FBE5D578502D18'
+Attempting to build package from 'dngrep.nuspec'.
+Successfully created package 'dngrep.2.8.16.0.nupkg'
 Package updated
 ```
 
