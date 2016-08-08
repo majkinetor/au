@@ -103,7 +103,7 @@ You can force the update even if no new version is found by using the parameter 
 
 ### Global variables
 
-To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up `update` parameters via global variables. As an example, the following code will change the update behavior so that the new package version is not searched on the Chocolatey site and update is forced: 
+To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up some `update` parameters via global variables. As an example, the following code will change the update behavior so that the new package version is not searched on the Chocolatey site and update is forced: 
 
     $au_NoCheckChocoVersion = $au_Force = $true
     ./update.ps1
@@ -112,7 +112,7 @@ This is the same as if you added the parameters to `update` function inside the 
 
     update -NoCheckChocoVersion -Force
 
-however, its way easier to setup global variable with manual intervention on multiple packages.
+however, its way easier to setup global variable with manual intervention on multiple packages. Not all parameters support this, see `man update -Parameter *` for the details.
 
 ## Updating all packages
 
