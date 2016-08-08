@@ -79,7 +79,7 @@ The function does some rudimentary verifications of URLs and version strings:
 - If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existance of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict.
 - The regex patterns will be checked for existence.
 
-If any of the check fails, package will not be updated. For some packages, you may want to disable some or all of the checks by specifying aditional parameters of the `update` function:
+If any of the check fails, package will not be updated. For some packages, you may want to disable some of the checks by specifying aditional parameters of the `update` function (not all can be disabled):
 
 |Parameter| Description|
 |---------|------------|
