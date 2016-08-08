@@ -71,7 +71,7 @@ function Update-Package {
         [ValidateSet('all', '32', '64', 'none')]
         [string] $ChecksumFor='all',
 
-        #Timeout for all web operations. The default can be specified in global variable $:au_Timeout.
+        #Timeout for all web operations. The default can be specified in global variable $au_Timeout.
         #If not specified at all it defaults to 100 seconds.
         [int]    $Timeout,
 
