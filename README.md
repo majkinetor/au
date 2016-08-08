@@ -116,11 +116,11 @@ however, its way easier to setup global variable with manual intervention on mul
 
 ## Updating all packages
 
-You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each. If it detects that package is updated it will try to push it. 
+You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each in a separate thread, using the specified number of threads (10 by default). If it detects that a package is updated it will optionally try to push it to the Chocolatey repository.
 
-For push to work, specify your Choocolatey API key in the file `api_key` in the script's directory (or its parent directory) or set environment variable `$Env:api_key`.
+For the push to work, specify your Choocolatey API key in the file `api_key` in the script's directory (or its parent directory) or set the environment variable `$Env:api_key`.
 
-This function is designed for scheduling. You can pass it a number of options, save a script and call it via task scheduler. For example, you can get notified about possible errors during packages update procedure - if the update procedure fails for any reasons there is an option to send an email with results as an attachment in order to investigate the problem. 
+This function is designed for scheduling. You can pass it a number of options, save as a script and call it via task scheduler. For example, you can get notified about possible errors during packages update procedure - if the update procedure fails for any reasons there is an option to send an email with results as an attachment in order to investigate the problem. 
 
 You can use the following script as a prototype - `update_all.ps1`:
 
@@ -143,7 +143,7 @@ You can use the following script as a prototype - `update_all.ps1`:
 
     Update-AUPackages -Name $Name -Options $options | Export-CliXML update_info.xml
 
-Use function parameter `Name` to specify package names via glob, for instance "d*" would update only packages which names start with the letter 'd'. Add `Push` among options to push sucesifully built packages to the chocolatey repository. The result may look like this:
+Use function parameter `Name` to specify package names via glob, for instance `updateall d*` would update only packages which names start with the letter 'd'. Add `Push` among options to push sucesifully built packages to the chocolatey repository. The result may look like this:
 
     PS C:\chocolatey> .\update_all.ps1
 
@@ -167,7 +167,7 @@ Use function parameter `Name` to specify package names via glob, for instance "d
 
 The email attachment is a `$info` object that keeps all the information about that particular run, such as what happened to each package during update, how long the operation took etc. It can be loaded with `Import-CliXml result_info.xml` and inspected.
 
-Take a look at [real life example](https://gist.github.com/majkinetor/181b18886fdd363158064baf817fa2ff) of the update_all.ps1 script.
+Take a look at the [real life example](https://gist.github.com/majkinetor/181b18886fdd363158064baf817fa2ff) of the `update_all.ps1` script.
 
 To make a local scheduled task, use the following code in the directory where your `update_all.ps1` script is found to install it:
 
@@ -179,9 +179,9 @@ To make a local scheduled task, use the following code in the directory where yo
 
 ### Custom script
 
-It is possible to specify custom user script in Update-AUPackages `Options` parameter (key `Options.Script`) that will be called before and after the update. The script receives two arguments: `$Phase` and `$Arg`. Currently phase can be one of the words `start` or `end`. Arg contains list of packages to be checked in the start phase and `info` object in the 'end' phase which contains all the details about that run. Use `$Arg | Get-Members` to see what kind of information is available.
+It is possible to specify a custom user script in Update-AUPackages `Options` parameter (key `Options.Script`) that will be called before and after the update. The script receives two arguments: `$Phase` and `$Arg`. Currently phase can be one of the words `start` or `end`. Arg contains the list of packages to be updated in the 'start' phase and `Info` object in the 'end' phase which contains all the details about the current run. Use `$Arg | Get-Members` to see what kind of information is available.
 
-The purpose of this script is to attach custom logic at the end of the process (save results to gist, push to git or svn etc.).
+The purpose of this script is to attach custom logic at the end of the process (save results to gist, push to git or svn, send notifications etc.)
 
 ## Other functions
 
