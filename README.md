@@ -74,11 +74,17 @@ Package updated
 ### Checks
 
 The function does some rudimentary verifications of URLs and version strings:
-- Version will be checked to match a valid nuspec pattern
-- Any hash key that contains word `url`, will be checked for existence and MIME textual type (since binary is expected here)
+- Version will be checked to match a valid nuspec pattern.
+- Any hash key that contains a word `url`, will be checked for existence and MIME textual type (since binary is expected here).
+- If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existance of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict.
+- The regex patterns will be checked for existence.
 
-If check fails, package will not be updated. To skip URL checks you can specify `-NoCheckUrl` argument to the `update` function.
+If any of the check fails, package will not be updated. For some packages, you may want to disable some of the checks by specifying aditional parameters of the `update` function (not all can be disabled):
 
+|Parameter| Description|
+|---------|------------|
+| `NoCheckUrl` | Disable URL checks |
+| `NoCheckChocoVersion` | Disable the Chocolatey site check |
 
 ### Automatic checksums
 
@@ -97,7 +103,7 @@ You can force the update even if no new version is found by using the parameter 
 
 ### Global variables
 
-To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up `update` parameters via global variables. As an example, the following code will change the update behavior so that the new package version is not searched on the Chocolatey site and update is forced: 
+To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up some `update` parameters via global variables. The names of global variables are the same as the names of parameters with the prefix `au_`. As an example, the following code will change the update behavior so that the new package version is not searched on the Chocolatey site and update is forced: 
 
     $au_NoCheckChocoVersion = $au_Force = $true
     ./update.ps1
@@ -106,15 +112,15 @@ This is the same as if you added the parameters to `update` function inside the 
 
     update -NoCheckChocoVersion -Force
 
-however, its way easier to setup global variable with manual intervention on multiple packages.
+however, its way easier to setup global variable with manual intervention on multiple packages. Not all parameters support this, see `man update -Parameter *` for the details.
 
 ## Updating all packages
 
-You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each. If it detects that package is updated it will try to push it. 
+You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each in a separate thread, using the specified number of threads (10 by default). If it detects that a package is updated it will optionally try to push it to the Chocolatey repository.
 
-For push to work, specify your Choocolatey API key in the file `api_key` in the script's directory (or its parent directory) or set environment variable `$Env:api_key`.
+For the push to work, specify your Choocolatey API key in the file `api_key` in the script's directory (or its parent directory) or set the environment variable `$Env:api_key`.
 
-This function is designed for scheduling. You can pass it a number of options, save a script and call it via task scheduler. For example, you can get notified about possible errors during packages update procedure - if the update procedure fails for any reasons there is an option to send an email with results as an attachment in order to investigate the problem. 
+This function is designed for scheduling. You can pass it a number of options, save as a script and call it via task scheduler. For example, you can get notified about possible errors during packages update procedure - if the update procedure fails for any reasons there is an option to send an email with results as an attachment in order to investigate the problem. 
 
 You can use the following script as a prototype - `update_all.ps1`:
 
@@ -137,7 +143,7 @@ You can use the following script as a prototype - `update_all.ps1`:
 
     Update-AUPackages -Name $Name -Options $options | Export-CliXML update_info.xml
 
-Use function parameter `Name` to specify package names via glob, for instance "d*" would update only packages which names start with the letter 'd'. Add `Push` among options to push sucesifully built packages to the chocolatey repository. The result may look like this:
+Use function parameter `Name` to specify package names via glob, for instance `updateall d*` would update only packages which names start with the letter 'd'. Add `Push` among options to push sucesifully built packages to the chocolatey repository. The result may look like this:
 
     PS C:\chocolatey> .\update_all.ps1
 
@@ -161,7 +167,7 @@ Use function parameter `Name` to specify package names via glob, for instance "d
 
 The email attachment is a `$info` object that keeps all the information about that particular run, such as what happened to each package during update, how long the operation took etc. It can be loaded with `Import-CliXml result_info.xml` and inspected.
 
-Take a look at [real life example](https://gist.github.com/majkinetor/181b18886fdd363158064baf817fa2ff) of the update_all.ps1 script.
+Take a look at the [real life example](https://gist.github.com/majkinetor/181b18886fdd363158064baf817fa2ff) of the `update_all.ps1` script.
 
 To make a local scheduled task, use the following code in the directory where your `update_all.ps1` script is found to install it:
 
@@ -173,9 +179,9 @@ To make a local scheduled task, use the following code in the directory where yo
 
 ### Custom script
 
-It is possible to specify custom user script in Update-AUPackages `Options` parameter (key `Options.Script`) that will be called before and after the update. The script receives two arguments: `$Phase` and `$Arg`. Currently phase can be one of the words `start` or `end`. Arg contains list of packages to be checked in the start phase and `info` object in the 'end' phase which contains all the details about that run. Use `$Arg | Get-Members` to see what kind of information is available.
+It is possible to specify a custom user script in Update-AUPackages `Options` parameter (key `Options.Script`) that will be called before and after the update. The script receives two arguments: `$Phase` and `$Arg`. Currently phase can be one of the words `start` or `end`. Arg contains the list of packages to be updated in the 'start' phase and `Info` object in the 'end' phase which contains all the details about the current run. Use `$Arg | Get-Members` to see what kind of information is available.
 
-The purpose of this script is to attach custom logic at the end of the process (save results to gist, push to git or svn etc.).
+The purpose of this script is to attach custom logic at the end of the process (save results to gist, push to git or svn, send notifications etc.)
 
 ## Other functions
 
