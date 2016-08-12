@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 08-Aug-2016.
+# Last Change: 12-Aug-2016.
 
 <#
 .SYNOPSIS
@@ -65,6 +65,7 @@ function Update-Package {
 
         #Do not check if latest returned version already exists in the Chocolatey repository.
         #Defaults to global variable $au_NoCheckChocoVersion if not specified.
+        #Ignored when Force is specified.
         [switch] $NoCheckChocoVersion,
 
         #Specify for which architectures to calculate checksum - all, 32 bit, 64 bit or none.
@@ -132,7 +133,8 @@ function Update-Package {
             if ($ChecksumFor -eq 'all')  { $arch = '32','64' } else { $arch = $ChecksumFor }
 
             $pkg_path = "$Env:TEMP\chocolatey\$packageName\" + $global:Latest.Version
-            $env:chocolateyPackageVersion = $global:Latest.Version
+            $env:ChocolateyPackageVersion = $global:Latest.Version
+            $env:ChocolateyAllowEmptyChecksums = 'true'
             foreach ($a in $arch) {
                 $Env:chocolateyForceX86 = if ($a -eq '32') { 'true' } else { '' }
                 try {
@@ -239,7 +241,7 @@ function Update-Package {
         else { 'No new version found, but update is forced' }
     }
 
-    if (!$NoCheckChocoVersion) {
+    if (!($NoCheckChocoVersion -or $Force)) {
         $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $packageName, $latest_version
         try {
             request $choco_url | out-null
