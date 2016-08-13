@@ -11,7 +11,8 @@ To learn more about automatic packages for Chocolatey please refer to the releva
 - Verifies URLs, versions, remote Chocolatey existence etc.
 - Can use global variables to change functionality.
 - Sugar functions for maintainers.
-- Update single package or all previously created packages with single command.
+- Update single package or any subset of previously created packages with single command.
+- Multithread support when updating multiple packages.
 - Send full command output to specified email in the case of errors.
 
 ## Installation
