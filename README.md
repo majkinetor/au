@@ -4,7 +4,7 @@ This Powershell module implements functions that can be used to automate [Chocol
 
 To learn more about automatic packages for Chocolatey please refer to the relevant [documentation](https://github.com/chocolatey/choco/wiki/AutomaticPackages).
 
-**Features**:
+## Features
 
 - Use only Powershell to create automatic update script for given package.
 - Automatically downloads installers and provides checksums for x32 and x64 versions.
