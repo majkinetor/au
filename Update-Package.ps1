@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 12-Aug-2016.
+# Last Change: 13-Aug-2016.
 
 <#
 .SYNOPSIS
@@ -258,7 +258,7 @@ function Update-Package {
     update_files
     if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate'; au_AfterUpdate }
 
-    cpack
+    choco pack
     return 'Package updated'
 }
 

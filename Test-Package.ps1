@@ -1,5 +1,5 @@
 function Test-Package() {
-    cpack
+    choco pack
 
     $package_file    = gi *.nupkg | sort -Property CreationTime -Descending | select -First 1
     $package_name    = $package_file.Name  -replace '(\.\d+)+\.nupkg$'
