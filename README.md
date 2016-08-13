@@ -17,9 +17,8 @@ To learn more about automatic packages for Chocolatey please refer to the releva
 
 ## Installation
 
-On Powershell 5+: `Install-Module au`.
-
-Otherwise, copy Powershell module to any of the directories in the `$Env:PSModulePath`.
+Using Chocolatey: `choco install au`.
+Using Powershell 5+: `Install-Module au`.
 
 AU module requires minimally Powershell version 4.
 
