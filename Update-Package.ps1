@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 13-Aug-2016.
+# Last Change: 14-Aug-2016.
 
 <#
 .SYNOPSIS
@@ -69,10 +69,12 @@ function Update-Package {
         [switch] $NoCheckChocoVersion,
 
         #Specify for which architectures to calculate checksum - all, 32 bit, 64 bit or none.
+        #Defaults to global variable $au_ChecksumFor if not specified.
         [ValidateSet('all', '32', '64', 'none')]
         [string] $ChecksumFor='all',
 
-        #Timeout for all web operations. The default can be specified in global variable $au_Timeout.
+        #Timeout for all web operations.
+        #Defaults to global variable $au_Timeout if not specified.
         #If not specified at all it defaults to 100 seconds.
         [int]    $Timeout,
 
@@ -188,11 +190,25 @@ function Update-Package {
 
         if (!$SkipNuspecFile) {
             "  $(Split-Path $nuspecFile -Leaf)"
+
             if (updated) {
                 "    updating version:  $nuspec_version -> $latest_version"
-                $nu.package.metadata.version = "$latest_version"
-                $nu.Save($nuspecFile)
-            } else { "    skipped because update is forced, current version is: $nuspec_version" }
+            } else {
+                $d = (get-date).ToString('yyyyMMdd')
+                $v = [version]$nuspec_version
+                $rev = $v.Revision.ToString()
+                try { $revdate = [DateTime]::ParseExact($rev, 'yyyyMMdd',[System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None) } catch {}
+                if ($rev -eq -1 -or $revdate) {
+                    $build = if ($v.Build -eq -1) {0} else {$v.Build}
+                    $latest_version = '{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d
+                    "    updating version using Chocolatey fix notation: $nuspec_version -> $latest_version"
+                } else {
+                    $latest_version = "$v"
+                    "    version not changed as it already uses 'revision': $latest_version"
+                }
+            }
+            $nu.package.metadata.version = "$latest_version"
+            $nu.Save($nuspecFile)
         }
 
         $sr = au_SearchReplace
@@ -211,10 +227,11 @@ function Update-Package {
         }
     }
 
-    if (!$Timeout) { $Timeout = $global:au_Timeout }
+    if ($PSBoundParameters.Keys -notcontains 'Timeout')             { if ($global:au_Timeout) { $Timeout = $global:au_Timeout } }
     if ($PSBoundParameters.Keys -notcontains 'NoCheckChocoVersion') { if ($global:au_NoCheckChocoVersion) { $NoCheckChocoVersion = $global:au_NoCheckChocoVersion } }
     if ($PSBoundParameters.Keys -notcontains 'NoCheckUrl')          { if ($global:au_NoCheckUrl) { $NoCheckUrl = $global:au_NoCheckUrl } }
     if ($PSBoundParameters.Keys -notcontains 'Force')               { if ($global:au_Force) { $Force = $global:au_Force } }
+    if ($PSBoundParameters.Keys -notcontains 'ChecksumFor')         { if ($global:au_ChecksumFor) { $ChecksumFor = $global:au_ChecksumFor } }
 
     $packageName = Split-Path $pwd -Leaf
     $nuspecFile = gi "$packageName.nuspec" -ea ig

@@ -108,21 +108,44 @@ You can disable this feature by calling update like this:
 
 ### Force update
 
-You can force the update even if no new version is found by using the parameter `Force` (or global variable `$au_Force`). This can be useful for troubleshooting, recalculating the checksum after the package was created and already pushed to Chocolatey or if URLs to installer changed without adequate version change.
+You can force the update even if no new version is found by using the parameter `Force` (or global variable `$au_Force`). This can be useful for troubleshooting, bug fixing, recalculating the checksum after the package was created and already pushed to Chocolatey or if URLs to installer changed without adequate version change.
 
+The version of the package will be changed so that it follows 'chocolatey fix standard' where current date is added in the 'revision' of the package version in the format 'yyyyMMdd'. More precisely, 
+
+- choco 'fix version' always go in the 'Revision' part of the package version.
+- existing 'fixed versions' are changed to contain the current date if the revision does not exist or if it already contains choco fix.
+- if 'Revision' part is present in the package version and it is not in the 'choco fix format', just keep existing one but notify about it.
+
+**Example**:
+
+```
+PS C:\chocolatey\cpu-z.install> $au_Force = $true; .\update.ps1
+cpu-z.install - checking updates
+nuspec version: 1.77
+remote version: 1.77
+No new version found, but update is forced
+Automatic checksum started
+...
+Updating files
+  cpu-z.install.nuspec
+    updating version using Chocolatey fix notation: 1.77 -> 1.77.0.20160814
+...
+```
 
 ### Global variables
 
-To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up some `update` parameters via global variables. The names of global variables are the same as the names of parameters with the prefix `au_`. As an example, the following code will change the update behavior so that the new package version is not searched on the Chocolatey site and update is forced: 
+To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up any `update` parameter via global variables. The names of global variables are the same as the names of parameters with the prefix `au_`. As an example, the following code will change the update behavior so that URL is not checked for existence and MIME type and update is forced: 
 
-    $au_NoCheckChocoVersion = $au_Force = $true
+    $au_NoCheckUrl = $au_Force = $true
     ./update.ps1
 
 This is the same as if you added the parameters to `update` function inside the `./update.ps1` script:
 
-    update -NoCheckChocoVersion -Force
+    update -NoCheckUrl -Force
 
-however, its way easier to setup global variable with manual intervention on multiple packages. Not all parameters support this, see `man update -Parameter *` for the details.
+however, its way easier to setup global variable with manual intervention on multiple packages.
+
+**NOTE**: Only if parameters are not set on function call, the global variables will take over if they are set.
 
 ## Updating all packages
 
