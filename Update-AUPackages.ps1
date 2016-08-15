@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 13-Jul-2016.
+# Last Change: 15-Aug-2016.
 
 <#
 .SYNOPSIS
@@ -44,6 +44,7 @@ function Update-AUPackages {
         $nu
     }
 
+    # Copy choco powershell functions to TEMP dir and monkey patch the Get-ChocolateyWebFile function
     $cd = $pwd
     $startTime = Get-Date
 
@@ -51,6 +52,9 @@ function Update-AUPackages {
     if (!$Options.Timeout) { $Options.Timeout = 100 }
     if (!$Options.Force)   { $Options.Force = $false }
     if (!$Options.Push)    { $Options.Push = $false}
+
+    $tmp_dir = "$ENV:Temp\chocolatey\au"
+    mkdir -ea 0 $tmp_dir | out-null
 
     $threads    = New-Object object[] $Options.Threads
     $result     = @()
@@ -86,7 +90,9 @@ function Update-AUPackages {
                     $i.RemoteVersion = ($i.Result -match '^remote version: .+$').Substring(16)
                     $i.NuspecVersion = ($i.Result -match '^nuspec version: .+$').Substring(16)
                     $i.Message       = $i.PackageName + ' '
-                    $i.Message      += if ($i.Updated) { 'is updated to ' + $i.RemoteVersion } else { 'has no updates' }
+
+                    $version = if ([version]$i.RemoteVersion -gt [version]$i.NuspecVersion) { $i.RemoteVersion } else { $i.NuspecVersion }
+                    $i.Message      += if ($i.Updated) { 'is updated to ' + $version } else { 'has no updates' }
 
                     if ($i.Updated -and $Options.Push) {
                         $i.Pushed = ($i.Result -like 'Failed to process request*').Length -eq 0
@@ -129,7 +135,9 @@ function Update-AUPackages {
 
             $global:au_Timeout = $using:Options.Timeout
             $global:au_Force = $using:Options.Force
-            $res = ./update.ps1
+             ./update.ps1 *> "$using:tmp_dir\$using:package_name"
+             sleep 1
+             $res = gc $using:tmp_dir\$using:package_name
 
             $updated = ![string]::IsNullOrEmpty($res) -and ($res[-1] -eq 'Package updated')
             if ($updated -and $using:Options.Push) {

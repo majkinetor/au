@@ -129,6 +129,8 @@ function Update-Package {
     function get_checksum()
     {
         function invoke_installer() {
+            if (!(Test-Path tools\chocolateyInstall.ps1)) { return }
+
             Import-Module "$choco_tmp_path\helpers\chocolateyInstaller.psm1" -Force
             $env:chocolateyPackageName = "chocolatey\$packageName"
 
@@ -167,8 +169,12 @@ function Update-Package {
         }
 
         function fix_choco {
-            # Copy choco modules
-            rm -recurse -ea ignore $choco_tmp_path
+            # Copy choco modules once a day
+            if (Test-Path $choco_tmp_path) {
+                $ct = gi $choco_tmp_path | % creationtime
+                if (((get-date) - $ct).Days -gt 1) { rm -recurse -force $choco_tmp_path } else { return }
+            }
+            Write-Verbose "Monkey patching chocolatey in: '$choco_tmp_path'"
             cp -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
             if (Test-Path $Env:ChocolateyInstall\extensions) { cp -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions }
 
