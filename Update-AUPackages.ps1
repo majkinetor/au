@@ -26,6 +26,7 @@ function Update-AUPackages {
         Hashtable with options:
           Threads     - Number of background jobs to use, by default 10
           Timeout     - WebRequest timeout in seconds, by default 100
+          Force       - Force package update even if no new version is found
           Push        - Set to true to push updated packages to chocolatey repository
           Mail        - Hashtable with mail notification options: To, Server, UserName, Password, Port, EnableSsl
           Script      - Specify script to be executed at the start and after the update. Script accepts two arguments:
@@ -48,6 +49,7 @@ function Update-AUPackages {
 
     if (!$Options.Threads) { $Options.Threads = 10}
     if (!$Options.Timeout) { $Options.Timeout = 100 }
+    if (!$Options.Force)   { $Options.Force = $false }
     if (!$Options.Push)    { $Options.Push = $false}
 
     $threads    = New-Object object[] $Options.Threads
@@ -111,11 +113,11 @@ function Update-AUPackages {
             Remove-Job $job
         }
 
-        # Check if all pacakges are done
+        # Check if all packages are done
         $job_count = Get-Job | measure | % count
         if ($result.length -eq $aup.length) { break }
 
-        # Just sleep a bit and repeat if all threads are buisy
+        # Just sleep a bit and repeat if all threads are busy
         if (($job_count -eq $Options.Threads) -or ($j -eq $aup.length)) { sleep 1; continue }
 
         # Start a new thread
@@ -125,7 +127,8 @@ function Update-AUPackages {
         Start-Job -Name $package_name {
             cd $using:package_path
 
-            $global:au_timeout = $using:Options.Timeout
+            $global:au_Timeout = $using:Options.Timeout
+            $global:au_Force = $using:Options.Force
             $res = ./update.ps1
 
             $updated = ![string]::IsNullOrEmpty($res) -and ($res[-1] -eq 'Package updated')

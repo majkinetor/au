@@ -7,7 +7,7 @@ To learn more about automatic packages for Chocolatey please refer to the releva
 ## Features
 
 - Use only Powershell to create automatic update script for given package.
-- Automatically downloads installers and provides checksums for x32 and x64 versions.
+- Automatically downloads installers and provides/validates checksums for x32 and x64 versions.
 - Verifies URLs, versions, remote Chocolatey existence etc.
 - Can use global variables to change functionality.
 - Sugar functions for maintainers.
@@ -75,7 +75,9 @@ Updating files
     (^[$]url32\s*=\s*)('.*') = $1'https://github.com/dnGrep/dnGrep/releases/download/v2.8.16.0/dnGREP.2.8.16.x86.msi'
     (^[$]url64\s*=\s*)('.*') = $1'https://github.com/dnGrep/dnGrep/releases/download/v2.8.16.0/dnGREP.2.8.16.x64.msi'
     (^[$]checksum32\s*=\s*)('.*') = $1'CE4753735148E1F48FE0E1CD9AA4DFD019082F4F43C38C4FF4157F08D346700C'
+    (^[$]checksumType32\s*=\s*)('.*') = $1'sha256'
     (^[$]checksum64\s*=\s*)('.*') = $1'025BD4101826932E954AACD3FE6AEE9927A7198FEEFFB24F82FBE5D578502D18'
+    (^[$]checksumType64\s*=\s*)('.*') = $1'sha256'
 Attempting to build package from 'dngrep.nuspec'.
 Successfully created package 'dngrep.2.8.16.0.nupkg'
 Package updated
@@ -85,7 +87,7 @@ Package updated
 
 The function does some rudimentary verifications of URLs and version strings:
 - Version will be checked to match a valid nuspec pattern.
-- Any hash key that contains a word `url`, will be checked for existence and MIME textual type (since binary is expected here).
+- Any hash key that starts with the word `url`, will be checked for existence and MIME textual type (since binary is expected here).
 - If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existance of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict.
 - The regex patterns will be checked for existence.
 
@@ -103,6 +105,14 @@ When new version is available, the `update` function will by default download bo
 You can disable this feature by calling update like this:
 
     update -ChecksumFor none
+
+You can define the hash algorithm by returning corresponding `ChecksumTypeXX` hash keys in the `au_GetLatest` function:
+
+    return @{ ... ChecksumType32 = 'sha512'; ... }
+
+You can also provide the hash (SHA256 by default) by returning corresponding `ChecksumXX` hash keys in the `au_GetLatest` function:
+
+    return @{ ... ChecksumType32 = 'xxxxxxxx'; ... }
 
 **NOTE**: This feature works by monkey patching the `Get-ChocolateyWebFile` helper function and invoking the `chocolateyInstall.ps1` afterwards for the package in question. This means that it downloads the files using whatever method is specified in the package installation script.
 
