@@ -100,7 +100,7 @@ If any of the check fails, package will not be updated. For some packages, you m
 
 ### Automatic checksums
 
-When new version is available, the `update` function will by default download both x32 and x64 versions of the installer and calculate the SHA256 checksum. It will inject this info in the `$global:Latest` hashtable variable so you can use it via `au_SearchReplace` function to update hashes. The parameter `ChecksumFor` can contain words `all`, `none`, `32` or `64` to further control the behavior. 
+When new version is available, the `update` function will by default download both x32 and x64 versions of the installer and calculate the desired checksum. It will inject this info in the `$global:Latest` hashtable variable so you can use it via `au_SearchReplace` function to update hashes. The parameter `ChecksumFor` can contain words `all`, `none`, `32` or `64` to further control the behavior.
 
 You can disable this feature by calling update like this:
 
@@ -112,7 +112,9 @@ You can define the hash algorithm by returning corresponding `ChecksumTypeXX` ha
 
 You can also provide the hash (SHA256 by default) by returning corresponding `ChecksumXX` hash keys in the `au_GetLatest` function:
 
-    return @{ ... ChecksumType32 = 'xxxxxxxx'; ... }
+    return @{ ... Checksum32 = 'xxxxxxxx'; ... }
+
+If the `ChecksumXX` hash key is present, the AU will download the installer and verify that its checksum matches the one provided. If the key is not present, the AU will calculate hash with using the given `ChecksumTypeXX` algorithm (which is by default 'sha512').
 
 **NOTE**: This feature works by monkey patching the `Get-ChocolateyWebFile` helper function and invoking the `chocolateyInstall.ps1` afterwards for the package in question. This means that it downloads the files using whatever method is specified in the package installation script.
 
