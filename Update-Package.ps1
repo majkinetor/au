@@ -170,7 +170,7 @@ function Update-Package {
             # Copy choco modules
             rm -recurse -ea ignore $choco_tmp_path
             cp -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
-            cp -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions
+            if (Test-Path $Env:ChocolateyInstall\extensions) { cp -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions }
 
             $fun_path = "$choco_tmp_path\helpers\functions\Get-ChocolateyWebFile.ps1"
             (gc $fun_path) -replace '^\s+return \$fileFullPath\s*$', '  throw "au_break: $fileFullPath"' | sc $fun_path
