@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 14-Aug-2016.
+# Last Change: 15-Aug-2016.
 
 <#
 .SYNOPSIS
@@ -22,8 +22,8 @@
 
     - Call your au_GetLatest function to get remote version. It will also set $nuspec_version.
     - If remote version is higher then the nuspec version:
-        - Check the returned URLs and Versions for validity (unless NoCheckXXX variables are specified).
-        - Download files and calculate the checksum, (unless ChecksumFor is set to 'none').
+        - Check the returned URLs, Versions and Checksums (if defined) for validity (unless NoCheckXXX variables are specified).
+        - Download files and calculate the checksum, (unless already defined or ChecksumFor is set to 'none').
         - Update the nuspec with the latest version.
         - Do the necessary file replacements.
         - Pack the files into the nuget package.
@@ -41,6 +41,7 @@
         ".\tools\chocolateyInstall.ps1" = @{
             "(^[$]url32\s*=\s*)('.*')"      = "`$1'$($Latest.URL32)'"
             "(^[$]checksum32\s*=\s*)('.*')" = "`$1'$($Latest.Checksum32)'"
+            "(^[$]checksumType32\s*=\s*)('.*')" = "`$1'$($Latest.ChecksumType32)'"
         }
     }
 
@@ -110,7 +111,7 @@ function Update-Package {
 
     function request( $url ) {
         if ([string]::IsNullOrWhiteSpace($url)) {throw 'The URL is empty'}
-        $request = [System.Net.HttpWebRequest]::Create($url)
+        $request = [System.Net.WebRequest]::Create($url)
         if ($Timeout)  { $request.Timeout = $Timeout*1000 }
         $request.GetResponse()
     }
@@ -148,10 +149,18 @@ function Update-Package {
                         if (!(Test-Path $filePath)) { throw "Can't find file path to checksum" }
 
                         $item = gi $filePath
-                        $hash = Get-FileHash $item -Algorithm 'SHA256'| % Hash
+                        $type = if ($global:Latest.ContainsKey('ChecksumType' + $a)) { $global:Latest.Item('ChecksumType' + $a) } else { 'sha256' }
+                        $hash = (Get-FileHash $item -Algorithm $type | % Hash).ToLowerInvariant()
 
-                        $global:Latest.Add('Checksum' + $a, $hash)
-                        "Package downloaded and hash calculated for $a bit version"
+                        if (!$global:Latest.ContainsKey('ChecksumType' + $a)) { $global:Latest.Add('ChecksumType' + $a, $type) }
+                        if (!$global:Latest.ContainsKey('Checksum' + $a)) {
+                            $global:Latest.Add('Checksum' + $a, $hash)
+                            "Package downloaded and hash calculated for $a bit version"
+                        } else {
+                            $expected = $global:Latest.Item('Checksum' + $a)
+                            if ($hash -ne $expected) { throw "Hash for $a bit version mismatch: actual = '$hash', expected = '$expected'" }
+                            "Package downloaded and hash checked for $a bit version"
+                        }
                     }
                 }
             }
@@ -207,6 +216,7 @@ function Update-Package {
                     "    version not changed as it already uses 'revision': $latest_version"
                 }
             }
+            $nu.package.metadata.id = "$packageName"
             $nu.package.metadata.version = "$latest_version"
             $nu.Save($nuspecFile)
         }
@@ -268,6 +278,8 @@ function Update-Package {
     }
 
     if (updated) { 'New version is available' }
+
+    $global:Latest.Add('PackageName', $packageName)
 
     if ($ChecksumFor -ne 'none') { get_checksum }
 
