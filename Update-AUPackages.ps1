@@ -136,7 +136,6 @@ function Update-AUPackages {
             $global:au_Timeout = $using:Options.Timeout
             $global:au_Force = $using:Options.Force
              ./update.ps1 *> "$using:tmp_dir\$using:package_name"
-             sleep 1
              $res = gc $using:tmp_dir\$using:package_name
 
             $updated = ![string]::IsNullOrEmpty($res) -and ($res[-1] -eq 'Package updated')
