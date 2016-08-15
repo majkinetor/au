@@ -9,7 +9,7 @@
     function)
 
 .EXAMPLE
-    gup p*
+    gau p*
 
     Get all automatic packages that start with 'p'.
 #>
