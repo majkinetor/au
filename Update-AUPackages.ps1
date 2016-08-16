@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 15-Aug-2016.
+# Last Change: 16-Aug-2016.
 
 <#
 .SYNOPSIS
@@ -91,7 +91,9 @@ function Update-AUPackages {
                     $i.NuspecVersion = ($i.Result -match '^nuspec version: .+$').Substring(16)
                     $i.Message       = $i.PackageName + ' '
 
-                    $version = if ([version]$i.RemoteVersion -gt [version]$i.NuspecVersion) { $i.RemoteVersion } else { $i.NuspecVersion }
+                    $forced = ($i.Result -match 'using Chocolatey fix notation.+ -> (.+)') -split '-> ' | select -last 1
+                    $version = if ($forced) { $forced } else { $i.RemoteVersion }
+
                     $i.Message      += if ($i.Updated) { 'is updated to ' + $version } else { 'has no updates' }
 
                     if ($i.Updated -and $Options.Push) {
