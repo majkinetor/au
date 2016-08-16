@@ -188,7 +188,7 @@ You can use the following script as a prototype - `update_all.ps1`:
 
     Update-AUPackages -Name $Name -Options $options | Export-CliXML update_info.xml
 
-Use function parameter `Name` to specify package names via glob, for instance `updateall d*` would update only packages which names start with the letter 'd'. Add `Push` among options to push sucesifully built packages to the chocolatey repository. The result may look like this:
+Use function parameter `Name` to specify package names via glob, for instance `updateall [a-d]*` would update only packages which names start with the letter 'a' trough 'd'. Add `Push` among options to push sucesifully built packages to the chocolatey repository. The result may look like this:
 
     PS C:\chocolatey> .\update_all.ps1
 
