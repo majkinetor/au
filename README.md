@@ -219,9 +219,6 @@ To make a local scheduled task, use the following code in the directory where yo
     $At = '03:00'
     schtasks /create /tn "Update-AUPackages" /tr "powershell -File '$pwd\update_all.ps1'" /sc daily /st $At
 
-<img src="update.gif" width="50%" />
-
-
 ### Custom script
 
 It is possible to specify a custom user script in Update-AUPackages `Options` parameter (key `Options.Script`) that will be called before and after the update. The script receives two arguments: `$Phase` and `$Arg`. Currently phase can be one of the words `start` or `end`. Arg contains the list of packages to be updated in the 'start' phase and `Info` object in the 'end' phase which contains all the details about the current run. Use `$Arg | Get-Members` to see what kind of information is available.
