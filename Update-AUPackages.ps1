@@ -53,8 +53,11 @@ function Update-AUPackages {
     if (!$Options.Force)   { $Options.Force = $false }
     if (!$Options.Push)    { $Options.Push = $false}
 
+    Remove-Job * -force #remove any previously run jobs
+
     $tmp_dir = "$ENV:Temp\chocolatey\au"
     mkdir -ea 0 $tmp_dir | out-null
+    ls $tmp_dir | ? PSIsContainer -eq $false | rm   #clear tmp dir files
 
     $threads    = New-Object object[] $Options.Threads
     $result     = @()
@@ -66,7 +69,6 @@ function Update-AUPackages {
     Write-Host 'Updating' $aup.Length  'automatic packages at' $startTime
 
     if ($Options.Script) { try { & $Options.Script 'START' $aup | Write-Host } catch { Write-Error $_; $script_err += 1 } }
-    Remove-Job * -force
     while( $true ) {
 
         # Check for completed jobs
@@ -74,7 +76,7 @@ function Update-AUPackages {
             $job = $_
 
             if ( 'Failed', 'Completed' -notcontains $job.State) { 
-                Write-Host "Invalid job state for $($job.Name): " + $job.State 
+                Write-Host "Invalid job state for $($job.Name): " + $job.State
             }
             else {
                 Write-Verbose ($job.State + ' ' + $job.Name)
@@ -91,8 +93,8 @@ function Update-AUPackages {
                     $i.NuspecVersion = ($i.Result -match '^nuspec version: .+$').Substring(16)
                     $i.Message       = $i.PackageName + ' '
 
-                    $forced = ($i.Result -match 'using Chocolatey fix notation.+ -> (.+)') -split '-> ' | select -last 1
-                    $version = if ($forced) { $forced } else { $i.RemoteVersion }
+                    $forced_version = ($i.Result -match 'using Chocolatey fix notation.+ -> (.+)') -split '-> ' | select -last 1
+                    if ($forced_version) { $i.NuspecVersion = $version = $forced_version } else { $version = $i.RemoteVersion }
 
                     $i.Message      += if ($i.Updated) { 'is updated to ' + $version } else { 'has no updates' }
 

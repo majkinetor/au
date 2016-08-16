@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 15-Aug-2016.
+# Last Change: 16-Aug-2016.
 
 <#
 .SYNOPSIS
@@ -57,6 +57,9 @@
 
     Update-Package -ChecksumFor 32
 #>
+
+# Note: Returned messages by this function influence the Update-AUPackages function so
+#       they shouldn't generally be changed without making adequate changes on both places.
 function Update-Package {
     [CmdletBinding()]
     param(
