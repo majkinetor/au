@@ -92,7 +92,8 @@ The `update` function does the following checks:
 - If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existance of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict.
 - The regex patterns in `au_SearchReplace` will be checked for existence.
 
-If any of the check fails, package will not be updated. This feature releases you from the worries about how precise is your pattern scan in `au_GetLatest` function and how often original site changes as if something like that happens package wont get updated or pushed with incorrect data.
+If any of the checks fails, package will not get updated. This feature releases you from the worries about how precise is your pattern scan in `au_GetLatest` function and how often original site changes as if something like that happens package wont get updated or pushed with incorrect data.
+
 For some packages, you may want to disable some of the checks by specifying aditional parameters of the `update` function (not all can be disabled):
 
 |Parameter| Description|
@@ -113,11 +114,11 @@ You can define the hash algorithm by returning corresponding `ChecksumTypeXX` ha
 
     return @{ ... ChecksumType32 = 'sha512'; ... }
 
-You can also provide the hash (SHA256 by default) by returning corresponding `ChecksumXX` hash keys in the `au_GetLatest` function:
+If the checksum is actually obtained from the vendor's site, you can provide it along with its type (SHA256 by default) by returning corresponding `ChecksumXX` hash keys in the `au_GetLatest` function:
 
     return @{ ... Checksum32 = 'xxxxxxxx'; ... }
 
-If the `ChecksumXX` hash key is present, the AU will download the installer and verify that its checksum matches the one provided. If the key is not present, the AU will calculate hash with using the given `ChecksumTypeXX` algorithm (which is by default 'sha512').
+If the `ChecksumXX` hash key is present, the AU will change to checksum verification mode - it will download the installer and verify that its checksum matches the one provided. If the key is not present, the AU will calculate hash with using the given `ChecksumTypeXX` algorithm (which is by default 'sha512').
 
 **NOTE**: This feature works by monkey patching the `Get-ChocolateyWebFile` helper function and invoking the `chocolateyInstall.ps1` afterwards for the package in question. This means that it downloads the files using whatever method is specified in the package installation script.
 
