@@ -85,18 +85,21 @@ Package updated
 
 ### Checks
 
-The function does some rudimentary verifications of URLs and version strings:
+The `update` functoin does the following checks:
+
 - Version will be checked to match a valid nuspec pattern.
 - Any hash key that starts with the word `url`, will be checked for existence and MIME textual type (since binary is expected here).
 - If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existance of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict.
 - The regex patterns will be checked for existence.
 
-If any of the check fails, package will not be updated. For some packages, you may want to disable some of the checks by specifying aditional parameters of the `update` function (not all can be disabled):
+If any of the check fails, package will not be updated. This feature releases you from the worries about how precise is your pattern scan in `au_GetLatest` function and how often original site changes as if something like that happens package wont get updated or pushed with incorrect data.
+For some packages, you may want to disable some of the checks by specifying aditional parameters of the `update` function (not all can be disabled):
 
 |Parameter| Description|
 |---------|------------|
 | `NoCheckUrl` | Disable URL checks |
 | `NoCheckChocoVersion` | Disable the Chocolatey site check |
+| `ChecksumFor none`| Disable automatic checksum|
 
 ### Automatic checksums
 
