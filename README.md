@@ -85,10 +85,10 @@ Package updated
 
 ### Checks
 
-The `update` functoin does the following checks:
+The `update` function does the following checks:
 
 - Version will be checked to match a valid nuspec pattern.
-- Any hash key that starts with the word `url`, will be checked for existence and MIME textual type (since binary is expected here).
+- Any hash key that starts with the word `url`, will be checked for existence and MIME textual type, since binary is expected here.
 - If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existance of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict.
 - The regex patterns will be checked for existence.
 
