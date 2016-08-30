@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 16-Aug-2016.
+# Last Change: 2016-08-30.
 
 <#
 .SYNOPSIS
@@ -20,27 +20,26 @@
 
     With those 2 functions defined, calling Update-Package will:
 
-    - Call your au_GetLatest function to get remote version. It will also set $nuspec_version.
-    - If remote version is higher then the nuspec version:
-        - Check the returned URLs, Versions and Checksums (if defined) for validity (unless NoCheckXXX variables are specified).
-        - Download files and calculate the checksum, (unless already defined or ChecksumFor is set to 'none').
-        - Update the nuspec with the latest version.
-        - Do the necessary file replacements.
-        - Pack the files into the nuget package.
+    - Call your au_GetLatest function to get the remote version and other information.
+    - If remote version is higher then the nuspec version, function will:
+        - Check the returned URLs, Versions and Checksums (if defined) for validity (unless NoCheckXXX variables are specified)
+        - Download files and calculate checksum(s), (unless already defined or ChecksumFor is set to 'none')
+        - Update the nuspec with the latest version
+        - Do the necessary file replacements
+        - Pack the files into the nuget package
 
-    You can also define au_BeforeUpdate and au_AfterUpdate functions to integrate your code into the
-    update pipeline.
+    You can also define au_BeforeUpdate and au_AfterUpdate functions to integrate your code into the update pipeline.
 .EXAMPLE
     PS> notepad update.ps1
     # The following script is used to update the package from the github releases page.
-    # Once it defines the 2 functions, it calls the Update-Package.
+    # After it defines the 2 functions, it calls the Update-Package.
     # Checksums are automatically calculated for 32 bit version (the only one in this case)
     import-module au
 
     function global:au_SearchReplace {
         ".\tools\chocolateyInstall.ps1" = @{
-            "(^[$]url32\s*=\s*)('.*')"      = "`$1'$($Latest.URL32)'"
-            "(^[$]checksum32\s*=\s*)('.*')" = "`$1'$($Latest.Checksum32)'"
+            "(^[$]url32\s*=\s*)('.*')"          = "`$1'$($Latest.URL32)'"
+            "(^[$]checksum32\s*=\s*)('.*')"     = "`$1'$($Latest.Checksum32)'"
             "(^[$]checksumType32\s*=\s*)('.*')" = "`$1'$($Latest.ChecksumType32)'"
         }
     }
@@ -205,6 +204,7 @@ function Update-Package {
     function update_files( [switch]$SkipNuspecFile )
     {
         'Updating files'
+        '  $Latest data:';  $global:Latest.keys | sort | % { "    {0,-15} ({1})    {2}" -f $_, $Latest[$_].GetType().Name, $Latest[$_] }; ''
 
         if (!$SkipNuspecFile) {
             "  $(Split-Path $nuspecFile -Leaf)"
@@ -253,18 +253,24 @@ function Update-Package {
     if ($PSBoundParameters.Keys -notcontains 'ChecksumFor')         { if ($global:au_ChecksumFor) { $ChecksumFor = $global:au_ChecksumFor } }
 
     $packageName = Split-Path $pwd -Leaf
+    $global:Latest = @{PackageName = $packageName}
+
     $nuspecFile = gi "$packageName.nuspec" -ea ig
     if (!$nuspecFile) {throw 'No nuspec file' }
     $nu = Load-NuspecFile
-    $nuspec_version = $nu.package.metadata.version
+
+    $global:Latest.NuspecVersion = $nuspec_version = $nu.package.metadata.version
 
     "$packageName - checking updates"
     try {
-        $global:Latest = au_GetLatest
+        $res = au_GetLatest
+        $res_type = $res.GetType()
+        if ($res_type -ne [HashTable]) { throw "au_GetLatest doesn't return a HashTable result but $res_type" }
+        $global:Latest += $res
     } catch {
         throw "au_GetLatest failed`n$_"
     }
-    $latest_version = $Latest.version
+    $latest_version = $Latest.Version
 
     if (!$NoCheckUrl) { check_url }
     check_version
@@ -288,9 +294,8 @@ function Update-Package {
 
     if (updated) { 'New version is available' }
 
-    $global:Latest.Add('PackageName', $packageName)
 
-    if ($ChecksumFor -ne 'none') { get_checksum }
+    if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' }
 
     if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate'; au_BeforeUpdate }
     update_files

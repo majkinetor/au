@@ -43,7 +43,7 @@ AU module requires minimally Powershell version 4.
         file_path2 = @{ ... }
     }
   ~~~
-  The function can use `$Latest` hashtable to get any type of information obtained when `au_GetLatest` was executed. Besides this info, the script can access `$global:nuspec_version`.
+  The function can use `$Latest` HashTable to get any type of information obtained when `au_GetLatest` was executed. Besides this info, the AU framework automatically provides keys `NuspecVersion` and `PackageName`.
 
 - Call the `Update-Package` (alias `update`) function from the `au` module to update the package.
 
