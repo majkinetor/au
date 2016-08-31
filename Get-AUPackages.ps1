@@ -15,8 +15,8 @@
 #>
 
 function Get-AUPackages($Name=$null) {
-    ls .\*\update.ps1 | % {
-        $packageDir = gi (Split-Path $_)
+    Get-ChildItem .\*\update.ps1 | ForEach-Object {
+        $packageDir = Get-Item (Split-Path $_)
         if ($packageDir.Name -like '_*') { return }
         if ($Name) {
             if ( $packageDir.Name -like "$Name" ) { $packageDir }

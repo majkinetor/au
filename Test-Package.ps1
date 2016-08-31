@@ -1,7 +1,7 @@
 function Test-Package() {
     choco pack
 
-    $package_file    = gi *.nupkg | sort -Property CreationTime -Descending | select -First 1
+    $package_file    = Get-Item *.nupkg | Sort-Object -Property CreationTime -Descending | Select-Object -First 1
     $package_name    = $package_file.Name  -replace '(\.\d+)+\.nupkg$'
     $package_version = ($package_file.BaseName -replace $package_name).Substring(1)
 
