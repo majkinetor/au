@@ -57,7 +57,7 @@ function Update-AUPackages {
 
     $tmp_dir = "$ENV:Temp\chocolatey\au"
     mkdir -ea 0 $tmp_dir | out-null
-    ls $tmp_dir | ? PSIsContainer -eq $false | rm   #clear tmp dir files
+    Get-ChildItem $tmp_dir | Where-Object PSIsContainer -eq $false | Remove-Item   #clear tmp dir files
 
     $threads    = New-Object object[] $Options.Threads
     $result     = @()
@@ -72,7 +72,7 @@ function Update-AUPackages {
     while( $true ) {
 
         # Check for completed jobs
-        Get-Job | ? state -ne 'Running' | % {
+        Get-Job | Where-Object state -ne 'Running' | ForEach-Object {
             $job = $_
 
             if ( 'Failed', 'Completed' -notcontains $job.State) { 
@@ -93,7 +93,7 @@ function Update-AUPackages {
                     $i.NuspecVersion = ($i.Result -match '^nuspec version: .+$').Substring(16)
                     $i.Message       = $i.PackageName + ' '
 
-                    $forced_version = ($i.Result -match 'using Chocolatey fix notation.+ -> (.+)') -split '-> ' | select -last 1
+                    $forced_version = ($i.Result -match 'using Chocolatey fix notation.+ -> (.+)') -split '-> ' | Select-Object -last 1
                     if ($forced_version) { $i.NuspecVersion = $version = $forced_version } else { $version = $i.RemoteVersion }
 
                     $i.Message      += if ($i.Updated) { 'is updated to ' + $version } else { 'has no updates' }
@@ -102,7 +102,7 @@ function Update-AUPackages {
                         $i.Pushed = ($i.Result -like 'Failed to process request*').Length -eq 0
                         if (!$i.Pushed) {
                             $i.Message += ' but push failed!'
-                            $i.Error += ($i.Result | sls "Attempting to push" -Context 0,10).ToString()
+                            $i.Error += ($i.Result | Select-String "Attempting to push" -Context 0,10).ToString()
                         } else { $i.Message += ' and pushed' }
                     }
 
@@ -115,7 +115,7 @@ function Update-AUPackages {
                     $i.NuspecVersion = (Load-NuspecFile($nuspecFile)).package.metadata.version
 
                     Write-Host "   $($i.PackageName) ERROR:"
-                    $i.Error[0].ToString() -split "`n" | % { Write-Host (' '*5 + $_) }
+                    $i.Error[0].ToString() -split "`n" | ForEach-Object { Write-Host (' '*5 + $_) }
                 }
 
                 $result += [pscustomobject]$i
@@ -124,7 +124,7 @@ function Update-AUPackages {
         }
 
         # Check if all packages are done
-        $job_count = Get-Job | measure | % count
+        $job_count = Get-Job | Measure-Object | ForEach-Object count
         if ($result.length -eq $aup.length) { break }
 
         # Just sleep a bit and repeat if all threads are busy
@@ -140,7 +140,7 @@ function Update-AUPackages {
             $global:au_Timeout = $using:Options.Timeout
             $global:au_Force = $using:Options.Force
              ./update.ps1 *> "$using:tmp_dir\$using:package_name"
-             $res = gc $using:tmp_dir\$using:package_name
+             $res = Get-Content $using:tmp_dir\$using:package_name
 
             $updated = ![string]::IsNullOrEmpty($res) -and ($res[-1] -eq 'Package updated')
             if ($updated -and $using:Options.Push) {
@@ -151,7 +151,7 @@ function Update-AUPackages {
             $res
         } | out-null
     }
-    $result = $result | sort PackageName
+    $result = $result | Sort-Object PackageName
 
     $info = get-info
     if ($Options.Script) { try { & $Options.Script 'END' $info | Write-Host } catch { Write-Error $_; $script_err += 1 } }
@@ -176,33 +176,33 @@ function send-notification() {
 }
 
 function get-info {
-    $errors = $result | ? { $_.Error.Length }
+    $errors = $result | Where-Object { $_.Error.Length }
     $info = [PSCustomObject]@{
         result = [PSCustomObject]@{
             all     = $result
             errors  = $errors
-            ok      = $result | ? { !$_.Error.Length }
-            pushed  = $result | ? Pushed
-            updated = $result | ? Updated
+            ok      = $result | Where-Object { !$_.Error.Length }
+            pushed  = $result | Where-Object Pushed
+            updated = $result | Where-Object Updated
         }
 
         error_count = [PSCustomObject]@{
-            update  = $errors | ? {!$_.Updated} | measure | % count
-            push    = $errors | ? {$_.Updated -and !$_.Pushed} | measure | % count
-            total   = $errors | measure | % count
+            update  = $errors | Where-Object {!$_.Updated} | Measure-Object | ForEach-Object count
+            push    = $errors | Where-Object {$_.Updated -and !$_.Pushed} | Measure-Object | ForEach-Object count
+            total   = $errors | Measure-Object | ForEach-Object count
         }
         error_info  = ''
 
         packages  = $aup
         startTime = $startTime
         minutes   = ((Get-Date) - $startTime).TotalMinutes.ToString('#.##')
-        pushed    = $result | ? Pushed  | measure | % count
-        updated   = $result | ? Updated | measure | % count
+        pushed    = $result | Where-Object Pushed  | Measure-Object | ForEach-Object count
+        updated   = $result | Where-Object Updated | Measure-Object | ForEach-Object count
         stats     = ''
         options   = $Options
     }
     $info.stats = get-stats
-    $info.error_info = $errors | % {
+    $info.error_info = $errors | ForEach-Object {
         $s = "`nPackage: " + $_.PackageName + "`n"
         $_.Error | out-string
     }

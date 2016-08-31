@@ -48,8 +48,8 @@
         $download_page = Invoke-WebRequest -Uri https://github.com/hluk/CopyQ/releases
 
         $re  = "copyq-.*-setup.exe"
-        $url = $download_page.links | ? href -match $re | select -First 1 -expand href
-        $version = $url -split '-|.exe' | select -Last 1 -Skip 2
+        $url = $download_page.links | Where-Object href -match $re | Select-Object -First 1 -expand href
+        $version = $url -split '-|.exe' | Select-Object -Last 1 -Skip 2
 
         return @{ URL32 = $url; Version = $version }
     }
@@ -94,7 +94,7 @@ function Update-Package {
     }
 
     function check_url() {
-        $Latest.Keys | ? {$_ -like 'url*' } | % {
+        $Latest.Keys | Where-Object {$_ -like 'url*' } | ForEach-Object {
             $url = $Latest[ $_ ]
             try
             {
@@ -145,16 +145,16 @@ function Update-Package {
             foreach ($a in $arch) {
                 $Env:chocolateyForceX86 = if ($a -eq '32') { 'true' } else { '' }
                 try {
-                    rm -force -recurse -ea ignore $pkg_path
+                    Remove-Item -force -recurse -ea ignore $pkg_path
                     .\tools\chocolateyInstall.ps1
                 } catch {
                     if ( "$_" -notlike 'au_break: *') { throw $_ } else {
                         $filePath = "$_" -replace 'au_break: '
                         if (!(Test-Path $filePath)) { throw "Can't find file path to checksum" }
 
-                        $item = gi $filePath
+                        $item = Get-Item $filePath
                         $type = if ($global:Latest.ContainsKey('ChecksumType' + $a)) { $global:Latest.Item('ChecksumType' + $a) } else { 'sha256' }
-                        $hash = (Get-FileHash $item -Algorithm $type | % Hash).ToLowerInvariant()
+                        $hash = (Get-FileHash $item -Algorithm $type | ForEach-Object Hash).ToLowerInvariant()
 
                         if (!$global:Latest.ContainsKey('ChecksumType' + $a)) { $global:Latest.Add('ChecksumType' + $a, $type) }
                         if (!$global:Latest.ContainsKey('Checksum' + $a)) {
@@ -173,15 +173,15 @@ function Update-Package {
         function fix_choco {
             # Copy choco modules once a day
             if (Test-Path $choco_tmp_path) {
-                $ct = gi $choco_tmp_path | % creationtime
-                if (((get-date) - $ct).Days -gt 1) { rm -recurse -force $choco_tmp_path } else { return }
+                $ct = Get-Item $choco_tmp_path | ForEach-Object creationtime
+                if (((get-date) - $ct).Days -gt 1) { Remove-Item -recurse -force $choco_tmp_path } else { return }
             }
             Write-Verbose "Monkey patching chocolatey in: '$choco_tmp_path'"
-            cp -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
-            if (Test-Path $Env:ChocolateyInstall\extensions) { cp -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions }
+            Copy-Item -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
+            if (Test-Path $Env:ChocolateyInstall\extensions) { Copy-Item -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions }
 
             $fun_path = "$choco_tmp_path\helpers\functions\Get-ChocolateyWebFile.ps1"
-            (gc $fun_path) -replace '^\s+return \$fileFullPath\s*$', '  throw "au_break: $fileFullPath"' | sc $fun_path
+            (Get-Content $fun_path) -replace '^\s+return \$fileFullPath\s*$', '  throw "au_break: $fileFullPath"' | Set-Content $fun_path
         }
 
         "Automatic checksum started"
@@ -204,7 +204,7 @@ function Update-Package {
     function update_files( [switch]$SkipNuspecFile )
     {
         'Updating files'
-        '  $Latest data:';  $global:Latest.keys | sort | % { "    {0,-15} ({1})    {2}" -f $_, $Latest[$_].GetType().Name, $Latest[$_] }; ''
+        '  $Latest data:';  $global:Latest.keys | Sort-Object | ForEach-Object { "    {0,-15} ({1})    {2}" -f $_, $Latest[$_].GetType().Name, $Latest[$_] }; ''
 
         if (!$SkipNuspecFile) {
             "  $(Split-Path $nuspecFile -Leaf)"
@@ -231,12 +231,12 @@ function Update-Package {
         }
 
         $sr = au_SearchReplace
-        $sr.Keys | % {
+        $sr.Keys | ForEach-Object {
             $fileName = $_
             "  $fileName"
 
-            $fileContent = gc $fileName
-            $sr[ $fileName ].GetEnumerator() | % {
+            $fileContent = Get-Content $fileName
+            $sr[ $fileName ].GetEnumerator() | ForEach-Object {
                 ('    {0} = {1} ' -f $_.name, $_.value)
                 if (!($fileContent -match $_.name)) { throw "Search pattern not found: '$($_.name)'" }
                 $fileContent = $fileContent -replace $_.name, $_.value
@@ -255,7 +255,7 @@ function Update-Package {
     $packageName = Split-Path $pwd -Leaf
     $global:Latest = @{PackageName = $packageName}
 
-    $nuspecFile = gi "$packageName.nuspec" -ea ig
+    $nuspecFile = Get-Item "$packageName.nuspec" -ea ig
     if (!$nuspecFile) {throw 'No nuspec file' }
     $nu = Load-NuspecFile
 
