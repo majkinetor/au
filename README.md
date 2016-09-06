@@ -1,28 +1,28 @@
-# Automatic Chocolatey Package Update Module
+# Chocolatey Automatic Package Updater Module
 
-This Powershell module implements functions that can be used to automate [Chocolatey](https://chocolatey.org) package updates.
+This PowerShell module implements functions that can be used to automate [Chocolatey](https://chocolatey.org) package updates.
 
-To learn more about automatic packages for Chocolatey please refer to the relevant [documentation](https://github.com/chocolatey/choco/wiki/AutomaticPackages).
+To learn more about Chocolatey automatic packages, please refer to the relevant [documentation](https://github.com/chocolatey/choco/wiki/AutomaticPackages).
 
 ## Features
 
-- Use only Powershell to create automatic update script for given package.
+- Use only PowerShell to create automatic update script for given package.
 - Automatically downloads installers and provides/validates checksums for x32 and x64 versions.
-- Verifies URLs, versions, remote Chocolatey existence etc.
+- Verifies URLs, nuspec versions, remote Chocolatey existence etc.
 - Can use global variables to change functionality.
-- Sugar functions for maintainers.
-- Update single package or any subset of previously created packages with single command.
+- Sugar functions for Chocolatey package maintainers.
+- Update single package or any subset of previously created AU packages with a single command.
 - Multithread support when updating multiple packages.
 - Send full command output to specified email in the case of errors.
 
 ## Installation
 
-Using Chocolatey: `choco install au`.
+Using Chocolatey:    `cinst au`.
 Using Powershell 5+: `Install-Module au`.
 
-AU module requires minimally Powershell version 4.
+AU module requires minimally PowerShell version 4.
 
-**NOTE**: All module functions work from within specific root folder. The folder contains all of your chocolatey packages.
+**NOTE**: All module functions work from within specific root folder. The folder contains all of your Chocolatey packages.
 
 ## Creating the package updater script
 
@@ -34,18 +34,19 @@ AU module requires minimally Powershell version 4.
   - `global:au_SearchReplace`  
   Function returns HashTable containing search and replace data for any package file in the form: 
   ~~~
-    @{ 
-        file_path1 = @{ 
+    @{
+        file_path1 = @{
             search1 = replace1
             ...
-            searchN = replaceN 
+            searchN = replaceN
         }
         file_path2 = @{ ... }
     }
   ~~~
-  The function can use `$Latest` hashtable to get any type of information obtained when `au_GetLatest` was executed. Besides this info, the script can access `$global:nuspec_version`.
+  The function can use `$Latest` hashtable to get any type of information obtained when `au_GetLatest` was executed. Besides this info, the script can access `$global:nuspec_version`.  
+  **NOTE**: The search and replace works on lines, multiple lines can not be matched with single regular expression.
 
-- Call the `Update-Package` (alias `update`) function from the `au` module to update the package.
+- Call the `Update-Package` (alias `update`) function from the `AU` module to update the package.
 
 This is best understood via the example - take a look at the real life package [installer script](https://github.com/majkinetor/chocolatey/blob/master/dngrep/tools/chocolateyInstall.ps1) and its [AU updater](https://github.com/majkinetor/chocolatey/blob/master/dngrep/update.ps1).
 
@@ -163,6 +164,16 @@ however, its way easier to setup global variable with manual intervention on mul
 
 **NOTE**: Only if parameters are not set on function call, the global variables will take over if they are set.
 
+
+### Reusing the AU updater with metapackages
+
+Metapackages can reuse AU updater of its dependency by the following way:
+
+- In the dependent updater, instead of calling the `update` directly, use construct `if (!$au_include) { update ... }`
+- In the metapackage updater use this as a first line: `$au_include = $true; . ..\<package-name>.install\update.ps1`
+
+This is best understood via example; take a look at the [cpu-z](https://github.com/majkinetor/chocolatey/blob/master/cpu-z/update.ps1) metapackage which AU updater uses the updater from the [cpu-z.install](https://github.com/majkinetor/chocolatey/blob/master/cpu-z.install/update.ps1) package on which it depends. It overrides the `au_SearchReplace` function and the `update` call but keeps the `au_GetLatest`.
+
 ## Updating all packages
 
 You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each in a separate thread, using the specified number of threads (10 by default). If it detects that a package is updated it will optionally try to push it to the Chocolatey repository.
@@ -234,12 +245,12 @@ The purpose of this script is to attach custom logic at the end of the process (
 Apart from the functions used in the updating process, there are few suggars for regular maintenance of the package:
 
 - Test-Package  
-Quickly cpack and install the package from the current directory.
+Quickly `cpack` and install the package from the current directory.
 
 - Push-Package (alias `pp`)  
 Push the latest package using your API key.
 
-- Get-AuPackages (alias `gau`)  
+- Get-AuPackages (alias `gau` or `lsau`)  
 Returns the list of the packages which have `update.ps1` script in its directory and which name doesn't start with '_'.
 
 ---
