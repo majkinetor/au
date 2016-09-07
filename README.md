@@ -169,7 +169,12 @@ however, its way easier to setup global variable with manual intervention on mul
 
 Metapackages can reuse an AU updater of its dependency by the following way:
 
-- In the dependent updater, instead of calling the `update` directly, use construct `if ($MyInvocation.InvocationName -ne '.') { update ... }`
+- In the dependent updater, instead of calling the `update` directly, use construct:
+
+  ```
+    if ($MyInvocation.InvocationName -ne '.') { update ... }
+  ```
+
 - In the metapackage updater dot source the dependent updater and override `au_SearchReplace`.
 
 This is best understood via example - take a look at the [cpu-z](https://github.com/majkinetor/chocolatey/blob/master/cpu-z/update.ps1) AU updater which uses the updater from the [cpu-z.install](https://github.com/majkinetor/chocolatey/blob/master/cpu-z.install/update.ps1) package on which it depends. It overrides the `au_SearchReplace` function and the `update` call but keeps the `au_GetLatest`.
