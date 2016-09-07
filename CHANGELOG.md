@@ -3,11 +3,12 @@
 
 ## TODO
 
-- `Support for Semantic Versioning`
+- `Support for Semantic Versioning`.
+- `README.md` is now available via `man about_au`. 
 
 ### Bugfixes
 
-- `$Latest.Version` is still set to remote version when forcing update
+- `$Latest.Version` is still set to remote version when forcing update.
 
 ## NEXT
 
