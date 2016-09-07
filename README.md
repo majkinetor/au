@@ -169,7 +169,7 @@ however, its way easier to setup global variable with manual intervention on mul
 
 Metapackages can reuse an AU updater of its dependency by the following way:
 
-- In the dependent updater, instead of calling the `update` directly, use construct:\
+- In the dependent updater, instead of calling the `update` directly, use construct:
   ```
     if ($MyInvocation.InvocationName -ne '.') { update ... }
   ```
