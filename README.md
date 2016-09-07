@@ -167,10 +167,10 @@ however, its way easier to setup global variable with manual intervention on mul
 
 ### Reusing the AU updater with metapackages
 
-Metapackages can reuse AU updater of its dependency by the following way:
+Metapackages can reuse an AU updater of its dependency by the following way:
 
-- In the dependent updater, instead of calling the `update` directly, use construct `if (!$au_include) { update ... }`
-- In the metapackage updater use this as a first line: `$au_include = $true; . ..\<package-name>.install\update.ps1`
+- In the dependent updater, instead of calling the `update` directly, use construct `if ($MyInvocation.InvocationName -ne '.') { update ... }`
+- In the metapackage updater dot source the dependent updater and override `au_SearchReplace`.
 
 This is best understood via example; take a look at the [cpu-z](https://github.com/majkinetor/chocolatey/blob/master/cpu-z/update.ps1) metapackage which AU updater uses the updater from the [cpu-z.install](https://github.com/majkinetor/chocolatey/blob/master/cpu-z.install/update.ps1) package on which it depends. It overrides the `au_SearchReplace` function and the `update` call but keeps the `au_GetLatest`.
 

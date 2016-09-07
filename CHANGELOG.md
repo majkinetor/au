@@ -1,6 +1,14 @@
 
 # AU Changelog
 
+## TODO
+
+- `Support for Semantic Versioning`
+
+### Bugfixes
+
+- `$Latest.Version` is still set to remote version when forcing update
+
 ## NEXT
 
 - `Get-AuPackages` considers global variable `$au_root` when looking for AU packages.
