@@ -18,7 +18,7 @@ To learn more about Chocolatey automatic packages, please refer to the relevant 
 ## Installation
 
 Using Chocolatey:    `cinst au`.
-Using Powershell 5+: `Install-Module au`.
+Using PowerShell 5+: `Install-Module au`.
 
 AU module requires minimally PowerShell version 4.
 
@@ -30,7 +30,7 @@ AU module requires minimally PowerShell version 4.
 - Import the module: `import-module au`.
 - Implement two global functions:
   - `global:au_GetLatest`   
-  Function returns HashTable with the latest remote version along with other arbitrary user data which you can use elsewhere (for instance in search and replace). The returned version is then compared to the one in the nuspec file and if remote version is higher, the files will be updated. This hashtable is available via global variable `$Latest`.
+  Function returns HashTable with the latest remote version along with other arbitrary user data which you can use elsewhere (for instance in search and replace). The returned version is then compared to the one in the nuspec file and if remote version is higher, the files will be updated. This HashTable is available via global variable `$Latest`.
   - `global:au_SearchReplace`  
   Function returns HashTable containing search and replace data for any package file in the form: 
   ~~~
@@ -90,22 +90,22 @@ The `update` function does the following checks:
 
 - The `$Latest.Version` will be checked to match a valid nuspec pattern.
 - Any hash key that starts with the word `Url`, will be checked for existence and MIME textual type, since binary is expected here.
-- If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existance of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict.
+- If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existence of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict.
 - The regex patterns in `au_SearchReplace` will be checked for existence.
 
 If any of the checks fails, package will not get updated. This feature releases you from the worries about how precise is your pattern scan in `au_GetLatest` function and how often original site changes as if something like that happens package wont get updated or pushed with incorrect data.
 
-For some packages, you may want to disable some of the checks by specifying aditional parameters of the `update` function (not all can be disabled):
+For some packages, you may want to disable some of the checks by specifying additional parameters of the `update` function (not all can be disabled):
 
-|Parameter| Description|
-|---------|------------|
-| `NoCheckUrl` | Disable URL checks |
+| Parameter             | Description                       |
+| ---------             | ------------                      |
+| `NoCheckUrl`          | Disable URL checks                |
 | `NoCheckChocoVersion` | Disable the Chocolatey site check |
-| `ChecksumFor none`| Disable automatic checksum|
+| `ChecksumFor none`    | Disable automatic checksum        |
 
 ### Automatic checksums
 
-When new version is available, the `update` function will by default download both x32 and x64 versions of the installer and calculate the desired checksum. It will inject this info in the `$global:Latest` hashtable variable so you can use it via `au_SearchReplace` function to update hashes. The parameter `ChecksumFor` can contain words `all`, `none`, `32` or `64` to further control the behavior.
+When new version is available, the `update` function will by default download both x32 and x64 versions of the installer and calculate the desired checksum. It will inject this info in the `$global:Latest` HashTable variable so you can use it via `au_SearchReplace` function to update hashes. The parameter `ChecksumFor` can contain words `all`, `none`, `32` or `64` to further control the behavior.
 
 You can disable this feature by calling update like this:
 

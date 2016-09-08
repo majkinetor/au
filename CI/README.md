@@ -11,13 +11,12 @@ Installs build prerequisites.
 - `publish.ps1`  
 Orchestration script that invokes all steps needed for the module deployment.
 
+# Requirements
+
+- PowerShell version 5+.
+
 ## Process
 
-**Deployment is triggered by the new Git tag which contains the new module version in specific format**.
+**Deployment is triggered by the new Git commit which contains the keyword `[publish]`**.
 
-The following things needs to be done manually:
-
-- Update the `CHANGELOG.md` under the header `NEXT`.  
-Deployment procedure will use the content of this header as release notes for the new version and replace the header text with the new version.
-- Create a new Git tag: `$version = (Get-Date).ToString("yyyy.M.d"); git tag $version; git push --tags`
-
+Before publishing, manually update the release notes for new version in the file `CHANGELOG.md` under the header `NEXT`.  
