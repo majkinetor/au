@@ -1,13 +1,6 @@
 #requires -version 5
 
-[CmdletBinding()]
-param(
-    [Parameter(Mandatory = $true)]
-    [Version] $Version,
-
-    [switch] $CreateGithubRelease
-)
-
+# Vars: Env:NuGet_ApiKey, Env:Github_ApiKey, Env:Github_UserRepo, Env:Github_Release 
 $p = {
 
     # generate module stuff
@@ -62,7 +55,7 @@ function fix_changelog() {
 }
 
 function create_github_release() {
-    if (!$CreateGithubRelease) { Write-Verbose 'Github release creation disabled'; return }
+    if (!$Env:Github_Release = 'true') { Write-Verbose "Github release creation disabled. To enable it set `$Env:Github_Release = 'true'"; return }
     Write-Verbose 'Creating Github release'
 
     'Github_UserRepo', 'Github_ApiKey' | test-var
