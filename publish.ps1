@@ -1,6 +1,7 @@
 #requires -version 5
+
 param(
-    [switch]$PowershellGallery,
+    [switch]$PSGallery,
     [switch]$Github,
     [switch]$Chocolatey
 )
@@ -16,7 +17,7 @@ $p = {
     git_save
     git_tag
 
-    Publish-PowershellGallery
+    Publish-PSGallery
     Publish-Chocolatey
     Publish-Github
 }
@@ -58,8 +59,8 @@ function Publish-Github() {
     . $PSScriptRoot/scripts/Github-CreateRelease.ps1 @params
 }
 
-function Publish-PowershellGallery() {
-    if (!$PowershellGallery) { Write-Host "Powershell Gallery publish disabled."; return }
+function Publish-PSGallery() {
+    if (!$PSGallery) { Write-Host "Powershell Gallery publish disabled."; return }
     Write-Host 'Publishing to Powershell Gallery'
 
     'NuGet_ApiKey' | test-var

@@ -1,3 +1,5 @@
+#requires -version 2
+
 # Always install AU versionless in Program Files to support older PowerShell versions ( v < 5 )
 # Multiple AU versions can be installed using Install-Module if needed (on Posh 5+).
 
