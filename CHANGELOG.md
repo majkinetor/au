@@ -17,6 +17,13 @@
 - All packages now support `Verbose` parameter.
 - `NuspecVersion` added to the `$Latest` Hashtable by the framework.
 
+### CD
+
+- Build module script.
+- Build chocolatey package script.
+- Publish to Github, Chocolatey and PSGallery.
+- `install.ps1` script to install/remove Powershell module in the current system.
+
 
 ## 2016.8.15
 
@@ -47,3 +54,5 @@
 - Automatic checksum.
 - Raise errors on search pattern not found.
 - Bugfixes and small improvements.
+
+
