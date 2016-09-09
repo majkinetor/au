@@ -4,23 +4,11 @@
   <metadata>
     <id>au</id>
     <title>Chocolatey Automatic Package Updater Module</title>
-    <version>2016.9.9.103504</version>
+    <version></version>
     <authors>Miodrag Milić</authors>
     <owners>Miodrag Milić</owners>
-    <summary>AU is Powershell module that implements functions which can be used to automate Chocolatey package updates</summary>
-    <description>.
-
-## Features
-
-- Use only PowerShell to create automatic update script for given package.
-- Automatically downloads installers and provides/validates checksums for x32 and x64 versions.
-- Verifies URLs, nuspec versions, remote Chocolatey existence etc.
-- Can use global variables to change functionality.
-- Sugar functions for Chocolatey package maintainers.
-- Update single package or any subset of previously created AU packages with a single command.
-- Multithread support when updating multiple packages.
-- Send full command output to specified email in the case of errors.
-</description>
+    <summary>AU is Powershell module that helps you to automate Chocolatey package updates</summary>
+    <description></description>
     <projectUrl>https://github.com/majkinetor/au</projectUrl>
     <tags>admin powershell module package chocolatey</tags>
     <copyright>Miodrag Milić</copyright>
