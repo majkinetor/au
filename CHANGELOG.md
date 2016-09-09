@@ -15,7 +15,7 @@
 - `Get-AuPackages` has new alias `lsau`.
 - All packages now support `Verbose` parameter.
 - `NuspecVersion` added to the `$Latest` Hashtable by the framework.
-- Make `README.md` available via `man about_au`. 
+- `README.md` made available via `man about_au`. 
 
 ### CD
 
