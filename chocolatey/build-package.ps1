@@ -16,13 +16,13 @@ $res         = $readme -match '## Features(.|\n)+?(?=\n##)'
 if (!$res) { throw "Can't find markdown header 'Features' in the README.md" }
 
 $features    = $Matches[0]
-$description = $au.package.metadata.summary + ".`n`n" + $features
 
 Write-Host 'Updating nuspec file'
 $nuspec_build_path = $nuspec_path -replace '\.nuspec$', '_build.nuspec'
 [xml]$au = gc $nuspec_path
-$au.package.metadata.version       = $version.ToString()
-$au.package.metadata.description   = $description
+$description                     = $au.package.metadata.summary + ".`n`n" + $features
+$au.package.metadata.version     = $version.ToString()
+$au.package.metadata.description = $description
 $au.Save($nuspec_build_path)
 
 Write-Host 'Copying module'

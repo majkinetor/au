@@ -7,7 +7,7 @@ The following scripts are used during development and deployment:
 - `setup.ps1`  
 Install prerequisites.
 - `build.ps1`  
-Build the final module form.
+Build the module and packages.
 - `install.ps1`  
 Install the module in the system.
 - `publish.ps1`  

@@ -21,7 +21,7 @@ $module_path = Resolve-Path $module_path
 rm -Force -Recurse "$module_dst\$module_name" -ErrorAction ignore
 if ($Remove) { Write-Host "Module AU removed"; return }
 
-"==| Starting AU installation`n"
+"`n==| Starting AU installation`n"
 
 if (!(Test-Path $module_path)) { throw "Module path invalid: '$module_path'" }
 

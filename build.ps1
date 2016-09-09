@@ -1,9 +1,10 @@
 #requires -version 3
 
+param( $Version = [Version](Get-Date).ToString("yyyy.M.d.HHmmss") )
+
 $b = {
     $module_path = "$PSScriptRoot/AU"
     $module_name = Split-Path -Leaf $module_path
-    $version     = [Version](Get-Date).ToString("yyyy.M.d.HHmmss")
     $build_dir   = "$PSScriptRoot/_build/$version"
     $remove_old  = $true
 
