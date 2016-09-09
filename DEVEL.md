@@ -16,7 +16,7 @@ Publish module to Powershell Gallery, Chocolatey and Github.
 Build Chocolatey package.
 
 
-## Build
+## Build and publish
 
 The builded module will be available in the `_build\{version}` directory. Version is determined automatically based on the current time.
 
@@ -24,15 +24,15 @@ The builded module will be available in the `_build\{version}` directory. Versio
 ./build.ps1
 ```
 
-## Publish
-
-Before publishing, edit the `NEXT` header in the `CHANGELOG.md` file and build the module. The publish procedure edits this file to set the latest version and get the release notes.
+Before publishing, edit the `NEXT` header in the `CHANGELOG.md` file to set the release notes and build the module. The publish procedure edits this file to change header name to the latest version.
 
 There is a switch parameter for each publishing platform:
 
 ```
 ./publish.ps1 -Github -PSGallery -Chocolatey
 ```
+
+Publishing procedure depends on number of environment variables. Rename `vars_default.ps1` to `vars.ps1` and set variables there to get them included.
 
 ## Clean
 

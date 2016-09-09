@@ -11,7 +11,7 @@ $p = {
 
     if (!(gcm git)) {throw "Git is not installed. Use Chocolatey to install it: cinst git" }
 
-    if (!(Test-Path $PSScriptRoot\_build)) { throw "Latest build doesn't exist" }
+    if (!(Test-Path $PSScriptRoot\_build\*)) { throw "Latest build doesn't exist" }
     $module_path = (ls $PSScriptRoot\_build\* -ea ignore | sort CreationDate -desc | select -First 1 -Expand FullName) + '/AU'
 
     $version       = Import-PowerShellDataFile $module_path/AU.psd1 | % ModuleVersion
@@ -20,8 +20,8 @@ $p = {
     #git_save_changelog
     #git_tag
 
-    #Publish-PSGallery
-    #Publish-Chocolatey
+    Publish-PSGallery
+    Publish-Chocolatey
     Publish-Github
 }
 
