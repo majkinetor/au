@@ -1,1 +1,4 @@
-/AU/en-US
+/_build
+/chocolatey/tools/AU
+/chocolatey/tools/install.ps1
+/chocolatey/*.nupkg

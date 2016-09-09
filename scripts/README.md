@@ -1,10 +1,10 @@
-# Continuous Integration
+# Scripts
 
 # Overview
 
-This directory contains automation scripts required for continuous integration and deployment.
+This directory contains automation scripts required to build and publish module.
 
-The two main scripts are:
+Main scripts are:
 
 - `setup.ps1`  
 Installs build prerequisites.

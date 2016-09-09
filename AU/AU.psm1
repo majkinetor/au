@@ -1,6 +1,3 @@
-#requires -version 4
+#requires -version 3
 
-$paths = "Private", "Public"
-foreach ($path in $paths) {
-    ls $PSScriptRoot\$path\*.ps1 | % { . $_ }
-}
+ls -Recurse $PSScriptRoot\*.ps1 | % { . $_ }

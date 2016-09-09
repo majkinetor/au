@@ -4,11 +4,11 @@
   <metadata>
     <id>au</id>
     <title>Chocolatey Automatic Package Updater Module</title>
-    <version>0.1</version>
+    <version>2016.9.9.102814</version>
     <authors>Miodrag Milić</authors>
     <owners>Miodrag Milić</owners>
     <summary>AU is Powershell module that implements functions which can be used to automate Chocolatey package updates</summary>
-    <description>Powershell module AU implements functions that can be used to automate Chocolatey package updates.
+    <description>.
 
 ## Features
 
@@ -26,7 +26,7 @@
     <copyright>Miodrag Milić</copyright>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <releaseNotes>mislim dakle pstojim</releaseNotes>
+    <releaseNotes>https://github.com/majkinetor/au/blob/master/CHANGELOG.md</releaseNotes>
     <docsUrl>https://github.com/majkinetor/au/blob/master/README.md</docsUrl>
     <mailingListUrl>https://github.com/majkinetor/au/issues</mailingListUrl>
     <bugTrackerUrl>https://github.com/majkinetor/au/issues</bugTrackerUrl>

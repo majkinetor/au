@@ -23,4 +23,6 @@ function Get-AUPackages($Name=$null) {
         } else { $packageDir }
     }
 }
+
 Set-Alias gau  Get-AuPackages
+Set-Alias lsau Get-AuPackages

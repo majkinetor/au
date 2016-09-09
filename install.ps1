@@ -1,23 +1,36 @@
 # Always install AU versionless in Program Files to support older PowerShell versions ( v < 5 )
 # Multiple AU versions can be installed using Install-Module if needed (on Posh 5+).
 
-$ErrorActionPreference = 'Stop'
-$module_name = Split-Path -Leaf $PSScriptRoot
+param(
+    [string] $module_path,  #if empty use latest build
+    [switch] $Remove
+)
 
-$module_src = gi $PSScriptRoot\$module_name
-$module_dst = "$Env:ProgramFiles\WindowsPowerShell\Modules"
+$ErrorActionPreference = 'Stop'
+
+$module_name = 'AU'
+$module_dst  = "$Env:ProgramFiles\WindowsPowerShell\Modules"
+if (!$module_path) {
+    if (!(Test-Path $PSScriptRoot\_build)) { throw "module_path not specified and latest build doesn't exist" }
+    $module_path = (ls $PSScriptRoot\_build\* -ea ignore | sort CreationDate -desc | select -First 1 -Expand FullName) + '/' + $module_name
+}
+$module_path = Resolve-Path $module_path
 
 rm -Force -Recurse "$module_dst\$module_name" -ErrorAction ignore
-cp -Recurse  $module_src $module_dst
+if ($Remove) { Write-Host "Module AU removed"; return }
 
-$help_dir = "$module_dst\$module_name\en-US"
-mkdir -Force $help_dir | Out-Null
-cp $PSScriptRoot\README.md "$help_dir\about_$module_name.help.txt"
+"==| Starting AU installation`n"
+
+if (!(Test-Path $module_path)) { throw "Module path invalid: '$module_path'" }
+
+"Module path: '$module_path'"
+
+cp -Recurse -Force  $module_path $module_dst
 
 $res = Get-Module $module_name -ListAvailable | ? { (Split-Path $_.ModuleBase) -eq $module_dst }
 if (!$res) { throw 'Module installation failed' }
 
-"`n$($res.Name) version $($res.Version) installed successfully at '$module_dst'"
+"`n$($res.Name) version $($res.Version) installed successfully at '$module_dst\$module_name'"
 
 $functions = $res.ExportedFunctions.Keys
 
@@ -26,6 +39,6 @@ $aliases = get-alias | ? { $_.Source -eq $module_name }
 
 $functions | % {
     [PSCustomObject]@{ Function = $_; Alias = $aliases | ? Definition -eq $_ }
-} | ft -auto
+} | ft -auto | Out-String
 
-'To learn more about au type `man about_au`.'
+'To learn more type `man about_au`.'
