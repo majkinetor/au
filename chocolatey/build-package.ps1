@@ -19,13 +19,15 @@ $features    = $Matches[0]
 $description = $au.package.metadata.summary + ".`n`n" + $features
 
 Write-Host 'Updating nuspec file'
+$nuspec_build_path = $nuspec_path -replace '\.nuspec$', '_build.nuspec'
 [xml]$au = gc $nuspec_path
 $au.package.metadata.version       = $version.ToString()
 $au.package.metadata.description   = $description
-$au.Save($nuspec_path)
+$au.Save($nuspec_build_path)
 
 Write-Host 'Copying module'
 cp -Force -Recurse $module_path $PSScriptRoot\tools
 cp $PSScriptRoot\..\install.ps1 $PSScriptRoot\tools
 
-choco pack $nuspec_path --outputdirectory $PSScriptRoot
+choco pack $nuspec_build_path --outputdirectory $PSScriptRoot
+rm $nuspec_build_path

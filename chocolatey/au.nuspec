@@ -7,7 +7,7 @@
     <version></version>
     <authors>Miodrag Milić</authors>
     <owners>Miodrag Milić</owners>
-    <summary>AU is Powershell module that helps you to automate Chocolatey package updates</summary>
+    <summary>AU is Powershell module that helps you to automate Chocolatey package updates.</summary>
     <description></description>
     <projectUrl>https://github.com/majkinetor/au</projectUrl>
     <tags>admin powershell module package chocolatey</tags>
