@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>au</id>
+    <title>Chocolatey Automatic Package Updater Module</title>
+    <version>0.1</version>
+    <authors>Miodrag Milić</authors>
+    <owners>Miodrag Milić</owners>
+    <summary>AU is Powershell module that implements functions which can be used to automate Chocolatey package updates</summary>
+    <description>Powershell module AU implements functions that can be used to automate Chocolatey package updates.
+
+## Features
+
+- Use only PowerShell to create automatic update script for given package.
+- Automatically downloads installers and provides/validates checksums for x32 and x64 versions.
+- Verifies URLs, nuspec versions, remote Chocolatey existence etc.
+- Can use global variables to change functionality.
+- Sugar functions for Chocolatey package maintainers.
+- Update single package or any subset of previously created AU packages with a single command.
+- Multithread support when updating multiple packages.
+- Send full command output to specified email in the case of errors.
+</description>
+    <projectUrl>https://github.com/majkinetor/au</projectUrl>
+    <tags>admin powershell module package chocolatey</tags>
+    <copyright>Miodrag Milić</copyright>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <releaseNotes>mislim dakle pstojim</releaseNotes>
+    <docsUrl>https://github.com/majkinetor/au/blob/master/README.md</docsUrl>
+    <mailingListUrl>https://github.com/majkinetor/au/issues</mailingListUrl>
+    <bugTrackerUrl>https://github.com/majkinetor/au/issues</bugTrackerUrl>
+    <projectSourceUrl>https://github.com/majkinetor/au</projectSourceUrl>
+    <packageSourceUrl>https://github.com/majkinetor/au/tree/master/chocolatey</packageSourceUrl>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
