@@ -2,6 +2,7 @@
 
 $build_path = Resolve-Path $PSScriptRoot\..\_build
 $version    = ls $build_path | sort CreationDate -desc | select -First 1 -Expand Name
+$version    = $version.ToString()
 if (![version]$version) { throw 'Latest module build can not be found' }
 
 $module_path = "$build_path\$version\AU"
@@ -20,9 +21,10 @@ $features    = $Matches[0]
 Write-Host 'Updating nuspec file'
 $nuspec_build_path = $nuspec_path -replace '\.nuspec$', '_build.nuspec'
 [xml]$au = gc $nuspec_path
-$description                     = $au.package.metadata.summary + ".`n`n" + $features
-$au.package.metadata.version     = $version.ToString()
-$au.package.metadata.description = $description
+$description                      = $au.package.metadata.summary + ".`n`n" + $features
+$au.package.metadata.version      = $version
+$au.package.metadata.description  = $description
+$au.package.metadata.releaseNotes = 'https://github.com/majkinetor/au/releases/tag/' + $version
 $au.Save($nuspec_build_path)
 
 Write-Host 'Copying module'
