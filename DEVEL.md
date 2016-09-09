@@ -31,7 +31,7 @@ Before publishing, edit the `NEXT` header in the `CHANGELOG.md` file and build t
 There is a switch parameter for each publishing platform:
 
 ```
-./publish.ps1 -Github -PowershellGallery -Chocolatey
+./publish.ps1 -Github -PSGallery -Chocolatey
 ```
 
 ## Clean
