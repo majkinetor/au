@@ -12,9 +12,6 @@
 ## NEXT
 
 
-
-## 0.0.1
-
 ## 0.0.1
 
 - `Get-AuPackages` considers global variable `$au_root` when looking for AU packages.
