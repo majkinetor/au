@@ -12,6 +12,9 @@
 ## NEXT
 
 
+
+## 0.0.1
+
 ## 0.0.1
 
 - `Get-AuPackages` considers global variable `$au_root` when looking for AU packages.
@@ -57,6 +60,7 @@
 - Automatic checksum.
 - Raise errors on search pattern not found.
 - Bugfixes and small improvements.
+
 
 
 
