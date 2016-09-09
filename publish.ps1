@@ -1,7 +1,13 @@
 #requires -version 5
+param(
+    [switch]$PowershellGallery,
+    [switch]$Github,
+    [switch]$Chocolatey
+)
 
 $p = {
     # Vars: Env:NuGet_ApiKey, Env:Github_ApiKey, Env:Github_UserRepo, Env:Github_Release 
+    if (!(gcm git)) {throw "Git is not installed. Use Chocolatey to install it: cinst git" }
 
     $module_path   = "$PSScriptRoot/AU"
     $version       = Import-PowerShellDataFile $module_path/AU.psd1 | % ModuleVersion
@@ -21,7 +27,7 @@ function git_tag() {
 }
 
 function git_save() {
-    Write-Verbose 'Pushing changes to Github'
+    Write-host 'Pushing Git changes'
 
     git checkout master
     git pull
@@ -37,9 +43,9 @@ function fix_changelog() {
     . $PSScriptRoot/scripts/Fix-ChangeLog.ps1
 }
 
-function create_github_release() {
-    if (!$Env:Github_Release = 'true') { Write-Verbose "Github release creation disabled. To enable it set `$Env:Github_Release = 'true'"; return }
-    Write-Verbose 'Creating Github release'
+function Publish-Github() {
+    if (!$Github) { Write-Host "Github publish disabled."; return }
+    Write-Host 'Publishing to Github'
 
     'Github_UserRepo', 'Github_ApiKey' | test-var
     $params = @{
@@ -52,8 +58,9 @@ function create_github_release() {
     . $PSScriptRoot/scripts/Github-CreateRelease.ps1 @params
 }
 
-function push_to_gallery() {
-    Write-Verbose 'Pushing to Powershell Gallery'
+function Publish-PowershellGallery() {
+    if (!$PowershellGallery) { Write-Host "Powershell Gallery publish disabled."; return }
+    Write-Host 'Publishing to Powershell Gallery'
 
     'NuGet_ApiKey' | test-var
     $params = @{
@@ -63,10 +70,18 @@ function push_to_gallery() {
     Publish-Module @params
 }
 
+function Publish-Chocolatey() {
+    if (!$Chocolatey) { Write-Host "Chocolatey publish disabled."; return }
+    Write-Verbose 'Publishing to Chocolatey'
+
+    'Chocolatey_ApiKey' | test-var
+    choco push $PSScriptRoot\chocolatey\*.$version.nupkg --api-key $Env:Chocolatey_ApiKey
+    if ($LastExitCode) {throw "Chocolatey push failed with exit code: $LastExitCode"}
+}
+
 function test-var() {
      $input | % { if (!(Test-Path Env:$_)) {throw "Environment Variable $_ must be set"} }
 }
 
 $ErrorActionPreference = 'STOP'
-if (!(gcm git)) {throw "Git is not installed. Use Chocolatey to install it: cinst git" }
 & $p
