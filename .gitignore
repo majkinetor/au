@@ -1,4 +1,5 @@
 /_build
+/chocolatey/au.nuspec
 /chocolatey/tools/AU
 /chocolatey/tools/install.ps1
 /chocolatey/*.nupkg

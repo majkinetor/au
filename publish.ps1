@@ -14,7 +14,7 @@ $p = {
     $version       = Import-PowerShellDataFile $module_path/AU.psd1 | % ModuleVersion
     $release_notes = fix_changelog
 
-    git_save
+    git_save_changelog
     git_tag
 
     Publish-PSGallery
@@ -27,13 +27,12 @@ function git_tag() {
     git push --tags
 }
 
-function git_save() {
+function git_save_changelog() {
     Write-host 'Pushing Git changes'
 
     git checkout master
     git pull
 
-    git add $module_path\*.psd1
     git add $PSScriptRoot\CHANGELOG.md
     git commit -m "PUBLISH: version $version"
     git push
@@ -52,7 +51,7 @@ function Publish-Github() {
     $params = @{
         Github_UserRepo = $Env:Github_UserRepo
         Github_ApiKey   = $Env:Github_ApiKey
-        TagName         = $Version
+        TagName         = $version
         ReleaseNotes    = $release_notes
         Artifact        = ''
     }
