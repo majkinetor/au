@@ -4,7 +4,7 @@
   <metadata>
     <id>au</id>
     <title>Chocolatey Automatic Package Updater Module</title>
-    <version>2016.9.9.102814</version>
+    <version>2016.9.9.103504</version>
     <authors>Miodrag Milić</authors>
     <owners>Miodrag Milić</owners>
     <summary>AU is Powershell module that implements functions which can be used to automate Chocolatey package updates</summary>
