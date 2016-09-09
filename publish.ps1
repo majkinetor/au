@@ -17,8 +17,8 @@ $p = {
     $version       = Import-PowerShellDataFile $module_path/AU.psd1 | % ModuleVersion
     $release_notes = fix_changelog
 
-    #git_save_changelog
-    #git_tag
+    git_save_changelog
+    git_tag
 
     Publish-PSGallery
     Publish-Chocolatey
