@@ -13,6 +13,6 @@ $res = $clog -match '(?<=## NEXT)(.|\n)+?(?=\n## )'
 if (!$res) { throw "Can't find header NEXT in the CHANGELOG.md" }
 $release_notes = $Matches[0]
 
-$clog -replace '(?<=\n)## NEXT\s*', "`$0`n## $Version`n" | sc $changelog_path -Encoding ascii
+$clog -replace '(?<=\n)## NEXT\s*', "`$0`n## $Version`n`n" | sc $changelog_path -Encoding ascii
 
 $release_notes
