@@ -3,10 +3,12 @@
 param(
     [switch]$PSGallery,
     [switch]$Github,
+    [switch]$GitAuth,
     [switch]$Chocolatey
 )
 
 $p = {
+    pushd $PSScriptRoot
     if (Test-Path $PSScriptRoot/vars.ps1) { . $PSScriptRoot/vars.ps1 }
 
     if (!(gcm git)) {throw "Git is not installed. Use Chocolatey to install it: cinst git" }
@@ -17,12 +19,23 @@ $p = {
     $version       = Import-PowerShellDataFile $module_path/AU.psd1 | % ModuleVersion
     $release_notes = fix_changelog
 
+    git_set_auth
     git_save_changelog
     git_tag
 
     Publish-PSGallery
     Publish-Chocolatey
     Publish-Github
+    popd
+}
+
+function git_set_auth() {
+    if (!$GitAuth) { Write-Host "Git auth disabled"; return }
+
+    git remote rm origin
+    $user = $env:Github_UserRepo -split '/' | select -First 1
+    git remote add origin https://$user:$Env:Github_ApiKey@github.com/$Env:Github_UserRepo.git
+    git branch --set-upstream-to=origin/master master
 }
 
 function git_tag() {
