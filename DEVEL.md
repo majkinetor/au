@@ -38,6 +38,6 @@ Publishing procedure depends on number of environment variables. Rename `vars_de
 
 ## Clean
 
-To clean build files run `git clean -Xdf`. **However, keep in mind that other unversioned files will be deleted.**
+To clean build files run `git clean -Xdf`.  **However, keep in mind that other unversioned files will be deleted.**
 
 
