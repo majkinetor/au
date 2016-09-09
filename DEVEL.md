@@ -34,4 +34,8 @@ There is a switch parameter for each publishing platform:
 ./publish.ps1 -Github -PowershellGallery -Chocolatey
 ```
 
+## Clean
+
+To clean build files run `git clean -Xdf`. **However, keep in mind that other unversioned files will be deleted.**
+
 
