@@ -7,18 +7,21 @@ param(
 )
 
 $p = {
-    # Vars: Env:NuGet_ApiKey, Env:Github_ApiKey, Env:Github_UserRepo, Env:Github_Release 
+    if (Test-Path $PSScriptRoot/vars.ps1) { . $PSScriptRoot/vars.ps1 }
+
     if (!(gcm git)) {throw "Git is not installed. Use Chocolatey to install it: cinst git" }
 
-    $module_path   = "$PSScriptRoot/AU"
+    if (!(Test-Path $PSScriptRoot\_build)) { throw "Latest build doesn't exist" }
+    $module_path = (ls $PSScriptRoot\_build\* -ea ignore | sort CreationDate -desc | select -First 1 -Expand FullName) + '/AU'
+
     $version       = Import-PowerShellDataFile $module_path/AU.psd1 | % ModuleVersion
     $release_notes = fix_changelog
 
-    git_save_changelog
-    git_tag
+    #git_save_changelog
+    #git_tag
 
-    Publish-PSGallery
-    Publish-Chocolatey
+    #Publish-PSGallery
+    #Publish-Chocolatey
     Publish-Github
 }
 
@@ -40,7 +43,7 @@ function git_save_changelog() {
 
 
 function fix_changelog() {
-    . $PSScriptRoot/scripts/Fix-ChangeLog.ps1
+    . $PSScriptRoot/scripts/Fix-ChangeLog.ps1 -Version $version
 }
 
 function Publish-Github() {
@@ -53,7 +56,7 @@ function Publish-Github() {
         Github_ApiKey   = $Env:Github_ApiKey
         TagName         = $version
         ReleaseNotes    = $release_notes
-        Artifact        = ''
+        Artifacts       = "$PSScriptRoot/chocolatey/au.$version.nupkg"
     }
     . $PSScriptRoot/scripts/Github-CreateRelease.ps1 @params
 }

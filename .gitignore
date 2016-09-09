@@ -2,3 +2,4 @@
 /chocolatey/tools/AU
 /chocolatey/tools/install.ps1
 /chocolatey/*.nupkg
+/vars.ps1
