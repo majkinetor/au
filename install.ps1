@@ -13,7 +13,7 @@ $ErrorActionPreference = 'Stop'
 $module_name = 'AU'
 $module_dst  = "$Env:ProgramFiles\WindowsPowerShell\Modules"
 if (!$module_path) {
-    if (!(Test-Path $PSScriptRoot\_build)) { throw "module_path not specified and latest build doesn't exist" }
+    if (!(Test-Path $PSScriptRoot\_build\*)) { throw "module_path not specified and latest build doesn't exist" }
     $module_path = (ls $PSScriptRoot\_build\* -ea ignore | sort CreationDate -desc | select -First 1 -Expand FullName) + '/' + $module_name
 }
 $module_path = Resolve-Path $module_path
