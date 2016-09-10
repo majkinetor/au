@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 2016-08-30.
+# Last Change: 11-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -56,9 +56,6 @@
 
     Update-Package -ChecksumFor 32
 #>
-
-# Note: Returned messages by this function influence the Update-AUPackages function so
-#       they shouldn't generally be changed without making adequate changes on both places.
 function Update-Package {
     [CmdletBinding()]
     param(
@@ -77,8 +74,7 @@ function Update-Package {
         [string] $ChecksumFor='all',
 
         #Timeout for all web operations.
-        #Defaults to global variable $au_Timeout if not specified.
-        #If not specified at all it defaults to 100 seconds.
+        #Defaults to global variable $au_Timeout if not specified.If not specified at all it defaults to 100 seconds.
         [int]    $Timeout,
 
         #Force package update even if no new version is found. This is useful for troubleshooting and updating checksums etc.
@@ -120,7 +116,7 @@ function Update-Package {
 
     function check_version() {
         $re = '^(\d+)(\.\d+){0,3}$'
-        if ($Latest.Version -notmatch $re) { throw "Latest $packageName version doesn't match the pattern '$re': '$($Latest.Version)'" }
+        if ($Latest.Version -notmatch $re) { throw "Latest $($package.Name) version doesn't match the pattern '$re': '$($Latest.Version)'" }
     }
 
     function updated() {
@@ -246,22 +242,32 @@ function Update-Package {
         }
     }
 
-    if ($PSBoundParameters.Keys -notcontains 'Timeout')             { if ($global:au_Timeout) { $Timeout = $global:au_Timeout } }
-    if ($PSBoundParameters.Keys -notcontains 'NoCheckChocoVersion') { if ($global:au_NoCheckChocoVersion) { $NoCheckChocoVersion = $global:au_NoCheckChocoVersion } }
-    if ($PSBoundParameters.Keys -notcontains 'NoCheckUrl')          { if ($global:au_NoCheckUrl) { $NoCheckUrl = $global:au_NoCheckUrl } }
-    if ($PSBoundParameters.Keys -notcontains 'Force')               { if ($global:au_Force) { $Force = $global:au_Force } }
-    if ($PSBoundParameters.Keys -notcontains 'ChecksumFor')         { if ($global:au_ChecksumFor) { $ChecksumFor = $global:au_ChecksumFor } }
+    function result() { $package.Result += $input; Write-Host $($input) }
 
-    $packageName = Split-Path $pwd -Leaf
-    $global:Latest = @{PackageName = $packageName}
+    # Assign parameters from global variables with the prefix `au_` if they are bound
+    (gcm $PSCmdlet.MyInvocation.InvocationName).Parameters.Keys | % {
+        if ($PSBoundParameters.Keys -contains $_) { return }
+        $value = gv "au_$_" -Scope Global -ea Ignore | % Value
+        if ($value -ne $null) { 
+            sv $_ $value
+            Write-Verbose "Parameter $_ set from global variable au_${_}: $value"
+        }
+    }
 
-    $nuspecFile = gi "$packageName.nuspec" -ea ig
-    if (!$nuspecFile) {throw 'No nuspec file' }
+    $package = [PSCustomObject]@{Path=''; Name=''; Updated=''; Pushed=''; RemoteVersion=''; NuspecVersion=''; Result=@(); Error=@()}
+    $package.PSObject.TypeNames.Insert(0, 'AUPackage')
+
+    $package.Path = $pwd
+    $package.Name = Split-Path $pwd -Leaf
+    $global:Latest = @{PackageName = $package.Name}
+
+    $nuspecFile = gi "$($package.Name).nuspec" -ea ignore
+    if (!$nuspecFile) { throw 'No nuspec file found in the current directory' }
     $nu = Load-NuspecFile
-
     $global:Latest.NuspecVersion = $nuspec_version = $nu.package.metadata.version
 
-    "$packageName - checking updates"
+    $module = $MyInvocation.MyCommand.ScriptBlock.Module
+    "{0} - checking updates using {1} version {2}" -f $package.Name, $module.Name, $module.Version | result
     try {
         $res = au_GetLatest
         $res_type = $res.GetType()
@@ -301,7 +307,7 @@ function Update-Package {
     update_files
     if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate'; au_AfterUpdate }
 
-    choco pack
+    choco pack --limit-output
     return 'Package updated'
 }
 

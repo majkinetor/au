@@ -4,6 +4,7 @@
 ## TODO
 
 - `Support for Semantic Versioning`.
+- Pester tests
 
 ### Bugfixes
 
