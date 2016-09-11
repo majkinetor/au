@@ -127,7 +127,7 @@ function Update-Package {
     function get_checksum()
     {
         function invoke_installer() {
-            if (!(Test-Path tools\chocolateyInstall.ps1)) { return }
+            if (!(Test-Path tools\chocolateyInstall.ps1)) { "  aborted, chocolateyInstall not found for this package" | result; return }
 
             Import-Module "$choco_tmp_path\helpers\chocolateyInstaller.psm1" -Force
             $env:chocolateyPackageName = "chocolatey\$packageName"
@@ -155,11 +155,11 @@ function Update-Package {
                         if (!$global:Latest.ContainsKey('ChecksumType' + $a)) { $global:Latest.Add('ChecksumType' + $a, $type) }
                         if (!$global:Latest.ContainsKey('Checksum' + $a)) {
                             $global:Latest.Add('Checksum' + $a, $hash)
-                            "Package downloaded and hash calculated for $a bit version"
+                            "Package downloaded and hash calculated for $a bit version" | result
                         } else {
                             $expected = $global:Latest.Item('Checksum' + $a)
                             if ($hash -ne $expected) { throw "Hash for $a bit version mismatch: actual = '$hash', expected = '$expected'" }
-                            "Package downloaded and hash checked for $a bit version"
+                            "Package downloaded and hash checked for $a bit version" | result
                         }
                     }
                 }
@@ -170,7 +170,7 @@ function Update-Package {
             # Copy choco modules once a day
             if (Test-Path $choco_tmp_path) {
                 $ct = gi $choco_tmp_path | % creationtime
-                if (((get-date) - $ct).Days -gt 1) { rm -recurse -force $choco_tmp_path } else { return }
+                if (((get-date) - $ct).Days -gt 1) { rm -recurse -force $choco_tmp_path } else { Write-Verbose 'Chocolatey copy is recent, aborting monkey patching'; return }
             }
             Write-Verbose "Monkey patching chocolatey in: '$choco_tmp_path'"
             cp -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
@@ -180,7 +180,7 @@ function Update-Package {
             (gc $fun_path) -replace '^\s+return \$fileFullPath\s*$', '  throw "au_break: $fileFullPath"' | sc $fun_path
         }
 
-        "Automatic checksum started"
+        "Automatic checksum started" | result
 
         # Copy choco powershell functions to TEMP dir and monkey patch the Get-ChocolateyWebFile function
         $choco_tmp_path = "$Env:TEMP\chocolatey\au\chocolatey"
@@ -191,22 +191,24 @@ function Update-Package {
         # SkipNuspecFile is passed so that if things fail here, nuspec file isn't updated; otherwise, on next run
         #  AU will think that package is most recent
         #
+        $global:Silent = $true
         update_files -SkipNuspecFile | out-null
+        $global:Silent = $false
 
         # Invoke installer for each architecture to download files
         invoke_installer
     }
 
-    function update_files( [switch]$SkipNuspecFile )
+    function update_files( [switch]$SkipNuspecFile, [switch]$Silent )
     {
-        'Updating files'
-        '  $Latest data:';  $global:Latest.keys | sort | % { "    {0,-15} ({1})    {2}" -f $_, $Latest[$_].GetType().Name, $Latest[$_] }; ''
+        'Updating files' | result
+        '  $Latest data:' | result;  ($global:Latest.keys | sort | % { "    {0,-15} ({1})    {2}" -f $_, $Latest[$_].GetType().Name, $Latest[$_] }) | result; '' | result
 
         if (!$SkipNuspecFile) {
-            "  $(Split-Path $nuspecFile -Leaf)"
+            "  $(Split-Path $nuspecFile -Leaf)" | result
 
             if (updated) {
-                "    updating version:  $nuspec_version -> $latest_version"
+                "    updating version:  $($package.NuspecVersion) -> $($package.RemoteVersion)" | result
             } else {
                 $d = (get-date).ToString('yyyyMMdd')
                 $v = [version]$nuspec_version
@@ -214,15 +216,15 @@ function Update-Package {
                 try { $revdate = [DateTime]::ParseExact($rev, 'yyyyMMdd',[System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None) } catch {}
                 if ($rev -eq -1 -or $revdate) {
                     $build = if ($v.Build -eq -1) {0} else {$v.Build}
-                    $latest_version = '{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d
-                    "    updating version using Chocolatey fix notation: $nuspec_version -> $latest_version"
+                    $package.RemoteVersion = '{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d
+                    "    updating version using Chocolatey fix notation: $($package.NuspecVersion) -> $($package.RemoteVersion)" | result
                 } else {
                     $latest_version = "$v"
-                    "    version not changed as it already uses 'revision': $latest_version"
+                    "    version not changed as it already uses 'revision': $latest_version" | result
                 }
             }
-            $nu.package.metadata.id = "$packageName"
-            $nu.package.metadata.version = "$latest_version"
+            $nu.package.metadata.id = $package.Name.ToString()
+            $nu.package.metadata.version = $package.RemoteVersion.ToString()
             $nu.Save($nuspecFile)
         }
 
@@ -242,19 +244,24 @@ function Update-Package {
         }
     }
 
-    function result() { $msg = $input | % { $_ }; $package.Result += $msg; if (!$NoHostOutput) { Write-Host $msg } }
+    function result() {
+        if ($global:Silent) { return }
+        $msg = $input | % { $_ }
+        $package.Result += $msg
+        if (!$NoHostOutput) { Write-Host $msg }
+    }
 
     # Assign parameters from global variables with the prefix `au_` if they are bound
     (gcm $PSCmdlet.MyInvocation.InvocationName).Parameters.Keys | % {
         if ($PSBoundParameters.Keys -contains $_) { return }
         $value = gv "au_$_" -Scope Global -ea Ignore | % Value
-        if ($value -ne $null) { 
+        if ($value -ne $null) {
             sv $_ $value
             Write-Verbose "Parameter $_ set from global variable au_${_}: $value"
         }
     }
 
-    $package = [PSCustomObject]@{Path=''; Name=''; Updated=''; Pushed=''; RemoteVersion=''; NuspecVersion=''; Result=@(); Error=@()}
+    $package = [PSCustomObject]@{Path=''; Name=''; Updated=''; Pushed=''; RemoteVersion=''; NuspecVersion=''; Result=@(); Error=''}
     $package.PSObject.TypeNames.Insert(0, 'AUPackage')
 
     $package.Path = $pwd
@@ -289,8 +296,12 @@ function Update-Package {
     "remote version: " + $package.RemoteVersion | result
 
     if (!(updated)) {
-        if (!$Force) { 'No new version found'; return }
-        else { 'No new version found, but update is forced' }
+        if (!$Force) {
+            $package.Updated = $false
+            'No new version found' | result
+            return $package
+        }
+        else { 'No new version found, but update is forced' | result }
     }
 
     if (!($NoCheckChocoVersion -or $Force)) {
@@ -302,17 +313,19 @@ function Update-Package {
         } catch { }
     }
 
-    if (updated) { 'New version is available' }
+    if (updated) { 'New version is available' | result }
+    $package.Updated = $true
 
+    if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' | result }
 
-    if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' }
-
-    if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate'; au_BeforeUpdate }
+    if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate' | result; au_BeforeUpdate }
     update_files
-    if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate'; au_AfterUpdate }
+    if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate }
 
     choco pack --limit-output
-    return 'Package updated'
+    'Package updated' | result
+
+    return $package
 }
 
 Set-Alias update Update-Package
