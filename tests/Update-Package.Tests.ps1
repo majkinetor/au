@@ -10,6 +10,7 @@ Describe 'Testing package update' {
         "function global:au_SearchReplace { @{} }" | iex
     }
 
+
     BeforeEach {
         cd c:
         rm -Recurse TestDrive:\test_package -ea ignore
@@ -119,17 +120,21 @@ Describe 'Testing package update' {
         }
 
         Context 'Updating' {
+            function nuspec_file() { [xml](gc TestDrive:\test_package\test_package.nuspec) }
+
             It 'updates package when remote version is higher' {
                 $res = update
                 $res.Updated | Should Be $true
                 $res.Result[-1] | Should Be 'Package updated'
+                (nuspec_file).package.metadata.version | Should Be 1.3
             }
 
             It "does not update the package when remote version is not higher" {
-                get_latest -Version 1.1
+                get_latest -Version 1.2.3
                 $res = update
                 $res.Updated | Should Be $false
                 $res.Result[-1] | Should Be 'No new version found'
+                (nuspec_file).package.metadata.version | Should Be 1.2.3
             }
 
             It "does not update the package when it exists on Chocolatey community feed" {
@@ -137,7 +142,7 @@ Describe 'Testing package update' {
                 $res = update -NoCheckChocoVersion:$false
                 $res.Updated | Should Be $false
                 $res.Result[-1] | Should Match 'it already exists in the Chocolatey community feed'
-
+                (nuspec_file).package.metadata.version | Should Be 1.2.3
             }
         }
 
