@@ -104,7 +104,6 @@ Describe 'Testing package update' {
                 { update } | Should Throw "'au_GetLatest' is not recognized"
             }
 
-
             It "throws if au_GetLatest doesn't return HashTable" {
                 $return_value = @(1)
                 function global:au_GetLatest { $return_value }
@@ -116,6 +115,29 @@ Describe 'Testing package update' {
             It "rethrows if au_GetLatest throws" {
                 function global:au_GetLatest { throw 'test' }
                 { update } | Should Throw "test"
+            }
+        }
+
+        Context 'Updating' {
+            It 'updates package when remote version is higher' {
+                $res = update
+                $res.Updated | Should Be $true
+                $res.Result[-1] | Should Be 'Package updated'
+            }
+
+            It "does not update the package when remote version is not higher" {
+                get_latest -Version 1.1
+                $res = update
+                $res.Updated | Should Be $false
+                $res.Result[-1] | Should Be 'No new version found'
+            }
+
+            It "does not update the package when it exists on Chocolatey community feed" {
+                Mock request {}
+                $res = update -NoCheckChocoVersion:$false
+                $res.Updated | Should Be $false
+                $res.Result[-1] | Should Match 'it already exists in the Chocolatey community feed'
+
             }
         }
 

@@ -261,7 +261,7 @@ function Update-Package {
         }
     }
 
-    $package = [PSCustomObject]@{Path=''; Name=''; Updated=''; Pushed=''; RemoteVersion=''; NuspecVersion=''; Result=@(); Error=''}
+    $package = [PSCustomObject]@{Path=''; Name=''; Updated=$false; Pushed=$false; RemoteVersion=''; NuspecVersion=''; Result=@(); Error=''}
     $package.PSObject.TypeNames.Insert(0, 'AUPackage')
 
     $package.Path = $pwd
@@ -301,13 +301,11 @@ function Update-Package {
             try {
                 request $choco_url $Timeout | out-null
                 "New version is available but it already exists in the Chocolatey community feed (disable using `$NoCheckChocoVersion`):`n  $choco_url" | result
-                $package.Updated = $false
                 return $package
             } catch { }
         }
     } else {
         if (!$Force) {
-            $package.Updated = $false
             'No new version found' | result
             return $package
         }
@@ -315,7 +313,6 @@ function Update-Package {
     }
 
     'New version is available' | result
-    $package.Updated = $true
 
     if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' | result }
 
@@ -325,6 +322,7 @@ function Update-Package {
 
     choco pack --limit-output
     'Package updated' | result
+    $package.Updated = $true
 
     return $package
 }
