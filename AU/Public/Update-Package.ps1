@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 11-Sep-2016.
+# Last Change: 12-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -208,7 +208,6 @@ function Update-Package {
             "  $(Split-Path $nuspecFile -Leaf)" | result
 
             if (updated) {
-                "    updating version:  $($package.NuspecVersion) -> $($package.RemoteVersion)" | result
             } else {
                 $d = (get-date).ToString('yyyyMMdd')
                 $v = [version]$nuspec_version
@@ -223,8 +222,15 @@ function Update-Package {
                     "    version not changed as it already uses 'revision': $latest_version" | result
                 }
             }
-            $nu.package.metadata.id = $package.Name.ToString()
+
+            if ($package.Name -ne $Latest.PackageName) {
+            "    updating name/id:  $($package.Name) -> $($Latest.PackageName)" | result
+                $nu.package.metadata.id = $package.Name = $Latest.PackageName.ToString()
+            }
+
+            "    updating version:  $($package.NuspecVersion) -> $($package.RemoteVersion)" | result
             $nu.package.metadata.version = $package.RemoteVersion.ToString()
+
             $nu.Save($nuspecFile)
         }
 
@@ -246,9 +252,11 @@ function Update-Package {
 
     function result() {
         if ($global:Silent) { return }
-        $msg = $input | % { $_ }
-        $package.Result += $msg
-        if (!$NoHostOutput) { Write-Host $msg }
+
+        $input | % {
+            $package.Result += $_
+            if (!$NoHostOutput) { Write-Host $_ }
+        }
     }
 
     # Assign parameters from global variables with the prefix `au_` if they are bound
@@ -283,6 +291,7 @@ function Update-Package {
         $res_type = $res.GetType()
         if ($res_type -ne [HashTable]) { throw "au_GetLatest doesn't return a HashTable result but $res_type" }
 
+        $res.Keys | % { $global:Latest.Remove($_) }
         $global:Latest += $res
     } catch {
         throw "au_GetLatest failed`n$_"

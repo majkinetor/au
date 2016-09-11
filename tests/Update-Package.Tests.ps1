@@ -1,7 +1,7 @@
 remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU
 
-Describe 'Testing package update' {
+Describe 'AU package updates' {
     function get_latest($Version='1.3', $URL='test') {
         "function global:au_GetLatest { @{Version = '$Version'; URL = '$URL'} }" | iex
     }
@@ -10,6 +10,7 @@ Describe 'Testing package update' {
         "function global:au_SearchReplace { @{} }" | iex
     }
 
+    function global:nuspec_file() { [xml](gc TestDrive:\test_package\test_package.nuspec) }
 
     BeforeEach {
         cd c:
@@ -22,6 +23,7 @@ Describe 'Testing package update' {
         $global:au_NoHostOutput        = $true
         $global:au_NoCheckUrl          = $true
         $global:au_NoCheckChocoVersion = $true
+        $global:au_ChecksumFor         = 'none'
 
         rv -Scope global Latest -ea ignore
         get_latest
@@ -58,6 +60,16 @@ Describe 'Testing package update' {
             It 'quits if updated package version already exist in Chocolatey community feed' {
                 $res = update -NoCheckChocoVersion:$false
                 $res.Result[-1] | Should Match "New version is available but it already exists in the Chocolatey community feed"
+            }
+
+            It 'throws if search string is not found in given file' {
+                function global:au_SearchReplace {
+                    @{
+                        'test_package.nuspec' = @{ 'not existing' = '' }
+                    }
+                }
+
+                { update } | Should Throw "Search pattern not found: 'not existing'"
             }
         }
 
@@ -120,7 +132,6 @@ Describe 'Testing package update' {
         }
 
         Context 'Updating' {
-            function nuspec_file() { [xml](gc TestDrive:\test_package\test_package.nuspec) }
 
             It 'updates package when remote version is higher' {
                 $res = update
@@ -143,6 +154,27 @@ Describe 'Testing package update' {
                 $res.Updated | Should Be $false
                 $res.Result[-1] | Should Match 'it already exists in the Chocolatey community feed'
                 (nuspec_file).package.metadata.version | Should Be 1.2.3
+            }
+
+            It "searches and replaces given file lines when updating" {
+
+                function global:au_SearchReplace {
+                    @{
+                        'test_package.nuspec' = @{ '(<releaseNotes>)(.*)(</releaseNotes>)' = '$1test$3' }
+                    }
+                }
+
+                function global:au_GetLatest {
+                    @{ PackageName = 'test'; Version = 1.3  }
+                }
+
+
+                update
+
+                $nu = (nuspec_file).package.metadata
+                $nu.releaseNotes | Should Be 'test'
+                $nu.id           | Should Be 'test'
+                $nu.version      | Should Be 1.3
             }
         }
 
