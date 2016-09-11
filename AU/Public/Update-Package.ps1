@@ -264,25 +264,28 @@ function Update-Package {
     $nuspecFile = gi "$($package.Name).nuspec" -ea ignore
     if (!$nuspecFile) { throw 'No nuspec file found in the current directory' }
     $nu = Load-NuspecFile
-    $global:Latest.NuspecVersion = $nuspec_version = $nu.package.metadata.version
+    $global:Latest.NuspecVersion = $package.NuspecVersion = $nu.package.metadata.version
 
     $module = $MyInvocation.MyCommand.ScriptBlock.Module
     "{0} - checking updates using {1} version {2}" -f $package.Name, $module.Name, $module.Version | result
     try {
         $res = au_GetLatest
+        if ($res -eq $null) { throw 'au_GetLatest returned nothing' }
+
         $res_type = $res.GetType()
         if ($res_type -ne [HashTable]) { throw "au_GetLatest doesn't return a HashTable result but $res_type" }
+
         $global:Latest += $res
     } catch {
         throw "au_GetLatest failed`n$_"
     }
-    $latest_version = $Latest.Version
+    $package.RemoteVersion = $Latest.Version
 
     if (!$NoCheckUrl) { check_url }
     check_version
 
-    "nuspec version: $nuspec_version"
-    "remote version: $latest_version"
+    "nuspec version: " + $package.NuspecVersion | result
+    "remote version: " + $package.RemoteVersion | result
 
     if (!(updated)) {
         if (!$Force) { 'No new version found'; return }
