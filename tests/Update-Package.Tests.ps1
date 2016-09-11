@@ -4,10 +4,48 @@ Describe 'Testing package update' {
     InModuleScope AU {
         pushd $PSScriptRoot\test_package
 
+        Context 'Checks' {
+
+            It 'reads the valid latest version' {
+                function global:au_GetLatest { @{Version = 1.3} }
+                { update } | Should Not Throw "'au_GetLatest' is not recognized"
+                $global:Latest.Version | Should Be 1.3
+
+            }
+
+            It 'throws if latest version is invalid' {
+                function global:au_GetLatest { @{Version = '1.3a'} }
+                { update } | Should Throw "version doesn't match the pattern"
+            }
+
+            #It 'supports the semantic versioning' {
+                #function global:au_GetLatest { @{Version = '1.0.1-alpha'} }
+                #{ update } | Should Not Throw "version doesn't match the pattern"
+            #}
+
+            function global:au_GetLatest { @{Version = '1.3'; URL32 = 'test'} }
+
+            It 'throws if latest URL is non existent' {
+                { update } | Should Throw "Can't validate latest test_package URL"
+            }
+
+            It 'throws if latest URL ContentType is text/html' {
+                Mock request { @{ ContentType = 'text/html' } }
+                { update } | Should Throw "Latest test_package URL content type is text/html"
+            }
+
+            It 'quits if updated package version already exist in Chocolatey community feed' {
+                $res = update -NoCheckUrl
+                $res.Result[-1] | Should Be "New version is available but it already exists in the Chocolatey community feed"
+            }
+        }
+        popd
+        exit
+
         Context 'Global variables' {
             Mock Write-Verbose
 
-            $au_Force = $true
+            $global:au_Force = $true
             $msg = "Parameter Force set from global variable au_Force: $au_Force"
 
             It 'sets Force parameter from global variable au_Force if it is not bound' {
@@ -22,12 +60,14 @@ Describe 'Testing package update' {
             }
 
             It 'sets Timeout parameter from global variable au_Timeout if it is not bound' {
-                $au_Force   = $null
-                $au_Timeout = 50
-                $msg        = "Parameter Timeout set from global variable au_Timeout: $au_Timeout"
+                rv -Scope Global au_Force
+                $global:au_Timeout = 50
+                $msg = "Parameter Timeout set from global variable au_Timeout: $au_Timeout"
                 { update -Verbose } | Should Throw 'au_GetLatest failed'
                 Assert-MockCalled Write-Verbose -ParameterFilter { $Message -eq $msg }
             }
+
+            'Force', 'Timeout' | % { rv -Scope Global "au_$_" }
         }
 
         Context 'Nuspec file' {
@@ -60,28 +100,6 @@ Describe 'Testing package update' {
             }
         }
 
-        Context 'Checks' {
-
-            It 'reads the valid latest version' {
-                function global:au_GetLatest { @{Version = 1.3} }
-                { update } | Should Not Throw "'au_GetLatest' is not recognized"
-                $global:Latest.Version | Should Be 1.3
-
-            }
-
-            It 'throws if latest version is invalid' {
-                function global:au_GetLatest { @{Version = '1.3a'} }
-                { update } | Should Throw "version doesn't match the pattern"
-            }
-
-            It 'supports the semantic versioning' {
-                function global:au_GetLatest { @{Version = '1.0.1-alpha'} }
-                { update } | Should Not Throw "version doesn't match the pattern"
-            }
-
-
-
-        }
         popd
     }
 }
