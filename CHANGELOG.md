@@ -4,6 +4,7 @@
 ## TODO
 
 - `Support for Semantic Versioning`.
+- `update` in the package directory calls ./update.ps1
 -  Bugfixes
   - `$Latest.Version` is still set to remote version when forcing update.
 

@@ -295,7 +295,17 @@ function Update-Package {
     "nuspec version: " + $package.NuspecVersion | result
     "remote version: " + $package.RemoteVersion | result
 
-    if (!(updated)) {
+    if (updated) {
+        if (!$NoCheckChocoVersion) {
+            $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $package.Name, $package.RemoteVersion
+            try {
+                request $choco_url $Timeout | out-null
+                "New version is available but it already exists in the Chocolatey community feed (disable using `$NoCheckChocoVersion`):`n  $choco_url" | result
+                $package.Updated = $false
+                return $package
+            } catch { }
+        }
+    } else {
         if (!$Force) {
             $package.Updated = $false
             'No new version found' | result
@@ -304,16 +314,7 @@ function Update-Package {
         else { 'No new version found, but update is forced' | result }
     }
 
-    if (!($NoCheckChocoVersion -or $Force)) {
-        $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $package.Name, $package.RemoteVersion
-        try {
-            request $choco_url $Timeout | out-null
-            "New version is available but it already exists in the Chocolatey community feed (disable using `$NoCheckChocoVersion`):`n  $choco_url" | result
-            return $package
-        } catch { }
-    }
-
-    if (updated) { 'New version is available' | result }
+    'New version is available' | result
     $package.Updated = $true
 
     if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' | result }
