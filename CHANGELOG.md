@@ -4,19 +4,22 @@
 ## TODO
 
 - `Support for Semantic Versioning`.
-- Pester tests
-
-### Bugfixes
-
-- `$Latest.Version` is still set to remote version when forcing update.
+-  Bugfixes
+  - `$Latest.Version` is still set to remote version when forcing update.
 
 ## NEXT
 
-- `Get-AuPackages` considers global variable `$au_root` when looking for AU packages.
-- `Get-AuPackages` has new alias `lsau`.
-- All packages now support `Verbose` parameter.
-- `NuspecVersion` added to the `$Latest` Hashtable by the framework.
+- `Update-Package`
+  - New alias `lsau`.
+  - Return an object of type `AUPackage` instead of text.
+  - New parameter `NoHostOutput` to not show any `Write-Host` output.
+  - Verbose parameter 
+  - `NuspecVersion` added to the `$Latest` HashTable.
+  - Pester tests
 - `README.md` made available via `man about_au`. 
+- Consider global variable `$au_root` when looking for AU packages.
+- Bugfixes
+  - `Update-Packages` exception fixed when `au_GetLatests` returned nothing.
 
 ### CD
 

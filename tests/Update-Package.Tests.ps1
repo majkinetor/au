@@ -1,8 +1,10 @@
-import-module $PSScriptRoot\..\AU -force
+remove-module AU
+import-module $PSScriptRoot\..\AU
 
 Describe 'Testing package update' {
     InModuleScope AU {
         pushd $PSScriptRoot\test_package
+        $global:au_NoHostOutput = $true
 
         Context 'Checks' {
 
@@ -18,7 +20,7 @@ Describe 'Testing package update' {
                 { update } | Should Throw "version doesn't match the pattern"
             }
 
-            #It 'supports the semantic versioning' {
+            #It 'supports semantic version' {
                 #function global:au_GetLatest { @{Version = '1.0.1-alpha'} }
                 #{ update } | Should Not Throw "version doesn't match the pattern"
             #}
@@ -36,7 +38,7 @@ Describe 'Testing package update' {
 
             It 'quits if updated package version already exist in Chocolatey community feed' {
                 $res = update -NoCheckUrl
-                $res.Result[-1] | Should Be "New version is available but it already exists in the Chocolatey community feed"
+                $res.Result[-1] | Should Match "New version is available but it already exists in the Chocolatey community feed"
             }
         }
         popd

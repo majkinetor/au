@@ -55,31 +55,38 @@
     }
 
     Update-Package -ChecksumFor 32
+
+.NOTES
+    All function parameters accept defaults via global variables with prefix `au_` (example: $global:au_Force = $true).
+
+.OUTPUTS
+    PSCustomObject with type AUPackage.
+
+.LINK
+    Update-AUPackages
 #>
 function Update-Package {
     [CmdletBinding()]
     param(
         #Do not check URL and version for validity.
-        #Defaults to global variable $au_NoCheckUrl if not specified.
         [switch] $NoCheckUrl,
 
-        #Do not check if latest returned version already exists in the Chocolatey repository.
-        #Defaults to global variable $au_NoCheckChocoVersion if not specified.
+        #Do not check if latest returned version already exists in the Chocolatey community feed.
         #Ignored when Force is specified.
         [switch] $NoCheckChocoVersion,
 
         #Specify for which architectures to calculate checksum - all, 32 bit, 64 bit or none.
-        #Defaults to global variable $au_ChecksumFor if not specified.
         [ValidateSet('all', '32', '64', 'none')]
         [string] $ChecksumFor='all',
 
-        #Timeout for all web operations.
-        #Defaults to global variable $au_Timeout if not specified.If not specified at all it defaults to 100 seconds.
+        #Timeout for all web operations, by default 100 seconds.
         [int]    $Timeout,
 
-        #Force package update even if no new version is found. This is useful for troubleshooting and updating checksums etc.
-        #Defaults to global variable $au_Force if not specified.
-        [switch] $Force
+        #Force package update even if no new version is found.
+        [switch] $Force,
+
+        #Do not show any Write-Host output.
+        [switch] $NoHostOutput
     )
 
     function Load-NuspecFile() {
@@ -94,8 +101,8 @@ function Update-Package {
             $url = $Latest[ $_ ]
             try
             {
-                $response = request $url
-                if ($response.ContentType -like '*text/html*') { $res = $false; $err="Latest $packageName URL content type is text/html" }
+                $response = request $url $Timeout
+                if ($response.ContentType -like '*text/html*') { $res = $false; $err="Latest $($package.Name) URL content type is text/html" }
                 else { $res = $true }
             }
             catch {
@@ -103,15 +110,8 @@ function Update-Package {
                 $err = $_
             }
 
-            if (!$res) { throw "Can't validate latest $packageName URL (disable using `$NoCheckUrl) '$url'`n$err" }
+            if (!$res) { throw "Can't validate latest $($package.Name) URL (disable using `$NoCheckUrl`): '$url' `n$err" }
         }
-    }
-
-    function request( $url ) {
-        if ([string]::IsNullOrWhiteSpace($url)) {throw 'The URL is empty'}
-        $request = [System.Net.WebRequest]::Create($url)
-        if ($Timeout)  { $request.Timeout = $Timeout*1000 }
-        $request.GetResponse()
     }
 
     function check_version() {
@@ -121,7 +121,7 @@ function Update-Package {
 
     function updated() {
         #Updated only if nuspec version is lower then online version. That will allow to update package revision manually on package errors.
-        [version]($latest_version) -gt [version]($nuspec_version)
+        [version]($package.RemoteVersion) -gt [version]($package.NuspecVersion)
     }
 
     function get_checksum()
@@ -242,7 +242,7 @@ function Update-Package {
         }
     }
 
-    function result() { $package.Result += $input; Write-Host $($input) }
+    function result() { $msg = $input | % { $_ }; $package.Result += $msg; if (!$NoHostOutput) { Write-Host $msg } }
 
     # Assign parameters from global variables with the prefix `au_` if they are bound
     (gcm $PSCmdlet.MyInvocation.InvocationName).Parameters.Keys | % {
@@ -293,11 +293,11 @@ function Update-Package {
     }
 
     if (!($NoCheckChocoVersion -or $Force)) {
-        $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $packageName, $latest_version
+        $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $package.Name, $package.RemoteVersion
         try {
-            request $choco_url | out-null
-            "New version is available but it already exists in chocolatey (disable using `$NoCheckChocoVersion):`n  $choco_url"
-            return
+            request $choco_url $Timeout | out-null
+            "New version is available but it already exists in the Chocolatey community feed (disable using `$NoCheckChocoVersion`):`n  $choco_url" | result
+            return $package
         } catch { }
     }
 
