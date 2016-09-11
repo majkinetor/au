@@ -265,6 +265,7 @@ function Update-Package {
     if (!$nuspecFile) { throw 'No nuspec file found in the current directory' }
     $nu = Load-NuspecFile
     $global:Latest.NuspecVersion = $package.NuspecVersion = $nu.package.metadata.version
+    if (!$package.NuspecVersion) {throw "Unable to get nuspec version"}
 
     $module = $MyInvocation.MyCommand.ScriptBlock.Module
     "{0} - checking updates using {1} version {2}" -f $package.Name, $module.Name, $module.Version | result

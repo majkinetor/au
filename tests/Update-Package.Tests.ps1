@@ -1,22 +1,41 @@
-remove-module AU
+remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU
 
 Describe 'Testing package update' {
+    function get_latest($Version='1.3', $URL='test') {
+        "function global:au_GetLatest { @{Version = '$Version'; URL = '$URL'} }" | iex
+    }
+
+    function seach_replace() {
+        "function global:au_SearchReplace { @{} }" | iex
+    }
+
+    BeforeEach {
+        cd c:
+        rm -Recurse TestDrive:\test_package -ea ignore
+        cp -Recurse -Force $PSScriptRoot\test_package TestDrive:\test_package
+        cd TestDrive:\test_package
+
+        $global:au_Timeout             = 100
+        $global:au_Force               = $false
+        $global:au_NoHostOutput        = $true
+        $global:au_NoCheckUrl          = $true
+        $global:au_NoCheckChocoVersion = $true
+
+        rv -Scope global Latest -ea ignore
+        get_latest
+        seach_replace
+    }
+
     InModuleScope AU {
-        pushd $PSScriptRoot\test_package
-        $global:au_NoHostOutput = $true
-
         Context 'Checks' {
-
             It 'reads the valid latest version' {
-                function global:au_GetLatest { @{Version = 1.3} }
-                { update } | Should Not Throw "'au_GetLatest' is not recognized"
+                $res = update
                 $global:Latest.Version | Should Be 1.3
-
             }
 
             It 'throws if latest version is invalid' {
-                function global:au_GetLatest { @{Version = '1.3a'} }
+                get_latest -Version 1.3a
                 { update } | Should Throw "version doesn't match the pattern"
             }
 
@@ -25,51 +44,48 @@ Describe 'Testing package update' {
                 #{ update } | Should Not Throw "version doesn't match the pattern"
             #}
 
-            function global:au_GetLatest { @{Version = '1.3'; URL32 = 'test'} }
 
             It 'throws if latest URL is non existent' {
-                { update } | Should Throw "Can't validate latest test_package URL"
+                { update -NoCheckUrl:$false } | Should Throw "Can't validate latest test_package URL"
             }
 
             It 'throws if latest URL ContentType is text/html' {
                 Mock request { @{ ContentType = 'text/html' } }
-                { update } | Should Throw "Latest test_package URL content type is text/html"
+                { update -NoCheckUrl:$false } | Should Throw "Latest test_package URL content type is text/html"
             }
 
             It 'quits if updated package version already exist in Chocolatey community feed' {
-                $res = update -NoCheckUrl
+                $res = update -NoCheckChocoVersion:$false
                 $res.Result[-1] | Should Match "New version is available but it already exists in the Chocolatey community feed"
             }
         }
-        popd
-        exit
 
         Context 'Global variables' {
             Mock Write-Verbose
 
-            $global:au_Force = $true
-            $msg = "Parameter Force set from global variable au_Force: $au_Force"
 
             It 'sets Force parameter from global variable au_Force if it is not bound' {
-                { update -Verbose } | Should Throw 'au_GetLatest failed'
+                $global:au_Force = $true
+                $msg = "Parameter Force set from global variable au_Force: $au_Force"
+                update -Verbose
                 Assert-MockCalled Write-Verbose -ParameterFilter { $Message -eq $msg }
 
             }
 
             It "doesn't set Force parameter from global variable au_Force if it is bound" {
-                { update -Verbose -Force } | Should Throw 'au_GetLatest failed'
+                $global:au_Force = $true
+                $msg = "Parameter Force set from global variable au_Force: $au_Force"
+                update -Verbose -Force:$false
                 Assert-MockCalled Write-Verbose -ParameterFilter { $Message -ne $msg }
             }
 
             It 'sets Timeout parameter from global variable au_Timeout if it is not bound' {
-                rv -Scope Global au_Force
                 $global:au_Timeout = 50
                 $msg = "Parameter Timeout set from global variable au_Timeout: $au_Timeout"
-                { update -Verbose } | Should Throw 'au_GetLatest failed'
+                update -Verbose
                 Assert-MockCalled Write-Verbose -ParameterFilter { $Message -eq $msg }
             }
 
-            'Force', 'Timeout' | % { rv -Scope Global "au_$_" }
         }
 
         Context 'Nuspec file' {
@@ -84,6 +100,7 @@ Describe 'Testing package update' {
         Context 'au_GetLatest' {
 
             It 'throws if au_GetLatest is not defined' {
+                rm Function:/au_GetLatest
                 { update } | Should Throw "'au_GetLatest' is not recognized"
             }
 
@@ -102,6 +119,5 @@ Describe 'Testing package update' {
             }
         }
 
-        popd
     }
 }
