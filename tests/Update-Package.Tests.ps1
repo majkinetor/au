@@ -1,12 +1,12 @@
 remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU
 
-Describe 'AU package updates' {
-    function get_latest($Version='1.3', $URL='test') {
+Describe 'Update-Package' {
+    function global:get_latest($Version='1.3', $URL='test') {
         "function global:au_GetLatest { @{Version = '$Version'; URL = '$URL'} }" | iex
     }
 
-    function seach_replace() {
+    function global:seach_replace() {
         "function global:au_SearchReplace { @{} }" | iex
     }
 
@@ -31,6 +31,69 @@ Describe 'AU package updates' {
     }
 
     InModuleScope AU {
+        Context 'Updating' {
+
+            It 'updates package when remote version is higher' {
+                $res = update
+
+                $res.Updated    | Should Be $true
+                $res.Result[-1] | Should Be 'Package updated'
+                (nuspec_file).package.metadata.version | Should Be 1.3
+            }
+
+            It "does not update the package when remote version is not higher" {
+                get_latest -Version 1.2.3
+
+                $res = update
+
+                $res.Updated    | Should Be $false
+                $res.Result[-1] | Should Be 'No new version found'
+                (nuspec_file).package.metadata.version | Should Be 1.2.3
+            }
+
+            It "does not update the package when it exists on Chocolatey community feed" {
+                Mock request {} # feature depends on request throwing exception
+
+                $res = update -NoCheckChocoVersion:$false
+
+                $res.Updated    | Should Be $false
+                $res.Result[-1] | Should Match 'it already exists in the Chocolatey community feed'
+                (nuspec_file).package.metadata.version | Should Be 1.2.3
+            }
+
+            It "updates the package when forced using choco fix notation" {
+                get_latest -Version 1.2.3
+
+                $res = update -Force:$true
+
+                $d = (get-date).ToString('yyyyMMdd')
+                $res.Updated    | Should Be $true
+                $res.Result[-1] | Should Be 'Package updated'
+                $res.Result -match 'No new version found, but update is forced' | Should Not BeNullOrEmpty
+                (nuspec_file).package.metadata.version | Should Be "1.2.3.$d"
+            }
+
+            It "searches and replaces given file lines when updating" {
+
+                function global:au_SearchReplace {
+                    @{
+                        'test_package.nuspec' = @{ '(<releaseNotes>)(.*)(</releaseNotes>)' = '$1test$3' }
+                    }
+                }
+
+                function global:au_GetLatest {
+                    @{ PackageName = 'test'; Version = 1.3  }
+                }
+
+                update
+
+                $nu = (nuspec_file).package.metadata
+                $nu.releaseNotes | Should Be 'test'
+                $nu.id           | Should Be 'test'
+                $nu.version      | Should Be 1.3
+            }
+        }
+
         Context 'Checks' {
             It 'reads the valid latest version' {
                 $res = update
@@ -108,6 +171,10 @@ Describe 'AU package updates' {
                 $global:Latest.NuspecVersion | Should Be 1.2.3
             }
 
+            It "throws if it can't find the nuspec file in the current directory" {
+                cd TestDrive:\
+                { update } | Should Throw 'No nuspec file'
+            }
         }
 
         Context 'au_GetLatest' {
@@ -128,53 +195,6 @@ Describe 'AU package updates' {
             It "rethrows if au_GetLatest throws" {
                 function global:au_GetLatest { throw 'test' }
                 { update } | Should Throw "test"
-            }
-        }
-
-        Context 'Updating' {
-
-            It 'updates package when remote version is higher' {
-                $res = update
-                $res.Updated | Should Be $true
-                $res.Result[-1] | Should Be 'Package updated'
-                (nuspec_file).package.metadata.version | Should Be 1.3
-            }
-
-            It "does not update the package when remote version is not higher" {
-                get_latest -Version 1.2.3
-                $res = update
-                $res.Updated | Should Be $false
-                $res.Result[-1] | Should Be 'No new version found'
-                (nuspec_file).package.metadata.version | Should Be 1.2.3
-            }
-
-            It "does not update the package when it exists on Chocolatey community feed" {
-                Mock request {}
-                $res = update -NoCheckChocoVersion:$false
-                $res.Updated | Should Be $false
-                $res.Result[-1] | Should Match 'it already exists in the Chocolatey community feed'
-                (nuspec_file).package.metadata.version | Should Be 1.2.3
-            }
-
-            It "searches and replaces given file lines when updating" {
-
-                function global:au_SearchReplace {
-                    @{
-                        'test_package.nuspec' = @{ '(<releaseNotes>)(.*)(</releaseNotes>)' = '$1test$3' }
-                    }
-                }
-
-                function global:au_GetLatest {
-                    @{ PackageName = 'test'; Version = 1.3  }
-                }
-
-
-                update
-
-                $nu = (nuspec_file).package.metadata
-                $nu.releaseNotes | Should Be 'test'
-                $nu.id           | Should Be 'test'
-                $nu.version      | Should Be 1.3
             }
         }
 
