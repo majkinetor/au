@@ -199,18 +199,17 @@ function Update-Package {
         invoke_installer
     }
 
-    function update_files( [switch]$SkipNuspecFile, [switch]$Silent )
+    function update_files( [switch]$SkipNuspecFile )
     {
         'Updating files' | result
-        '  $Latest data:' | result;  ($global:Latest.keys | sort | % { "    {0,-15} ({1})    {2}" -f $_, $Latest[$_].GetType().Name, $Latest[$_] }) | result; '' | result
+        '  $Latest data:' | result;  ($global:Latest.keys | sort | % { "    {0,-15} ({1})    {2}" -f $_, $global:Latest[$_].GetType().Name, $global:Latest[$_] }) | result; '' | result
 
         if (!$SkipNuspecFile) {
             "  $(Split-Path $nuspecFile -Leaf)" | result
 
-            if (updated) {
-            } else {
+            if (!(updated)) {
                 $d = (get-date).ToString('yyyyMMdd')
-                $v = [version]$nuspec_version
+                $v = [version]$package.NuspecVersion
                 $rev = $v.Revision.ToString()
                 try { $revdate = [DateTime]::ParseExact($rev, 'yyyyMMdd',[System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None) } catch {}
                 if ($rev -eq -1 -or $revdate) {
@@ -218,15 +217,12 @@ function Update-Package {
                     $package.RemoteVersion = '{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d
                     "    updating version using Chocolatey fix notation: $($package.NuspecVersion) -> $($package.RemoteVersion)" | result
                 } else {
-                    $latest_version = "$v"
-                    "    version not changed as it already uses 'revision': $latest_version" | result
+                    "    version not changed as it already uses 'revision': $($package.NuspecVersion)" | result
                 }
             }
 
-            if ($package.Name -ne $Latest.PackageName) {
-            "    updating name/id:  $($package.Name) -> $($Latest.PackageName)" | result
-                $nu.package.metadata.id = $package.Name = $Latest.PackageName.ToString()
-            }
+            "    setting id:  $($global:Latest.PackageName)" | result
+            $nu.package.metadata.id = $package.Name = $global:Latest.PackageName.ToString()
 
             "    updating version:  $($package.NuspecVersion) -> $($package.RemoteVersion)" | result
             $nu.package.metadata.version = $package.RemoteVersion.ToString()
