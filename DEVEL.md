@@ -24,7 +24,7 @@ The builded module will be available in the `_build\{version}` directory. Versio
 ./build.ps1
 ```
 
-To override default versions use `Version` parameter: `./build -Version 0.0.1`.
+To override default versions use `Version` parameter: `./build -Version 0.0.1`. To build and install in the system use `./build.ps1 -Install`.
 
 Before publishing, edit the `NEXT` header in the `CHANGELOG.md` file to set the release notes and build the module. The publish procedure edits this file to change header name to the latest version.
 
