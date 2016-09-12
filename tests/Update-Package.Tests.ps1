@@ -26,11 +26,13 @@ Describe 'Update-Package' {
         $global:au_ChecksumFor         = 'none'
 
         rv -Scope global Latest -ea ignore
+        'BeforeUpdate', 'AfterUpdate' | % { rm "Function:/au_$_" -ea ignore }
         get_latest
         seach_replace
     }
 
     InModuleScope AU {
+
         Context 'Updating' {
 
             It 'updates package when remote version is higher' {
@@ -198,5 +200,25 @@ Describe 'Update-Package' {
             }
         }
 
+        Context 'Before and after update' {
+            It 'calls au_BeforeUpdate if package is updated' {
+                function au_BeforeUpdate { $global:Latest.test = 1 }
+                update
+                $global:Latest.test | Should Be 1
+            }
+
+            It 'calls au_AfterUpdate if package is updated' {
+                function au_AfterUpdate { $global:Latest.test = 1 }
+                update
+                $global:Latest.test | Should Be 1
+            }
+
+            It 'doesnt call au_BeforeUpdate if package is not updated' {
+                get_latest -Version 1.2.3
+                function au_BeforeUpdate { $global:Latest.test = 1 }
+                update
+                $global:Latest.test | Should BeNullOrEmpty
+            }
+        }
     }
 }
