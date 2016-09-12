@@ -15,7 +15,9 @@
 #>
 
 function Get-AUPackages($Name=$null) {
-    ls .\*\update.ps1 | % {
+    $root = $global:au_root
+    if (!$root) { $root = '.' }
+    ls $root\*\update.ps1 | % {
         $packageDir = gi (Split-Path $_)
         if ($packageDir.Name -like '_*') { return }
         if ($Name) {

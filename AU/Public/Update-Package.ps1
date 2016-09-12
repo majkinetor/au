@@ -224,9 +224,9 @@ function Update-Package {
                 }
             } else {
                 "    updating version:  $($package.NuspecVersion) -> $($package.RemoteVersion)" | result
-                $nu.package.metadata.version = $package.RemoteVersion.ToString()
             }
 
+            $nu.package.metadata.version = $package.RemoteVersion.ToString()
             $nu.Save($nuspecFile)
         }
 
