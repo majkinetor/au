@@ -4,9 +4,6 @@
 ## TODO
 
 - `Support for Semantic Versioning`.
-- `update` in the package directory calls ./update.ps1
--  Bugfixes
-  - `$Latest.Version` is still set to remote version when forcing update.
 
 ## NEXT
 
@@ -16,11 +13,13 @@
   - New parameter `NoHostOutput` to not show any `Write-Host` output.
   - Verbose parameter 
   - `NuspecVersion` added to the `$Latest` HashTable.
-  - Pester tests
+  - Pester tests.
+  - run standalone, `update` in the package directory calls `./update.ps1`.
 - `README.md` made available via `man about_au`. 
 - Consider global variable `$au_root` when looking for AU packages.
 - Bugfixes
-  - `Update-Packages` exception fixed when `au_GetLatests` returned nothing.
+  - `Update-Packages` exception when `au_GetLatests` returned nothing.
+  - `$Latest.Version` remains set to remote version when forcing update.
 
 ### CD
 

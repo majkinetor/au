@@ -207,6 +207,9 @@ function Update-Package {
         if (!$SkipNuspecFile) {
             "  $(Split-Path $nuspecFile -Leaf)" | result
 
+            "    setting id:  $($global:Latest.PackageName)" | result
+            $nu.package.metadata.id = $package.Name = $global:Latest.PackageName.ToString()
+
             if (!(updated)) {
                 $d = (get-date).ToString('yyyyMMdd')
                 $v = [version]$package.NuspecVersion
@@ -219,13 +222,10 @@ function Update-Package {
                 } else {
                     "    version not changed as it already uses 'revision': $($package.NuspecVersion)" | result
                 }
+            } else {
+                "    updating version:  $($package.NuspecVersion) -> $($package.RemoteVersion)" | result
+                $nu.package.metadata.version = $package.RemoteVersion.ToString()
             }
-
-            "    setting id:  $($global:Latest.PackageName)" | result
-            $nu.package.metadata.id = $package.Name = $global:Latest.PackageName.ToString()
-
-            "    updating version:  $($package.NuspecVersion) -> $($package.RemoteVersion)" | result
-            $nu.package.metadata.version = $package.RemoteVersion.ToString()
 
             $nu.Save($nuspecFile)
         }
@@ -233,11 +233,11 @@ function Update-Package {
         $sr = au_SearchReplace
         $sr.Keys | % {
             $fileName = $_
-            "  $fileName"
+            "  $fileName" | result
 
             $fileContent = gc $fileName
             $sr[ $fileName ].GetEnumerator() | % {
-                ('    {0} = {1} ' -f $_.name, $_.value)
+                ('    {0} = {1} ' -f $_.name, $_.value) | result
                 if (!($fileContent -match $_.name)) { throw "Search pattern not found: '$($_.name)'" }
                 $fileContent = $fileContent -replace $_.name, $_.value
             }
@@ -254,6 +254,11 @@ function Update-Package {
             if (!$NoHostOutput) { Write-Host $_ }
         }
     }
+
+    if ($PSCmdlet.MyInvocation.ScriptName -eq '') {
+        Write-Verbose 'Running outside of the script'
+        if (!(Test-Path update.ps1)) { return "Current directory doesn't contain ./update.ps1 script" } else { return ./update.ps1 }
+    } else { Write-Verbose 'Running inside the script' }
 
     # Assign parameters from global variables with the prefix `au_` if they are bound
     (gcm $PSCmdlet.MyInvocation.InvocationName).Parameters.Keys | % {

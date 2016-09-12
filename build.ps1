@@ -1,6 +1,12 @@
 #requires -version 3
 
-param( $Version = [Version](Get-Date).ToString("yyyy.M.d.HHmmss") )
+param(
+    # Version to set
+    [string] $Version = [Version](Get-Date).ToString("yyyy.M.d.HHmmss"),
+
+    # Install module in the system after the build
+    [switch] $Install
+)
 
 $b = {
     $module_path = "$PSScriptRoot/AU"
@@ -15,6 +21,8 @@ $b = {
     create_manifest
     create_help
     build_chocolatey_package
+
+    if ($Install) { & $PSSCriptRoot/install.ps1 }
 }
 
 function init() {
