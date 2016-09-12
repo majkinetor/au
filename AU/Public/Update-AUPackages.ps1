@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 16-Aug-2016.
+# Last Change: 13-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -44,7 +44,6 @@ function Update-AUPackages {
         $nu
     }
 
-    # Copy choco powershell functions to TEMP dir and monkey patch the Get-ChocolateyWebFile function
     $cd = $pwd
     $startTime = Get-Date
 
@@ -80,47 +79,21 @@ function Update-AUPackages {
             }
             else {
                 Write-Verbose ($job.State + ' ' + $job.Name)
-                $i = [ordered]@{PackageName=''; Updated=''; Pushed=''; RemoteVersion=''; NuspecVersion=''; Message=''; Result=''; Error=@()}
-                $i.PackageName = $job.Name
+                Receive-Job $job | set pkg
+                Remove-Job $job
 
-                $i.Result  = Receive-Job $_ -ErrorAction SilentlyContinue -ErrorVariable err
-                $i.Error   = $err
-                $i.Updated = $i.Pushed = $false
-                if ($i.Result)
-                {
-                    $i.Updated       = $i.Result -contains 'Package updated'
-                    $i.RemoteVersion = ($i.Result -match '^remote version: .+$').Substring(16)
-                    $i.NuspecVersion = ($i.Result -match '^nuspec version: .+$').Substring(16)
-                    $i.Message       = $i.PackageName + ' '
-
-                    $forced_version = ($i.Result -match 'using Chocolatey fix notation.+ -> (.+)') -split '-> ' | select -last 1
-                    if ($forced_version) { $i.NuspecVersion = $version = $forced_version } else { $version = $i.RemoteVersion }
-
-                    $i.Message      += if ($i.Updated) { 'is updated to ' + $version } else { 'has no updates' }
-
-                    if ($i.Updated -and $Options.Push) {
-                        $i.Pushed = ($i.Result -like 'Failed to process request*').Length -eq 0
-                        if (!$i.Pushed) {
-                            $i.Message += ' but push failed!'
-                            $i.Error += ($i.Result | sls "Attempting to push" -Context 0,10).ToString()
-                        } else { $i.Message += ' and pushed' }
-                    }
-
-                    Write-Host '  ' $i.Message
+                $message = $pkg.Name + ' '
+                $message += if ($pkg.Updated) { 'is updated to ' + $pkg.RemoteVersion } else { 'has no updates' }
+                if ($pkg.Updated -and $Options.Push) {
+                    $message += if (!$pkg.Pushed) { ' but push failed!' } else { ' and pushed'}
                 }
-
-                if ($i.Error) {
-                    #When packages ./update.ps1 fails no nuspec version is available in the output
-                    $nuspecFile = "$pwd\{0}\{0}.nuspec" -f $i.PackageName
-                    $i.NuspecVersion = (Load-NuspecFile($nuspecFile)).package.metadata.version
-
-                    Write-Host "   $($i.PackageName) ERROR:"
-                    $i.Error[0].ToString() -split "`n" | % { Write-Host (' '*5 + $_) }
+                if ($pkg.Error) {
+                    $message += "ERROR: "  + $pkg.Error.ToString() #-split "`n" | % { Write-Host (' '*5 + $_) }
                 }
+                Write-Host '  ' $message
 
-                $result += [pscustomobject]$i
+                $result += $pkg
             }
-            Remove-Job $job
         }
 
         # Check if all packages are done
@@ -135,20 +108,24 @@ function Update-AUPackages {
         $package_name = Split-Path $package_path -Leaf
         Write-Verbose "Starting $package_name"
         Start-Job -Name $package_name {
+
+            import-module au
             cd $using:package_path
 
-            $global:au_Timeout = $using:Options.Timeout
-            $global:au_Force = $using:Options.Force
-             ./update.ps1 *> "$using:tmp_dir\$using:package_name"
-             $res = gc $using:tmp_dir\$using:package_name
+            $global:au_Timeout      = $using:Options.Timeout
+            $global:au_Force        = $using:Options.Force
+            $global:au_NoHostOutput = $true
+            $global:au_Result       = 'pkg'
 
-            $updated = ![string]::IsNullOrEmpty($res) -and ($res[-1] -eq 'Package updated')
-            if ($updated -and $using:Options.Push) {
-                import-module au
-                $res += Push-Package
+            try { ./update.ps1 } catch { $pkg.Error = $_ }
+
+            $pkg.Result | Out-File "$using:tmp_dir\$using:package_name"
+
+            if ($pkg.$Updated -and $using:Options.Push) {
+                $pkg.Result += Push-Package
+                if ($LastExitCode -eq 0) { $pkg.Pushed = $true }
             }
 
-            $res
         } | out-null
     }
     $result = $result | sort PackageName

@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 12-Sep-2016.
+# Last Change: 13-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -86,7 +86,10 @@ function Update-Package {
         [switch] $Force,
 
         #Do not show any Write-Host output.
-        [switch] $NoHostOutput
+        [switch] $NoHostOutput,
+
+        #Output variable.
+        [string] $Result
     )
 
     function Load-NuspecFile() {
@@ -271,6 +274,7 @@ function Update-Package {
     }
 
     $package = [PSCustomObject]@{Path=''; Name=''; Updated=$false; Pushed=$false; RemoteVersion=''; NuspecVersion=''; Result=@(); Error=''}
+    if ($Result) { sv -Scope Global -Name $Result -Value $package }
     $package.PSObject.TypeNames.Insert(0, 'AUPackage')
 
     $package.Path = $pwd
@@ -297,10 +301,10 @@ function Update-Package {
     } catch {
         throw "au_GetLatest failed`n$_"
     }
-    $package.RemoteVersion = $Latest.Version
 
-    if (!$NoCheckUrl) { check_url }
     check_version
+    if (!$NoCheckUrl) { check_url }
+    $package.RemoteVersion = $Latest.Version
 
     "nuspec version: " + $package.NuspecVersion | result
     "remote version: " + $package.RemoteVersion | result

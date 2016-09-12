@@ -10,7 +10,9 @@
 - `Update-Package`
   - New alias `lsau`.
   - Return an object of type `AUPackage` instead of text.
-  - New parameter `NoHostOutput` to not show any `Write-Host` output.
+  - New parameters
+    - `NoHostOutput` to not show any `Write-Host` output.
+    - `Result` to hold the name of the global output variable.
   - Verbose parameter 
   - `NuspecVersion` added to the `$Latest` HashTable.
   - Pester tests.
