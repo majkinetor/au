@@ -335,7 +335,7 @@ function Update-Package {
     update_files
     if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate }
 
-    choco pack --limit-output
+    choco pack --limit-output | result
     'Package updated' | result
     $package.Updated = $true
 

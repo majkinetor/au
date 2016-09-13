@@ -45,7 +45,7 @@ function Update-AUPackages {
     }
 
     $cd = $pwd
-    $startTime = Get-Date
+    $startTime = get-date
 
     if (!$Options.Threads) { $Options.Threads = 10 }
     if (!$Options.Timeout) { $Options.Timeout = 100 }
@@ -65,14 +65,14 @@ function Update-AUPackages {
     $aup = Get-AUPackages $Name
     $j = 0
 
-    Write-Host 'Updating' $aup.Length  'automatic packages at' $startTime
+    Write-Host 'Updating' $aup.Length  'automatic packages at' $($startTime.ToString("s") -replace 'T',' ') $(if ($Options.Force) { "(forced)" } else {})
 
     if ($Options.Script) { try { & $Options.Script 'START' $aup | Write-Host } catch { Write-Error $_; $script_err += 1 } }
     while( $true ) {
 
         # Check for completed jobs
-        Get-Job | ? state -ne 'Running' | % {
-            $job = $_
+        foreach ($job in (Get-Job | ? state -ne 'Running')) {
+            $p += 1
 
             if ( 'Failed', 'Completed' -notcontains $job.State) { 
                 Write-Host "Invalid job state for $($job.Name): " + $job.State
@@ -81,6 +81,8 @@ function Update-AUPackages {
                 Write-Verbose ($job.State + ' ' + $job.Name)
                 Receive-Job $job | set pkg
                 Remove-Job $job
+
+                if ($job.State -eq 'Failed') { continue }
 
                 $message = $pkg.Name + ' '
                 $message += if ($pkg.Updated) { 'is updated to ' + $pkg.RemoteVersion } else { 'has no updates' }
@@ -99,7 +101,7 @@ function Update-AUPackages {
 
         # Check if all packages are done
         $job_count = Get-Job | measure | % count
-        if ($result.length -eq $aup.length) { break }
+        if ($p -eq $aup.length) { break }
 
         # Just sleep a bit and repeat if all threads are busy
         if (($job_count -eq $Options.Threads) -or ($j -eq $aup.length)) { sleep 1; continue }
@@ -123,6 +125,11 @@ function Update-AUPackages {
             } catch {
                 $pkg.Error = $_
             }
+            if (!$pkg) { throw "'$using:package_name' update s script returned nothing" }
+
+            $pkg = $pkg[-1]
+            $type = ($pkg | gm).TypeName
+            if ($type -ne 'AUPackage') { throw "'$using:package_name' update script didn't return AUPackage but: $type" }
 
             if ($pkg.$Updated -and $using:Options.Push) {
                 $pkg.Result += Push-Package
@@ -157,7 +164,7 @@ function send-notification() {
 }
 
 function get-info {
-    $errors = $result | ? { $_.Error.Length }
+    $errors = $result | ? { $_.Error }
     $info = [PSCustomObject]@{
         result = [PSCustomObject]@{
             all     = $result
@@ -184,8 +191,8 @@ function get-info {
     }
     $info.stats = get-stats
     $info.error_info = $errors | % {
-        $s = "`nPackage: " + $_.PackageName + "`n"
-        $_.Error | out-string
+        $s = "`nPackage: " + $_.Name + "`n"
+        $_.Error
     }
 
     $info

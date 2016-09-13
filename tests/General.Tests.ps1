@@ -1,3 +1,6 @@
+remove-module AU -ea ignore
+import-module $PSScriptRoot\..\AU
+
 Describe 'General' {
     BeforeEach {
         rm -Recurse TestDrive:\test_package -ea ignore

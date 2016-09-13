@@ -12,6 +12,9 @@
     <description>This is a test package for Pester</description>
     <summary>This is a test package for Pester</summary>
     <tags>test pester</tags>
+    <dependencies>
+        <dependency id="test.install" version="1.0" />
+    </dependencies>
     <releaseNotes>None</releaseNotes>
   </metadata>
   <files>
