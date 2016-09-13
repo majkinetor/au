@@ -38,9 +38,10 @@ $functions = $res.ExportedFunctions.Keys
 
 import-module $module_dst\$module_name -force
 $aliases = get-alias | ? { $_.Source -eq $module_name }
+remove-module au
 
 $functions | % {
     [PSCustomObject]@{ Function = $_; Alias = $aliases | ? Definition -eq $_ }
 } | ft -auto | Out-String
 
-'To learn more type `man about_au`.'
+"To learn more type 'man about_au'.`n"

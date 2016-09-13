@@ -47,10 +47,10 @@ function Update-AUPackages {
     $cd = $pwd
     $startTime = Get-Date
 
-    if (!$Options.Threads) { $Options.Threads = 10}
+    if (!$Options.Threads) { $Options.Threads = 10 }
     if (!$Options.Timeout) { $Options.Timeout = 100 }
-    if (!$Options.Force)   { $Options.Force = $false }
-    if (!$Options.Push)    { $Options.Push = $false}
+    if (!$Options.Force)   { $Options.Force   = $false }
+    if (!$Options.Push)    { $Options.Push    = $false }
 
     Remove-Job * -force #remove any previously run jobs
 
@@ -88,7 +88,8 @@ function Update-AUPackages {
                     $message += if (!$pkg.Pushed) { ' but push failed!' } else { ' and pushed'}
                 }
                 if ($pkg.Error) {
-                    $message += "ERROR: "  + $pkg.Error.ToString() #-split "`n" | % { Write-Host (' '*5 + $_) }
+                    $message = "$($pkg.Name) ERROR: "
+                    $message += $pkg.Error.ToString() -split "`n" | % { "`n" + ' '*5 + $_ }
                 }
                 Write-Host '  ' $message
 
@@ -111,22 +112,25 @@ function Update-AUPackages {
 
             import-module au
             cd $using:package_path
+            $out = "$using:tmp_dir\$using:package_name"
 
-            $global:au_Timeout      = $using:Options.Timeout
-            $global:au_Force        = $using:Options.Force
-            $global:au_NoHostOutput = $true
-            $global:au_Result       = 'pkg'
+            $global:au_Timeout = $using:Options.Timeout
+            $global:au_Force   = $using:Options.Force
+            $global:au_Result  = 'pkg'
 
-            try { ./update.ps1 } catch { $pkg.Error = $_ }
-
-            $pkg.Result | Out-File "$using:tmp_dir\$using:package_name"
+            try {
+                $pkg = ./update.ps1 6> $out
+            } catch {
+                $pkg.Error = $_
+            }
 
             if ($pkg.$Updated -and $using:Options.Push) {
                 $pkg.Result += Push-Package
                 if ($LastExitCode -eq 0) { $pkg.Pushed = $true }
             }
 
-        } | out-null
+            $pkg
+        } | Out-Null
     }
     $result = $result | sort PackageName
 
