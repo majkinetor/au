@@ -14,7 +14,6 @@ Describe 'Update-Package' {
     function global:nuspec_file() { [xml](gc TestDrive:\test_package\test_package.nuspec) }
 
     BeforeEach {
-        cd c:
         rm -Recurse TestDrive:\test_package -ea ignore
         cp -Recurse -Force $PSScriptRoot\test_package TestDrive:\test_package
         cd TestDrive:\test_package
