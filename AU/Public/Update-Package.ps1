@@ -331,9 +331,9 @@ function Update-Package {
 
     if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' | result }
 
-    if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate' | result; au_BeforeUpdate }
+    if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate' | result; au_BeforeUpdate | result }
     update_files
-    if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate }
+    if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate | result }
 
     choco pack --limit-output | result
     'Package updated' | result
