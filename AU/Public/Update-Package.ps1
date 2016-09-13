@@ -133,19 +133,20 @@ function Update-Package {
             if (!(Test-Path tools\chocolateyInstall.ps1)) { "  aborted, chocolateyInstall not found for this package" | result; return }
 
             Import-Module "$choco_tmp_path\helpers\chocolateyInstaller.psm1" -Force
-            $env:chocolateyPackageName = "chocolatey\$packageName"
 
             if ($ChecksumFor -eq 'none') { "Automatic checksum calculation is disabled"; return }
             if ($ChecksumFor -eq 'all')  { $arch = '32','64' } else { $arch = $ChecksumFor }
 
-            $pkg_path = "$Env:TEMP\chocolatey\$packageName\" + $global:Latest.Version
-            $env:ChocolateyPackageVersion = $global:Latest.Version
-            $env:ChocolateyAllowEmptyChecksums = 'true'
+            $pkg_path = "$Env:TEMP\chocolatey\$($package.Name)\" + $global:Latest.Version
+
+            $Env:ChocolateyPackageName         = "chocolatey\$($package.Name)"
+            $Env:ChocolateyPackageVersion      = $global:Latest.Version
+            $Env:ChocolateyAllowEmptyChecksums = 'true'
             foreach ($a in $arch) {
                 $Env:chocolateyForceX86 = if ($a -eq '32') { 'true' } else { '' }
                 try {
                     rm -force -recurse -ea ignore $pkg_path
-                    .\tools\chocolateyInstall.ps1
+                    .\tools\chocolateyInstall.ps1 | result
                 } catch {
                     if ( "$_" -notlike 'au_break: *') { throw $_ } else {
                         $filePath = "$_" -replace 'au_break: '
@@ -310,7 +311,7 @@ function Update-Package {
     "remote version: " + $package.RemoteVersion | result
 
     if (updated) {
-        if (!$NoCheckChocoVersion) {
+        if (!$NoCheckChocoVersion -and !$Force) {
             $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $package.Name, $package.RemoteVersion
             try {
                 request $choco_url $Timeout | out-null
