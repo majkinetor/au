@@ -51,6 +51,7 @@ function init() {
 
 function build_chocolatey_package {
     & $PSScriptRoot/chocolatey/build-package.ps1
+    mv "$PSScriptRoot/chocolatey/${module_name}.$version.nupkg" $build_dir
 }
 
 function create_help() {
