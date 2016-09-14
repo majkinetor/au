@@ -3,11 +3,11 @@
 $s = {
     chocolatey
     psgallery
-    git
+    git_4windows
     pester
 }
 
-function git() {
+function git_4windows() {
     if (!(gcm git -ea ignore)) { "Installing git"; cinst git }
     git --version
 }
