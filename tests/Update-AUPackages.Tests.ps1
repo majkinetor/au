@@ -22,7 +22,7 @@ Describe 'Update-AUPackages' {
             $nu.OuterXml | sc "$path\$name.nuspec"
 
             $module_path = Resolve-Path $PSScriptRoot\..\AU
-            "import-module '$module_path'", (gc $path\update.ps1 -ea ignore) | sc $path\update.ps1
+            "import-module '$module_path' -Force", (gc $path\update.ps1 -ea ignore) | sc $path\update.ps1
         }
 
         $Options = @{}
