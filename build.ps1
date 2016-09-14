@@ -22,11 +22,22 @@ $b = {
     $module_path = "$build_dir/$module_name"
     create_manifest
     create_help
+
+    zip_module
     build_chocolatey_package
 
     if ($Install) { & $PSSCriptRoot/install.ps1 }
 
     $Version
+}
+
+function zip_module() {
+    Write-Host "Creating 7z package"
+
+    $zip_path = "$build_dir\${module_name}_$version.7z"
+    $cmd = "$Env:ChocolateyInstall/bin/7z.exe a '$zip_path' '$module_path'"
+    $cmd | iex | Out-Null
+    if (!(Test-Path $zip_path)) { throw "Failed to build 7z package" }
 }
 
 function init() {
