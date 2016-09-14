@@ -22,11 +22,11 @@ test_script:
     (New-Object 'System.Net.WebClient').UploadFile($url, (Resolve-Path $testResultsFile))
     if ($res.FailedCount -gt 0) { throw "$($res.FailedCount) tests failed." }
 
-on_finish:
-- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#on_finish:
+#- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
-#artifacts:
-#- path: update_info.xml
+artifacts:
+- path: chocolatey\*.nupkg
 
 notifications:
 - provider: Email
