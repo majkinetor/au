@@ -11,11 +11,14 @@ param(
     [switch]$Chocolatey
 )
 
+$ErrorActionPreference = 'STOP'
+
 $p = {
     $build_dir     = "$PSScriptRoot/_build/$Version"
     $module_name   = "AU"
     $module_path   = "$build_dir/$module_name"
     $release_notes = get_release_notes
+
 
     if (!(Test-Path $build_dir)) { throw "Build for that version doesn't exist" }
     if (!(gcm git)) {throw "Git is not installed. Use Chocolatey to install it: cinst git" }
@@ -92,7 +95,7 @@ function Publish-Chocolatey() {
     Write-Verbose 'Publishing to Chocolatey'
 
     'Chocolatey_ApiKey' | test-var
-    choco push $PSScriptRoot\chocolatey\*.$version.nupkg --api-key $Env:Chocolatey_ApiKey
+    choco push $PSScriptRoot\$build_dir\*.$version.nupkg --api-key $Env:Chocolatey_ApiKey
     if ($LastExitCode) {throw "Chocolatey push failed with exit code: $LastExitCode"}
 }
 
@@ -100,5 +103,4 @@ function test-var() {
      $input | % { if (!(Test-Path Env:$_)) {throw "Environment Variable $_ must be set"} }
 }
 
-$ErrorActionPreference = 'STOP'
 & $p

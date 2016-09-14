@@ -2,7 +2,7 @@
 
 param(
     # Version to set
-    [string] $Version = [Version](Get-Date).ToString("yyyy.M.d.HHmmss"),
+    [string] $Version = [Version](Get-Date).ToUniversalTime().ToString("yyyy.M.d.HHmmss"),
 
     # Install module in the system after the build
     [switch] $Install
