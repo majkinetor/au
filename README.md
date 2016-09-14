@@ -21,9 +21,9 @@ To learn more about Chocolatey automatic packages, please refer to the relevant 
 
 ## Installation
 
-Using Chocolatey:    `cinst au` ([visit](https://chocolatey.org/packages/au).  
-Using PowerShell 5+: `Install-Module au` ([visit](https://www.powershellgallery.com/packages/AU).  
-Download 7z package: [download](https://github.com/majkinetor/au/releases/latest)
+- Chocolatey:  [`cinst au`](https://chocolatey.org/packages/au).  
+- PowerShell 5+: [`Install-Module au`](https://www.powershellgallery.com/packages/AU)).  
+- [Download](https://github.com/majkinetor/au/releases/latest) latest 7z package.
 
 AU module requires minimally PowerShell version 4: `$host.Version -gt '4.0'`
 
