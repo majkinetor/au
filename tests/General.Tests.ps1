@@ -1,11 +1,12 @@
 remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU
 
+$saved_pwd = $pwd
 Describe 'General' {
     BeforeEach {
-        rm -Recurse TestDrive:\test_package -ea ignore
+        cd TestDrive:\
+        rm -Recurse -Force TestDrive:\test_package -ea ignore
         cp -Recurse -Force $PSScriptRoot\test_package TestDrive:\test_package
-        pushd TestDrive:\test_package
     }
 
     It 'considers au_root global variable when looking for packages' {
@@ -19,5 +20,5 @@ Describe 'General' {
         $res | Should Not BeNullOrEmpty
         $res[0].Name | Should Be 'test_package2'
     }
-    popd
 }
+cd $saved_pwd

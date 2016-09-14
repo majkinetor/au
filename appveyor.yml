@@ -11,7 +11,7 @@ install:
 
 build_script:
 - ps: |
-    $version = ./build.ps1
+    $version = ./build.ps1 -Install
     Update-AppveyorBuild -Version $version
 
 test_script:

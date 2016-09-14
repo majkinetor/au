@@ -19,7 +19,7 @@ if (!$module_path) {
 $module_path = Resolve-Path $module_path
 
 rm -Force -Recurse "$module_dst\$module_name" -ErrorAction ignore
-if ($Remove) { Write-Host "Module AU removed"; return }
+if ($Remove) { remove-module au -ea ignore; Write-Host "Module AU removed"; return }
 
 Write-Host "`n==| Starting AU installation`n"
 

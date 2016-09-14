@@ -1,6 +1,7 @@
 remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU
 
+$saved_pwd = $pwd
 Describe 'Update-AUPackages' {
 
     function global:nuspec_file() { [xml](gc $PSScriptRoot/test_package/test_package.nuspec) }
@@ -43,3 +44,5 @@ Describe 'Update-AUPackages' {
     }
 
 }
+
+$saved_pwd = $pwd
