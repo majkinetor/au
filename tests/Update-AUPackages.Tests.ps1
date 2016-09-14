@@ -28,7 +28,7 @@ Describe 'Update-AUPackages' {
     }
 
     It 'should update all packages when forced' {
-        $Options.Force = $true
+        $Options.Force = $true 
         $res = updateall -Options $Options 6> $null
         $res.Count | Should Be $pkg_no
         ($res.Result -match 'update is forced').Count | Should Be $pkg_no
