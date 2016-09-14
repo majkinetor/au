@@ -1,0 +1,30 @@
+version: '{build}'
+image: WMF 5
+
+environment:
+  mail_user: majkinetor@gmail.com
+
+install:
+- ps: 'Get-CimInstance win32_operatingsystem -Property Caption, OSArchitecture, Version | fl Caption, OSArchitecture, Version'
+- ps: $PSVersionTable
+- ps: |
+    Install-PackageProvider -Name NuGet -Force
+    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+
+build_script:
+- ps: |
+    "build"
+
+#on_finish:
+#- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+artifacts:
+#- path: update_info.xml
+
+notifications:
+- provider: Email
+  to: $(mail_user)
+  on_build_success: false
+  on_build_failure: true
+  on_build_status_changed: true
+

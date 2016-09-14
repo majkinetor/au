@@ -4,7 +4,7 @@ import-module $PSScriptRoot\..\AU
 Describe 'Update-AUPackages' {
 
     function global:nuspec_file() { [xml](gc $PSScriptRoot/test_package/test_package.nuspec) }
-	$pkg_no = 3
+    $pkg_no = 3
 
     BeforeEach {
         $global:au_root = "TestDrive:\packages"
@@ -14,7 +14,6 @@ Describe 'Update-AUPackages' {
             $name = "test_package_$i"
             $path = "$au_root\$name"
 
-			#rm TestDrive:\* -Recurse -Force
             cp -Recurse -Force $PSScriptRoot\test_package $path
             $nu = nuspec_file
             $nu.package.metadata.id = $name
@@ -32,15 +31,15 @@ Describe 'Update-AUPackages' {
         $Options.Force = $true
         $res = updateall -Options $Options 6> $null
         $res.Count | Should Be $pkg_no
-		($res.Result -match 'update is forced').Count | Should Be $pkg_no
-		($res | ? Updated).Count | Should Be $pkg_no
+        ($res.Result -match 'update is forced').Count | Should Be $pkg_no
+        ($res | ? Updated).Count | Should Be $pkg_no
     }
 
-	It 'should update no packages when none is newer' {
+    It 'should update no packages when none is newer' {
         $res = updateall 6> $null
         $res.Count | Should Be $pkg_no
-		($res.Result -match 'No new version found').Count | Should Be $pkg_no
-		($res | ? Updated).Count | Should Be 0
+        ($res.Result -match 'No new version found').Count | Should Be $pkg_no
+        ($res | ? Updated).Count | Should Be 0
     }
 
 }
