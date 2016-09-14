@@ -21,6 +21,7 @@ To learn more about Chocolatey automatic packages, please refer to the relevant 
 
 ## Installation
 
+Use one of the following methods:
 - Chocolatey:  [`cinst au`](https://chocolatey.org/packages/au).  
 - PowerShell 5+: [`Install-Module au`](https://www.powershellgallery.com/packages/AU).  
 - [Download](https://github.com/majkinetor/au/releases/latest) latest 7z package.
