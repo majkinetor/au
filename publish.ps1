@@ -85,7 +85,7 @@ function Publish-Chocolatey() {
     Write-Verbose 'Publishing to Chocolatey'
 
     'Chocolatey_ApiKey' | test-var
-    choco push $PSScriptRoot\$build_dir\*.$version.nupkg --api-key $Env:Chocolatey_ApiKey
+    choco push (Resolve-Path $build_dir/*.$version.nupkg) --api-key $Env:Chocolatey_ApiKey
     if ($LastExitCode) {throw "Chocolatey push failed with exit code: $LastExitCode"}
 }
 
