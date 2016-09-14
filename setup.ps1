@@ -8,9 +8,10 @@ $s = {
 }
 
 function chocolatey() {
-    if (!(gcm choco -ea ignore)) {
+    #if (!(gcm choco -ea ignore)) {
         iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex
-    }
+        choco -v
+    #}
 }
 
 function psgallery() {
