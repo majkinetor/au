@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 13-Sep-2016.
+# Last Change: 14-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -203,6 +203,20 @@ function Update-Package {
         invoke_installer
     }
 
+    function set_choco_fix() {
+        $script:is_forced = $true
+
+        $date_format = 'yyyMMdd'
+        $d = (get-date).ToString($date_format)
+        $v = [version]$package.NuspecVersion
+        $rev = $v.Revision.ToString()
+        try { $revdate = [DateTime]::ParseExact($rev, $date_format,[System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None) } catch {}
+        if (($rev -ne -1) -and !$revdate) { return $v }
+
+        $build = if ($v.Build -eq -1) {0} else {$v.Build}
+        $Latest.Version = $package.RemoteVersion = '{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d
+    }
+
     function update_files( [switch]$SkipNuspecFile )
     {
         'Updating files' | result
@@ -214,21 +228,15 @@ function Update-Package {
             "    setting id:  $($global:Latest.PackageName)" | result
             $nu.package.metadata.id = $package.Name = $global:Latest.PackageName.ToString()
 
-            if (!(updated)) {
-                $d = (get-date).ToString('yyyyMMdd')
-                $v = [version]$package.NuspecVersion
-                $rev = $v.Revision.ToString()
-                try { $revdate = [DateTime]::ParseExact($rev, 'yyyyMMdd',[System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None) } catch {}
-                if ($rev -eq -1 -or $revdate) {
-                    $build = if ($v.Build -eq -1) {0} else {$v.Build}
-                    $package.RemoteVersion = '{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d
-                    "    updating version using Chocolatey fix notation: $($package.NuspecVersion) -> $($package.RemoteVersion)" | result
+            $msg ="updating version: {0} -> {1}" -f $package.NuspecVersion, $package.RemoteVersion
+            if ($script:is_forced) {
+                if ($package.RemoteVersion -eq $package.NuspecVersion) {
+                    $msg = "version not changed as it already uses 'revision': {0}" -f $package.NuspecVersion
                 } else {
-                    "    version not changed as it already uses 'revision': $($package.NuspecVersion)" | result
+                    $msg = "updating version using Chocolatey fix notation: {0} -> {1}" -f $package.NuspecVersion, $package.RemoteVersion
                 }
-            } else {
-                "    updating version:  $($package.NuspecVersion) -> $($package.RemoteVersion)" | result
             }
+            $msg | result
 
             $nu.package.metadata.version = $package.RemoteVersion.ToString()
             $nu.Save($nuspecFile)
@@ -304,14 +312,15 @@ function Update-Package {
     }
 
     check_version
-    if (!$NoCheckUrl) { check_url }
     $package.RemoteVersion = $Latest.Version
+
+    if (!$NoCheckUrl) { check_url }
 
     "nuspec version: " + $package.NuspecVersion | result
     "remote version: " + $package.RemoteVersion | result
 
     if (updated) {
-        if (!$NoCheckChocoVersion -and !$Force) {
+        if (!($NoCheckChocoVersion -or $Force)) {
             $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $package.Name, $package.RemoteVersion
             try {
                 request $choco_url $Timeout | out-null
@@ -324,7 +333,8 @@ function Update-Package {
             'No new version found' | result
             return $package
         }
-        else { 'No new version found, but update is forced' | result }
+        else { 'No new version found, but update is forced' | result; set_choco_fix }
+
     }
 
     'New version is available' | result

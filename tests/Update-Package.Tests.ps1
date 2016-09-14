@@ -39,8 +39,9 @@ Describe 'Update-Package' {
             It 'updates package when remote version is higher' {
                 $res = update
 
-                $res.Updated    | Should Be $true
-                $res.Result[-1] | Should Be 'Package updated'
+                $res.Updated       | Should Be $true
+                $res.RemoteVersion | Should Be 1.3
+                $res.Result[-1]    | Should Be 'Package updated'
                 (nuspec_file).package.metadata.version | Should Be 1.3
             }
 
@@ -49,8 +50,9 @@ Describe 'Update-Package' {
 
                 $res = update
 
-                $res.Updated    | Should Be $false
-                $res.Result[-1] | Should Be 'No new version found'
+                $res.Updated       | Should Be $false
+                $res.RemoteVersion | Should Be 1.2.3
+                $res.Result[-1]    | Should Be 'No new version found'
                 (nuspec_file).package.metadata.version | Should Be 1.2.3
             }
 
@@ -74,6 +76,14 @@ Describe 'Update-Package' {
                 $res.Result[-1] | Should Be 'Package updated'
                 $res.Result -match 'No new version found, but update is forced' | Should Not BeNullOrEmpty
                 (nuspec_file).package.metadata.version | Should Be "1.2.3.$d"
+            }
+
+            It "does not use choco fix notation if the package remote version is higher" {
+                $res = update -Force:$true
+
+                $res.Updated | Should Be $true
+                $res.RemoteVersion | Should Be 1.3
+                (nuspec_file).package.metadata.version | Should Be 1.3
             }
 
             It "searches and replaces given file lines when updating" {
