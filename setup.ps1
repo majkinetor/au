@@ -1,11 +1,10 @@
 #requires -version 5
 
 $s = {
-
     chocolatey
     psgallery
-    cinst git
-    inmo pester
+    if (!(gcm git -ea ignore)) { cinst git }
+    inmo pester #3.4.3
 }
 
 function chocolatey() {

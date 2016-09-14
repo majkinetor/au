@@ -23,6 +23,8 @@ $b = {
     build_chocolatey_package
 
     if ($Install) { & $PSSCriptRoot/install.ps1 }
+
+    $Version
 }
 
 function init() {

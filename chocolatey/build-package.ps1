@@ -32,5 +32,5 @@ cp -Force -Recurse $module_path $PSScriptRoot\tools
 cp $PSScriptRoot\..\install.ps1 $PSScriptRoot\tools
 
 rm $PSScriptRoot\*.nupkg
-choco pack $nuspec_build_path --outputdirectory $PSScriptRoot
+choco pack $nuspec_build_path --outputdirectory $PSScriptRoot | Write-Host
 rm $nuspec_build_path

@@ -7,13 +7,11 @@ environment:
 install:
 - ps: 'Get-CimInstance win32_operatingsystem -Property Caption, OSArchitecture, Version | fl Caption, OSArchitecture, Version'
 - ps: $PSVersionTable
-- ps: |
-    Install-PackageProvider -Name NuGet -Force
-    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+- ps: ./setup.ps1
 
 build_script:
 - ps: |
-
+    $version = ./build.ps1
     Update-AppveyorBuild -Version $version
 
 #on_finish:

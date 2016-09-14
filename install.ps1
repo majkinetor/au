@@ -21,18 +21,18 @@ $module_path = Resolve-Path $module_path
 rm -Force -Recurse "$module_dst\$module_name" -ErrorAction ignore
 if ($Remove) { Write-Host "Module AU removed"; return }
 
-"`n==| Starting AU installation`n"
+Write-Host "`n==| Starting AU installation`n"
 
 if (!(Test-Path $module_path)) { throw "Module path invalid: '$module_path'" }
 
-"Module path: '$module_path'"
+Write-Host "Module path: '$module_path'"
 
 cp -Recurse -Force  $module_path $module_dst
 
 $res = Get-Module $module_name -ListAvailable | ? { (Split-Path $_.ModuleBase) -eq $module_dst }
 if (!$res) { throw 'Module installation failed' }
 
-"`n$($res.Name) version $($res.Version) installed successfully at '$module_dst\$module_name'"
+Write-Host "`n$($res.Name) version $($res.Version) installed successfully at '$module_dst\$module_name'"
 
 $functions = $res.ExportedFunctions.Keys
 
@@ -42,6 +42,6 @@ remove-module au
 
 $functions | % {
     [PSCustomObject]@{ Function = $_; Alias = $aliases | ? Definition -eq $_ }
-} | ft -auto | Out-String
+} | ft -auto | Out-String | Write-Host
 
-"To learn more type 'man about_au'.`n"
+Write-Host "To learn more type 'man about_au'.`n"
