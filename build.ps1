@@ -14,6 +14,8 @@ $b = {
     $build_dir   = "$PSScriptRoot/_build/$version"
     $remove_old  = $true
 
+    $ErrorActionPreference = 'Stop'
+
     Write-Host "`n==| Bulding AU $version`n"
     init
 
