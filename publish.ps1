@@ -1,46 +1,42 @@
 #requires -version 5
 
 param(
+    [Parameter(Mandatory=$true)]
+    [ValidateNotNullOrEmpty()]
+    [string]$Version,
+    [switch]$NoTag,
+
     [switch]$PSGallery,
     [switch]$Github,
-    [switch]$GitAuth,
     [switch]$Chocolatey
 )
 
 $p = {
-    pushd $PSScriptRoot
-    if (Test-Path $PSScriptRoot/vars.ps1) { . $PSScriptRoot/vars.ps1 }
+    $build_dir     = "$PSScriptRoot/_build/$Version"
+    $module_name   = "AU"
+    $module_path   = "$build_dir/$module_name"
+    $release_notes = get_release_notes
 
+    if (!(Test-Path $build_dir)) { throw "Build for that version doesn't exist" }
     if (!(gcm git)) {throw "Git is not installed. Use Chocolatey to install it: cinst git" }
 
-    if (!(Test-Path $PSScriptRoot\_build\*)) { throw "Latest build doesn't exist" }
-    $module_path = (ls $PSScriptRoot\_build\* -ea ignore | sort CreationDate -desc | select -First 1 -Expand FullName) + '/AU'
+    if (Test-Path $PSScriptRoot/vars.ps1) { . $PSScriptRoot/vars.ps1 }
 
-    $version       = Import-PowerShellDataFile $module_path/AU.psd1 | % ModuleVersion
-    $release_notes = fix_changelog
-
-    git_set_auth
-    git_save_changelog
     git_tag
 
     Publish-PSGallery
     Publish-Chocolatey
     Publish-Github
-    popd
-}
-
-function git_set_auth() {
-    if (!$GitAuth) { Write-Host "Git auth disabled"; return }
-
-    git remote rm origin
-    $user = $env:Github_UserRepo -split '/' | select -First 1
-    git remote add origin https://$user:$Env:Github_ApiKey@github.com/$Env:Github_UserRepo.git
-    git branch --set-upstream-to=origin/master master
 }
 
 function git_tag() {
+    if ($NoTag) { Write-Host "Creating git tag disabled"; return }
+    Write-Host "Creating git tag for version $version"
+
+    pushd $PSScriptRoot
     git tag $version
     git push --tags
+    popd
 }
 
 function git_save_changelog() {
@@ -55,8 +51,13 @@ function git_save_changelog() {
 }
 
 
-function fix_changelog() {
-    . $PSScriptRoot/scripts/Fix-ChangeLog.ps1 -Version $version
+function get_release_notes() {
+    $changelog_path = Resolve-Path $PSScriptRoot\CHANGELOG.md
+
+    $clog = gc $changelog_path -Raw
+    $res = $clog -match "(?<=## $version)(.|\n)+?(?=\n## )"
+    if (!$res) { throw "Version $version header can't be found in the CHANGELOG.md" }
+    $Matches[0]
 }
 
 function Publish-Github() {
@@ -69,7 +70,7 @@ function Publish-Github() {
         Github_ApiKey   = $Env:Github_ApiKey
         TagName         = $version
         ReleaseNotes    = $release_notes
-        Artifacts       = "$PSScriptRoot/chocolatey/au.$version.nupkg"
+        Artifacts       = "$build_dir/*.nupkg", "$build_dir/*.7z"
     }
     . $PSScriptRoot/scripts/Github-CreateRelease.ps1 @params
 }

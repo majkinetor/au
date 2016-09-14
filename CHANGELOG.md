@@ -30,6 +30,7 @@
 - Build chocolatey package script.
 - Publish to Github, Chocolatey and PSGallery.
 - `install.ps1` script to install/remove Powershell module in the current system.
+- AppVeyor automatic build.
 
 
 ## 2016.8.15
