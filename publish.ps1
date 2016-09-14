@@ -37,20 +37,10 @@ function git_tag() {
     Write-Host "Creating git tag for version $version"
 
     pushd $PSScriptRoot
+    git status
     git tag $version
     git push --tags
     popd
-}
-
-function git_save_changelog() {
-    Write-host 'Pushing Git changes'
-
-    git checkout master
-    git pull
-
-    git add $PSScriptRoot\CHANGELOG.md
-    git commit -m "PUBLISH: version $version"
-    git push
 }
 
 
