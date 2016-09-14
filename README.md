@@ -1,3 +1,7 @@
+[![](https://ci.appveyor.com/api/projects/status/github/majkinetor/au?svg=true)](https://ci.appveyor.com/project/majkinetor/au)
+
+---
+
 # Chocolatey Automatic Package Updater Module
 
 This PowerShell module implements functions that can be used to automate [Chocolatey](https://chocolatey.org) package updates.

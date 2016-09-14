@@ -1,8 +1,9 @@
 remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU
 
-$saved_pwd = $pwd
 Describe 'Update-Package' {
+    $saved_pwd = $pwd
+
     function global:get_latest($Version='1.3', $URL='test') {
         "function global:au_GetLatest { @{Version = '$Version'; URL = '$URL'} }" | iex
     }
@@ -221,6 +222,6 @@ Describe 'Update-Package' {
             }
         }
     }
+    cd $saved_pwd
 }
 
-cd $saved_pwd

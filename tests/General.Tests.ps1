@@ -1,8 +1,9 @@
 remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU
 
-$saved_pwd = $pwd
 Describe 'General' {
+    $saved_pwd = $pwd
+
     BeforeEach {
         cd TestDrive:\
         rm -Recurse -Force TestDrive:\test_package -ea ignore
@@ -20,5 +21,6 @@ Describe 'General' {
         $res | Should Not BeNullOrEmpty
         $res[0].Name | Should Be 'test_package2'
     }
+
+    cd $saved_pwd
 }
-cd $saved_pwd
