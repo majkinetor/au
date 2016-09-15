@@ -12,7 +12,6 @@ function Test-Package {
         if (!(Test-Path $Nu)) { throw "Path not found: $Nu" }
         $Nu = gi $Nu
         $dir = if ($Nu.PSIsContainer) { $Nu; $Nu = $null } else { $Nu.Directory }
-
     }
 
     if (!$Nu) {

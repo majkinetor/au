@@ -36,6 +36,14 @@ Describe 'Update-Package' {
     InModuleScope AU {
 
         Context 'Updating' {
+            It 'automatically calculates the checksum' {
+                cp -Recurse -Force $PSScriptRoot\test_package\chocolateyInstall.ps1 TestDrive:\test_package\tools
+
+                $res = update -ChecksumFor 32 6> $null
+
+                $global:Latest.Checksum32 | Should Not BeNullOrEmpty
+            }
+
             It 'updates package when remote version is higher' {
                 $res = update
 
