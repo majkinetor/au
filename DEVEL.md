@@ -26,7 +26,7 @@ To override default versions use `Version` parameter: `./build -Version 0.0.1`. 
 
 Run `Invoke-Pester` in the root to run [Pester](https://github.com/pester/Pester) tests.
 
-To clean temporary files run `git clean -Xdf`.  **However, keep in mind that other unversioned files will be deleted.**
+To clean temporary files created during the build run `git clean -Xdf`.
 
 
 ## Publish
