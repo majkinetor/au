@@ -12,16 +12,17 @@ $ErrorActionPreference = 'Stop'
 
 $module_name = 'AU'
 $module_dst  = "$Env:ProgramFiles\WindowsPowerShell\Modules"
-if (!$module_path) {
-    if (!(Test-Path $PSScriptRoot\_build\*)) { throw "module_path not specified and latest build doesn't exist" }
-    $module_path = (ls $PSScriptRoot\_build\* -ea ignore | sort CreationDate -desc | select -First 1 -Expand FullName) + '/' + $module_name
-}
-$module_path = Resolve-Path $module_path
 
 rm -Force -Recurse "$module_dst\$module_name" -ErrorAction ignore
 if ($Remove) { remove-module au -ea ignore; Write-Host "Module AU removed"; return }
 
 Write-Host "`n==| Starting AU installation`n"
+
+if (!$module_path) {
+    if (!(Test-Path $PSScriptRoot\_build\*)) { throw "module_path not specified and latest build doesn't exist" }
+    $module_path = (ls $PSScriptRoot\_build\* -ea ignore | sort CreationDate -desc | select -First 1 -Expand FullName) + '/' + $module_name
+}
+$module_path = Resolve-Path $module_path
 
 if (!(Test-Path $module_path)) { throw "Module path invalid: '$module_path'" }
 
