@@ -15,7 +15,7 @@
   - New parameters
     - `NoHostOutput` to not show any `Write-Host` output.
     - `Result` to hold the name of the global output variable.
-  - Verbose parameter 
+    - Verbose parameter.
   - `NuspecVersion` added to the `$Latest` HashTable.
   - Pester tests.
   - run standalone, `update` in the package directory calls `./update.ps1`.
