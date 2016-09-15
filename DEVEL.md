@@ -30,8 +30,7 @@ The following example commands can be run from the repository root:
 | Install latest build in the system                   | `./install.ps1`                    |
 | Install using given path in the system               | `./install.ps1 -module_path AU`    |
 | Uninstall from the system                            | `./install.ps1 -Remove`            |
-| Run [Pester](https://github.com/pester/Pester) tests | `Invoke-Pester`                    |
-| Test latest Chocolatey package                       | `Test-Package -Nu _build/*`|
+| Run all tests                                        | `./test.ps1`|
 | Clean temporary build files                          | `git clean -Xdf`                   |
 
 

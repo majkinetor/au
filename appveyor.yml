@@ -16,20 +16,18 @@ build_script:
 
 test_script:
 - ps: |
-    $testResultsFile = ".\TestsResults.xml"
-    $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
+    $res = ./test.ps1
 
     "Uploading test results"
     $url = "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)"
-    (New-Object 'System.Net.WebClient').UploadFile($url, (Resolve-Path $testResultsFile))
+    (New-Object 'System.Net.WebClient').UploadFile($url, (Resolve-Path _build/*/TestResults.xml))
     if ($res.FailedCount -gt 0) { throw "$($res.FailedCount) tests failed." }
 
 #on_finish:
 #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 artifacts:
-- path: _build\*\*.nupkg
-- path: _build\*\*.7z
+- path: _build\*\*
 
 notifications:
 - provider: Email

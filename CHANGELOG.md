@@ -12,6 +12,9 @@
   - Test choco uninstaller. 
   - Refactoring.
 
+### CD
+  - New `./test.ps1` script.
+
 
 ## 2016.9.14.233253
 
