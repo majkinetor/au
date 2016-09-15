@@ -21,13 +21,17 @@ The builded module will be available in the `_build\{version}` directory. Versio
 ```
 ./build.ps1
 ```
+The following example commands can be run from the repository root:
 
-To override default versions use `Version` parameter: `./build -Version 0.0.1`.  
-To build and install in the system use  `Install`  parameter: `./build.ps1 -Install`. 
-
-Run `Invoke-Pester` in the root to run [Pester](https://github.com/pester/Pester) tests.
-
-To clean temporary files created during the build run `git clean -Xdf`.
+| Description                                          | Command                         |
+| :---                                                 | :---                            |
+| Override default version                             | `./build -Version 0.0.1`        |
+| Build and install in the system                      | `./build.ps1 -Install`          |
+| Install latest build in the system                   | `./install.ps1`                 |
+| Install using given path in the system               | `./install.ps1 -module_path AU` |
+| Uninstall from the system                            | `./install.ps1 -Remove`         |
+| Run [Pester](https://github.com/pester/Pester) tests | `Invoke-Pester`                 |
+| Clean temporary build files                          | `git clean -Xdf`                |
 
 
 ## Publish
@@ -42,5 +46,3 @@ $v = ./build.ps1   #create a new version
 Before publishing, edit the `NEXT` header in the `CHANGELOG.md` file to set the release notes and build the module. The publish script will take first second level header after the `NEXT` (the latest version) as release notes. The publishing will fail if release notes are not found. If that happens, don't forget to edit the file **and commit/push it to repository** in order for next tag to include it.
 
 Publishing procedure depends on number of environment variables. Rename `vars_default.ps1` to `vars.ps1` and set variables there to get them included.
-
-
