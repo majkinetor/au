@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 13-Sep-2016.
+# Last Change: 15-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -111,8 +111,6 @@ function Update-AUPackages {
         $package_name = Split-Path $package_path -Leaf
         Write-Verbose "Starting $package_name"
         Start-Job -Name $package_name {
-
-            import-module au
             cd $using:package_path
             $out = "$using:tmp_dir\$using:package_name"
 
