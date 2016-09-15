@@ -22,7 +22,8 @@ The builded module will be available in the `_build\{version}` directory. Versio
 ./build.ps1
 ```
 
-To override default versions use `Version` parameter: `./build -Version 0.0.1`. To build and install in the system use `./build.ps1 -Install`. 
+To override default versions use `Version` parameter: `./build -Version 0.0.1`.  
+To build and install in the system use  `Install`  parameter: `./build.ps1 -Install`. 
 
 Run `Invoke-Pester` in the root to run [Pester](https://github.com/pester/Pester) tests.
 
