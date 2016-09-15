@@ -30,7 +30,10 @@ Describe 'Update-AUPackages' {
 
     It 'should update all packages when forced' {
         $Options.Force = $true 
+
         $res = updateall -Options $Options 6> $null
+
+        lsau | measure | % Count | Should Be $pkg_no
         $res.Count | Should Be $pkg_no
         ($res.Result -match 'update is forced').Count | Should Be $pkg_no
         ($res | ? Updated).Count | Should Be $pkg_no
@@ -38,6 +41,8 @@ Describe 'Update-AUPackages' {
 
     It 'should update no packages when none is newer' {
         $res = updateall 6> $null
+
+        lsau | measure | % Count | Should Be $pkg_no
         $res.Count | Should Be $pkg_no
         ($res.Result -match 'No new version found').Count | Should Be $pkg_no
         ($res | ? Updated).Count | Should Be 0
