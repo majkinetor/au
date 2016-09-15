@@ -4,7 +4,7 @@ param(
     [Parameter(Mandatory=$true)]
     [ValidateNotNullOrEmpty()]
     [string]$Version,
-    [switch]$NoTag,
+    [switch]$Tag,
 
     [switch]$PSGallery,
     [switch]$Github,
@@ -33,7 +33,7 @@ $p = {
 }
 
 function git_tag() {
-    if ($NoTag) { Write-Host "Creating git tag disabled"; return }
+    if (!$Tag) { Write-Host "Creating git tag disabled"; return }
     Write-Host "Creating git tag for version $version"
 
     pushd $PSScriptRoot
