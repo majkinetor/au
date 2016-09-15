@@ -1,3 +1,5 @@
+Write-Host "`n==| Running all tests`n"
+
 $build_dir = gi $PSScriptRoot/_build/*
 
 . $PSScriptRoot/AU/Public/Test-Package.ps1
