@@ -21,24 +21,28 @@ The builded module will be available in the `_build\{version}` directory. Versio
 ```
 ./build.ps1
 ```
+The following example commands can be run from the repository root:
 
-To override default versions use `Version` parameter: `./build -Version 0.0.1`. To build and install in the system use `./build.ps1 -Install`.
-
-Run `Invoke-Pester` in the root to run [Pester](https://github.com/pester/Pester) tests.
-
-To clean temporary files run `git clean -Xdf`.  **However, keep in mind that other unversioned files will be deleted.**
+| Description                                          | Command                         |
+| :---                                                 | :---                            |
+| Override default version                             | `./build -Version 0.0.1`        |
+| Build and install in the system                      | `./build.ps1 -Install`          |
+| Install latest build in the system                   | `./install.ps1`                 |
+| Install using given path in the system               | `./install.ps1 -module_path AU` |
+| Uninstall from the system                            | `./install.ps1 -Remove`         |
+| Run [Pester](https://github.com/pester/Pester) tests | `Invoke-Pester`                 |
+| Clean temporary build files                          | `git clean -Xdf`                |
 
 
 ## Publish
 
-The `publish.ps1` script publishes to Github, PSGallery and Chocolatey. There is a switch parameter for each publishing platform:
+The `publish.ps1` script publishes to Github, PSGallery and Chocolatey. There is a switch parameter for each publishing platform and there is also a parameter for creating a git tag.
 
-```
-./publish.ps1 -Github -PSGallery -Chocolatey
+```powershell
+$v = ./build.ps1   #create a new version
+./publish.ps1 -Version $v -Tag -Github -PSGallery -Chocolatey  #publish everywhere
 ```
 
-Before publishing, edit the `NEXT` header in the `CHANGELOG.md` file to set the release notes and build the module. The publish script will take first second level header after the `NEXT` (the latest version) as release notes.
+Before publishing, edit the `NEXT` header in the `CHANGELOG.md` file to set the release notes. The publish script will take content of the second level header named after version as the release notes. The publishing will fail if release notes are not found. If that happens, don't forget to edit the file **and commit/push it to repository** in order for next tag to include it.
 
 Publishing procedure depends on number of environment variables. Rename `vars_default.ps1` to `vars.ps1` and set variables there to get them included.
-
-

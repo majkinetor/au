@@ -3,7 +3,7 @@
 
 ## TODO
 
-- `Support for Semantic Versioning`.
+- Support for Semantic Versioning [#21](https://github.com/majkinetor/au/issues/21).
 
 ## NEXT
 
@@ -24,7 +24,8 @@
 - Optimization and refactoring.
 - Bugfixes
   - `Update-Packages` exception when `au_GetLatests` returned nothing.
-  - `$Latest.Version` remains set to remote version when forcing update.
+  - `$Latest.Version` remains set to remote version when forcing update [#24](https://github.com/majkinetor/au/issues/24).
+  - Chocolatey installation fixed [#15](https://github.com/majkinetor/au/issues/15)
 
 ### CD
 
