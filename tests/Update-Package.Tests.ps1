@@ -39,7 +39,7 @@ Describe 'Update-Package' {
             It 'automatically calculates the checksum' {
                 cp -Recurse -Force $PSScriptRoot\test_package\chocolateyInstall.ps1 TestDrive:\test_package\tools
 
-                $res = update -ChecksumFor 32 6> $null
+                update -ChecksumFor 32 -NoHostOutput:$false
 
                 $global:Latest.Checksum32 | Should Not BeNullOrEmpty
             }
