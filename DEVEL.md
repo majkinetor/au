@@ -43,6 +43,6 @@ $v = ./build.ps1   #create a new version
 ./publish.ps1 -Version $v -Tag -Github -PSGallery -Chocolatey  #publish everywhere
 ```
 
-Before publishing, edit the `NEXT` header in the `CHANGELOG.md` file to set the release notes. The publish script will take first second level header after the `NEXT` (the latest version) as release notes. The publishing will fail if release notes are not found. If that happens, don't forget to edit the file **and commit/push it to repository** in order for next tag to include it.
+Before publishing, edit the `NEXT` header in the `CHANGELOG.md` file to set the release notes. The publish script will take content of the second level header named after version as the release notes. The publishing will fail if release notes are not found. If that happens, don't forget to edit the file **and commit/push it to repository** in order for next tag to include it.
 
 Publishing procedure depends on number of environment variables. Rename `vars_default.ps1` to `vars.ps1` and set variables there to get them included.
