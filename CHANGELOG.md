@@ -7,6 +7,12 @@
 
 ## NEXT
 
+- `Test-Package` 
+  - Optional parameter Nu to test package from the .nupkg, .nuspec or directory.
+  - Test choco uninstaller. 
+  - Refactoring.
+
+
 ## 2016.9.14.233253
 
 - `Update-Package`
