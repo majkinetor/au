@@ -33,7 +33,7 @@ To clean temporary files created during the build run `git clean -Xdf`.
 
 The `publish.ps1` script publishes to Github, PSGallery and Chocolatey. There is a switch parameter for each publishing platform and there is also a parameter for creating a git tag.
 
-```
+```powershell
 $v = ./build.ps1   #create a new version
 ./publish.ps1 -Version $v -Tag -Github -PSGallery -Chocolatey  #publish everywhere
 ```
