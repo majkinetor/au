@@ -26,7 +26,7 @@ if (!$module_path) {
     if (Test-Path $PSScriptRoot\_build\*) {
         $module_path = (ls $PSScriptRoot\_build\* -ea ignore | sort CreationDate -desc | select -First 1 -Expand FullName) + '/' + $module_name
     } else {
-        $module_path = $module_name
+        $module_path = "$PSScriptRoot\$module_name"
         if (!(Test-Path $module_path)) { throw "module_path not specified and current directory doesn't contain it" }
     }
 }
