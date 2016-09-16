@@ -27,7 +27,7 @@ $params = @{
     Tags              = 'chocolatey', 'update'
     LicenseUri        = 'https://opensource.org/licenses/MIT'
     ProjectUri        = 'https://github.com/majkinetor/au'
-    ReleaseNotes      = 'https://github.com/majkinetor/au/blob/master/Changelog.md'
+    ReleaseNotes      = 'https://github.com/majkinetor/au/blob/master/CHANGELOG.md'
 
     ModuleVersion     = $Version
     FunctionsToExport = $functions
