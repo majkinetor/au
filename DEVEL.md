@@ -31,7 +31,7 @@ The following example commands can be run from the repository root:
 | Install using given path in the system                  | `./install.ps1 -module_path AU`      |
 | Uninstall from the system                               | `./install.ps1 -Remove`              |
 | Run tests (use `Pester` & `Chocolatey` params to limit) | `./test.ps1`                         |
-| Clean temporary build files                             | `git clean -Xdf`                     |
+| Clean temporary build files                             | `git clean -Xfd -e vars.ps1`         |
 
 
 ## Publish
