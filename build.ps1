@@ -5,10 +5,14 @@ param(
     [string] $Version = [Version](Get-Date).ToUniversalTime().ToString("yyyy.M.d.HHmmss"),
 
     # Install module in the system after the build
-    [switch] $Install
+    [switch] $Install,
+
+    [switch] $ShortVersion
 )
 
 $b = {
+    if ($ShortVersion) { $Version = [string] $Version = [Version](Get-Date).ToUniversalTime().ToString("yyyy.M.d") }
+
     $module_path    = "$PSScriptRoot/AU"
     $module_name    = Split-Path -Leaf $module_path
     $build_dir      = "$PSScriptRoot/_build/$version"
