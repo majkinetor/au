@@ -5,7 +5,7 @@
 
 param(
     #If given it is path to the module to be installed.
-    #If not given, use first build directory and if doesn't exist, try current folder.
+    #If not given, use first build directory and if doesn't exist, try scripts folder.
     [string] $module_path,
 
     #Remove module from the system.
@@ -27,7 +27,7 @@ if (!$module_path) {
         $module_path = (ls $PSScriptRoot\_build\* -ea ignore | sort CreationDate -desc | select -First 1 -Expand FullName) + '/' + $module_name
     } else {
         $module_path = "$PSScriptRoot\$module_name"
-        if (!(Test-Path $module_path)) { throw "module_path not specified and current directory doesn't contain it" }
+        if (!(Test-Path $module_path)) { throw "module_path not specified and scripts directory doesn't contain the module" }
     }
 }
 $module_path = Resolve-Path $module_path
