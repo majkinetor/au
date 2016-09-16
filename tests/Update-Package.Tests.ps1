@@ -37,11 +37,12 @@ Describe 'Update-Package' {
 
         Context 'Updating' {
             It 'automatically calculates the checksum' {
-                cp -Recurse -Force $PSScriptRoot\test_package\chocolateyInstall.ps1 TestDrive:\test_package\tools
+                update -ChecksumFor 32 6> $null
 
-                update -ChecksumFor 32 -NoHostOutput:$false
-
-                $global:Latest.Checksum32 | Should Not BeNullOrEmpty
+                $global:Latest.Checksum32     | Should Not BeNullOrEmpty
+                $global:Latest.ChecksumType32 | Should Be 'sha256'
+                $global:Latest.Checksum64     | Should BeNullOrEmpty
+                $global:Latest.ChecksumType64 | Should BeNullOrEmpty
             }
 
             It 'updates package when remote version is higher' {
