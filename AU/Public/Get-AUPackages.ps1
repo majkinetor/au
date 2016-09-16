@@ -1,3 +1,6 @@
+# Author: Miodrag Milic <miodrag.milic@gmail.com>
+# Last Change: 16-Sep-2016.
+
 <#
 .SYNOPSIS
     Get AU packages

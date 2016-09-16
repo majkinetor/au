@@ -1,10 +1,20 @@
-Write-Host "`n==| Running all tests`n"
+param( [switch]$Chocolatey, [switch]$Pester )
+
+if (!$Chocolatey -and !$Pester) { $Chocolatey = $Pester = $true }
 
 $build_dir = gi $PSScriptRoot/_build/*
 
-. $PSScriptRoot/AU/Public/Test-Package.ps1
-Test-Package $build_dir
+if ($Chocolatey) {
+    Write-Host "`n==| Running Chocolatey tests"
 
-$testResultsFile = "$build_dir/TestResults.xml"
-$res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
-$res
+    . $PSScriptRoot/AU/Public/Test-Package.ps1
+    Test-Package $build_dir
+}
+
+if ($Pester) {
+    Write-Host "`n==| Running Pester tests"
+
+    $testResultsFile = "$build_dir/TestResults.xml"
+    $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
+    $res
+}

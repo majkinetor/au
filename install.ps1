@@ -4,7 +4,11 @@
 # Multiple AU versions can be installed using Install-Module if needed (on Posh 5+).
 
 param(
-    [string] $module_path,  #if empty use latest build
+    #If given it is path to the module to be installed.
+    #If not given, use first build directory and if doesn't exist, try current folder.
+    [string] $module_path,
+
+    #Remove module from the system.
     [switch] $Remove
 )
 
@@ -19,8 +23,12 @@ if ($Remove) { remove-module au -ea ignore; Write-Host "Module AU removed"; retu
 Write-Host "`n==| Starting AU installation`n"
 
 if (!$module_path) {
-    if (!(Test-Path $PSScriptRoot\_build\*)) { throw "module_path not specified and latest build doesn't exist" }
-    $module_path = (ls $PSScriptRoot\_build\* -ea ignore | sort CreationDate -desc | select -First 1 -Expand FullName) + '/' + $module_name
+    if (Test-Path $PSScriptRoot\_build\*) {
+        $module_path = (ls $PSScriptRoot\_build\* -ea ignore | sort CreationDate -desc | select -First 1 -Expand FullName) + '/' + $module_name
+    } else {
+        $module_path = $module_name
+        if (!(Test-Path $module_path)) { throw "module_path not specified and current directory doesn't contain it" }
+    }
 }
 $module_path = Resolve-Path $module_path
 
@@ -39,10 +47,15 @@ $functions = $res.ExportedFunctions.Keys
 
 import-module $module_dst\$module_name -force
 $aliases = get-alias | ? { $_.Source -eq $module_name }
-remove-module au
 
+if ($functions.Length) {
 $functions | % {
     [PSCustomObject]@{ Function = $_; Alias = $aliases | ? Definition -eq $_ }
-} | ft -auto | Out-String | Write-Host
+} | % { Write-Host ("`n  {0,-20} {1}`n  --------             -----" -f 'Function', 'Alias') } {
+    Write-Host ("  {0,-20} {1}" -f $_.Function, "$($_.Alias)")
+}
+}
 
-Write-Host "To learn more type 'man about_au'.`n"
+remove-module au
+Write-Host "`nTo learn more about AU:      man about_au"
+Write-Host "See help for any function:   man updateall`n"

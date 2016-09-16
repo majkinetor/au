@@ -9,10 +9,11 @@ param(
 )
 
 $b = {
-    $module_path = "$PSScriptRoot/AU"
-    $module_name = Split-Path -Leaf $module_path
-    $build_dir   = "$PSScriptRoot/_build/$version"
-    $remove_old  = $true
+    $module_path    = "$PSScriptRoot/AU"
+    $module_name    = Split-Path -Leaf $module_path
+    $build_dir      = "$PSScriptRoot/_build/$version"
+    $installer_path = "$PSScriptRoot/install.ps1"
+    $remove_old     = $true
 
     $ErrorActionPreference = 'Stop'
 
@@ -23,10 +24,11 @@ $b = {
     create_manifest
     create_help
 
+    cp $installer_path $build_dir
     zip_module
     build_chocolatey_package
 
-    if ($Install) { & $PSSCriptRoot/install.ps1 }
+    if ($Install) { & $installer_path }
 
     $Version
 }
@@ -35,7 +37,7 @@ function zip_module() {
     Write-Host "Creating 7z package"
 
     $zip_path = "$build_dir\${module_name}_$version.7z"
-    $cmd = "$Env:ChocolateyInstall/tools/7z.exe a '$zip_path' '$module_path'"
+    $cmd = "$Env:ChocolateyInstall/tools/7z.exe a '$zip_path' '$module_path' '$installer_path'"
     $cmd | iex | Out-Null
     if (!(Test-Path $zip_path)) { throw "Failed to build 7z package" }
 }

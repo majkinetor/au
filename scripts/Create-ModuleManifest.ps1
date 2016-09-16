@@ -14,7 +14,7 @@ $functions = ls $ModulePath\Public\*.ps1 | % { $_.Name -replace '\.ps1$' }
 if ($functions.Count -eq 0) { throw 'No public functions to export' }
 
 Write-Verbose "Getting public module aliases"
-Import-Module $ModulePath -force
+try { import-module $ModulePath -force } catch { throw $_ }
 $aliases = Get-Alias | ? { $_.Source -eq $module_name -and ($functions -contains $_.Definition) }
 
 Write-Verbose "Generating module manifest"

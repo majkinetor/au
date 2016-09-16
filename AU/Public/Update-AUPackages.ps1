@@ -1,20 +1,34 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 15-Sep-2016.
+# Last Change: 16-Sep-2016.
 
 <#
 .SYNOPSIS
-    Update all automatic package in the current directory
+    Update all automatic packages
 
 .DESCRIPTION
     Function Update-AUPackages will iterate over update.ps1 scripts and execute each. If it detects
-    that package is updated it will cpack it and push it. For push to work, specify your API key in the
-    file 'api_key' in the script's directory.
+    that package is updated it will push it to Chocolatey repository. The function will look for AU 
+    packages in the current directory or in the directory pointed to by the global variable au_root.
+
+    For the push to work, specify your API key in the file 'api_key' in the script's directory or use
+    cached nuget API key or set environment variable '$Env:api_key'
 
 .EXAMPLE
     Update-AUPackages p* @{ Threads = 5; Timeout = 10 }
 
     Update all automatic packages in the current directory that start with letter 'p' using 5 threads
     and web timeout of 10 seconds.
+
+.EXAMPLE
+    $au_root = 'c:\chocolatey'; updateall @{ Force = $true }
+
+    Force update of all automatic packages in the given directory.
+
+.LINK
+    Update-Package
+
+.OUTPUT
+    AUPackage[]
 #>
 function Update-AUPackages {
     [CmdletBinding()]
@@ -24,11 +38,11 @@ function Update-AUPackages {
 
         <#
         Hashtable with options:
-          Threads     - Number of background jobs to use, by default 10
-          Timeout     - WebRequest timeout in seconds, by default 100
-          Force       - Force package update even if no new version is found
-          Push        - Set to true to push updated packages to chocolatey repository
-          Mail        - Hashtable with mail notification options: To, Server, UserName, Password, Port, EnableSsl
+          Threads     - Number of background jobs to use, by default 10;
+          Timeout     - WebRequest timeout in seconds, by default 100;
+          Force       - Force package update even if no new version is found;
+          Push        - Set to true to push updated packages to chocolatey repository;
+          Mail        - Hashtable with mail notification options: To, Server, UserName, Password, Port, EnableSsl;
           Script      - Specify script to be executed at the start and after the update. Script accepts two arguments:
                           $PHASE  - can be 'start' or 'end'
                           $ARG    - in start phase it is the list of packages to be updated;
@@ -36,13 +50,6 @@ function Update-AUPackages {
         #>
         [HashTable] $Options=@{}
     )
-
-    function Load-NuspecFile() {
-        $nu = New-Object xml
-        $nu.psbase.PreserveWhitespace = $true
-        $nu.Load($nuspecFile)
-        $nu
-    }
 
     $cd = $pwd
     $startTime = get-date

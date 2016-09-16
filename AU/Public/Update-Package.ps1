@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 14-Sep-2016.
+# Last Change: 16-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -118,13 +118,25 @@ function Update-Package {
     }
 
     function check_version() {
-        $re = '^(\d+)(\.\d+){0,3}$'
+        $re = '^(\d{1,16})\.(\d{1,16})\.*(\d{1,16})*\.*(\d{1,16})*(-[^.-]+)*$'
         if ($Latest.Version -notmatch $re) { throw "Latest $($package.Name) version doesn't match the pattern '$re': '$($Latest.Version)'" }
+        for($i=1; $i -le 3; $i++) { 
+            if ([int32]::MaxValue -lt [int64]$Matches[$i]) { throw "$Latest $($package.Name) version component is too big: $($Matches[$i])" }
+        }
     }
 
     function updated() {
-        #Updated only if nuspec version is lower then online version. That will allow to update package revision manually on package errors.
-        [version]($package.RemoteVersion) -gt [version]($package.NuspecVersion)
+        $remote_l = $package.RemoteVersion -replace '-.+'
+        $nuspec_l = $package.NuspecVersion -replace '-.+'
+        $remote_r = $package.RemoteVersion -replace '.+(?=(-.+)*)'
+        $nuspec_r = $package.NuspecVersion -replace '.+(?=(-.+)*)'
+
+        if ([version]$remote_l -eq [version] $nuspec_l) {
+            if (!$remote_r -and $nuspec_r) { return $true }
+            if ($remote_r -and !$nuspec_r) { return $false }
+            return ($remote_r -gt $nuspec_r)
+        }
+        [version]$remote_l -gt [version] $nuspec_l
     }
 
     function get_checksum()
@@ -190,10 +202,12 @@ function Update-Package {
         $choco_tmp_path = "$Env:TEMP\chocolatey\au\chocolatey"
         fix_choco
 
-        # This will set the new URLS before the files are downloaded but will replace checksums to empty ones so download will not fail
-        #  because those still contain the checksums for the previous version.
+        # This will set the new URLs before the files are downloaded but will replace checksums to empty ones so download will not fail
+        #  because checksums are at that moment set for the previous version.
         # SkipNuspecFile is passed so that if things fail here, nuspec file isn't updated; otherwise, on next run
-        #  AU will think that package is most recent
+        #  AU will think that package is the most recent. 
+        #
+        # TODO: This will also leaves other then nuspec files updated which is undesired side effect (should be very rare)
         #
         $global:Silent = $true
         update_files -SkipNuspecFile | out-null
@@ -208,7 +222,7 @@ function Update-Package {
 
         $date_format = 'yyyMMdd'
         $d = (get-date).ToString($date_format)
-        $v = [version]$package.NuspecVersion
+        $v = [version]($package.NuspecVersion -replace '-.+')
         $rev = $v.Revision.ToString()
         try { $revdate = [DateTime]::ParseExact($rev, $date_format,[System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None) } catch {}
         if (($rev -ne -1) -and !$revdate) { return $v }

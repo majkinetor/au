@@ -1,3 +1,14 @@
+# Author: Miodrag Milic <miodrag.milic@gmail.com>
+# Last Change: 16-Sep-2016.
+
+<#
+.SYNOPSIS
+    Push package to the Chocolatey repository
+
+.DESCRIPTION
+    The function uses they API key from the file api_key in current or parrent directory, environment variable
+    or cached nuget API key.
+#>
 function Push-Package() {
     $api_key =  if (Test-Path api_key) { gc api_key }
                 elseif (Test-Path ..\api_key) { gc ..\api_key }
@@ -11,4 +22,3 @@ function Push-Package() {
         cpush $package.Name
     }
 }
-Set-Alias pp Push-Package

@@ -3,18 +3,20 @@
 
 ## TODO
 
-- Support for Semantic Versioning [#21](https://github.com/majkinetor/au/issues/21).
+- Integrate `save-xxx` user scripts internally
 
 ## NEXT
 
+- `Update-Package`
+    - Support for Semantic Versioning [#21](https://github.com/majkinetor/au/issues/21).
 - `Test-Package` 
   - Optional parameter Nu to test package from the .nupkg, .nuspec or directory.
   - Test choco uninstaller. 
   - Refactoring.
+- Installer improvements.
 
 ### CD
   - New `./test.ps1` script.
-
 
 ## 2016.9.14.233253
 

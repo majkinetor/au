@@ -1,12 +1,31 @@
-#https://github.com/chocolatey/choco/wiki/CreatePackages#testing-your-package
+# Author: Miodrag Milic <miodrag.milic@gmail.com>
+# Last Change: 16-Sep-2016.
 
+<#
+.SYNOPSIS
+    Test Chocolatey package
+
+.DESCRIPTION
+    The function tries to force install and then remove the Chocolatey package.
+
+.LINK
+    https://github.com/chocolatey/choco/wiki/CreatePackages#testing-your-package
+#>
 function Test-Package {
     param(
         # If file, path to the .nupkg or .nuspec file for the package.
         # If directory, latest .nupkg or .nuspec file wil be looked in it.
         # If ommited current directory will be used.
-        $Nu
+        $Nu,
+
+        # Test chocolateyInstall.ps1 only.
+        [switch] $Install,
+
+        # Test chocolateyUninstall.ps1 only.
+        [switch] $Uninstall
     )
+    if (!$Install -and !$Uninstall) { $Install = $Uninstall = $true }
+
     if (!$Nu) { $dir = gi $pwd }
     else {
         if (!(Test-Path $Nu)) { throw "Path not found: $Nu" }
@@ -35,11 +54,15 @@ function Test-Package {
     Write-Host "  Name:".PadRight(15)     $package_name
     Write-Host "  Version:".PadRight(15)  $package_version
 
-    Write-Host "`nTesting package install"
-    choco install -r $package_name --version $package_version --source "'$($Nu.DirectoryName);https://chocolatey.org/api/v2/'" --force | Write-Host
-    if ($LASTEXITCODE -ne 0) { throw "choco install failed with $LastExitCode"}
+    if ($Install) {
+        Write-Host "`nTesting package install"
+        choco install -r $package_name --version $package_version --source "'$($Nu.DirectoryName);https://chocolatey.org/api/v2/'" --force | Write-Host
+        if ($LASTEXITCODE -ne 0) { throw "choco install failed with $LastExitCode"}
+    }
 
-    Write-Host "`nTesting package uninstall"
-    choco uninstall -r $package_name | Write-Host
-    if ($LASTEXITCODE -ne 0) { throw "choco uninstall failed with $LastExitCode"}
+    if ($Uninsstall) {
+        Write-Host "`nTesting package uninstall"
+        choco uninstall -r $package_name | Write-Host
+        if ($LASTEXITCODE -ne 0) { throw "choco uninstall failed with $LastExitCode"}
+    }
 }

@@ -1,5 +1,5 @@
 remove-module AU -ea ignore
-import-module $PSScriptRoot\..\AU
+import-module $PSScriptRoot\..\AU -force
 
 Describe 'Update-Package' {
     $saved_pwd = $pwd
@@ -65,16 +65,6 @@ Describe 'Update-Package' {
                 (nuspec_file).package.metadata.version | Should Be 1.2.3
             }
 
-            It "does not update the package when it exists on Chocolatey community feed" {
-                Mock request {} # feature depends on request throwing exception
-
-                $res = update -NoCheckChocoVersion:$false
-
-                $res.Updated    | Should Be $false
-                $res.Result[-1] | Should Match 'it already exists in the Chocolatey community feed'
-                (nuspec_file).package.metadata.version | Should Be 1.2.3
-            }
-
             It "updates the package when forced using choco fix notation" {
                 get_latest -Version 1.2.3
 
@@ -117,21 +107,25 @@ Describe 'Update-Package' {
         }
 
         Context 'Checks' {
-            It 'reads the valid latest version' {
+            It 'verifies semantic version' {
+                get_latest -Version 1.0.1-alpha
                 $res = update
-                $global:Latest.Version | Should Be 1.3
-            }
+                $res.Updated | Should Be $false
 
-            It 'throws if latest version is invalid' {
+                get_latest 1.2.3-alpha
+                $res = update
+                $res.Updated | Should Be $false
+
+                get_latest -Version 1.3-alpha
+                $res = update
+                $res.Updated | Should Be $true
+
+                get_latest -Version 1.3-alpha.1
+                { update } | Should Throw "version doesn't match the pattern"
+
                 get_latest -Version 1.3a
                 { update } | Should Throw "version doesn't match the pattern"
             }
-
-            #It 'supports semantic version' {
-                #function global:au_GetLatest { @{Version = '1.0.1-alpha'} }
-                #{ update } | Should Not Throw "version doesn't match the pattern"
-            #}
-
 
             It 'throws if latest URL is non existent' {
                 { update -NoCheckUrl:$false } | Should Throw "Can't validate latest test_package URL"

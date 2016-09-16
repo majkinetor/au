@@ -23,15 +23,15 @@ The builded module will be available in the `_build\{version}` directory. Versio
 ```
 The following example commands can be run from the repository root:
 
-| Description                                          | Command                            |
-| :---                                                 | :---                               |
-| Override default version                             | `./build -Version 0.0.1`           |
-| Build and install in the system                      | `./build.ps1 -Install`             |
-| Install latest build in the system                   | `./install.ps1`                    |
-| Install using given path in the system               | `./install.ps1 -module_path AU`    |
-| Uninstall from the system                            | `./install.ps1 -Remove`            |
-| Run all tests                                        | `./test.ps1`|
-| Clean temporary build files                          | `git clean -Xdf`                   |
+| Description                                             | Command                         |
+| :---                                                    | :---                            |
+| Override default version                                | `./build -Version 0.0.1`        |
+| Build and install in the system                         | `./build.ps1 -Install`          |
+| Install latest build in the system                      | `./install.ps1`                 |
+| Install using given path in the system                  | `./install.ps1 -module_path AU` |
+| Uninstall from the system                               | `./install.ps1 -Remove`         |
+| Run tests (use `Pester` & `Chocolatey` params to limit) | `./test.ps1`                    |
+| Clean temporary build files                             | `git clean -Xdf`                |
 
 
 ## Publish
