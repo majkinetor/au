@@ -113,7 +113,7 @@ The `update` function does the following checks:
 - If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existence of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict. Besides this, this feature makes it possible not to persist state between the updates as once the package is updated and pushed, the next update will not push the package again. To persist the state of updated packages you can use for instance `Git` plugin which saves the updated packages to the git repository. 
 - The regex patterns in `au_SearchReplace` will be checked for existence.
 
-If any of the checks fails, package will not get updated. This feature releases you from the worries about how precise is your pattern scan in `au_GetLatest` function and how often original site changes as if something like that happens package wont get updated or pushed with incorrect data.
+If any of the checks fails, package will not get updated. This feature releases you from the worries about how precise is your pattern match in the `au_GetLatest` function and how often original site changes as if something like that happens package wont get updated or pushed with incorrect data.
 
 For some packages, you may want to disable some of the checks by specifying additional parameters of the `update` function (not all can be disabled):
 
@@ -137,9 +137,9 @@ You can define the hash algorithm by returning corresponding `ChecksumTypeXX` ha
 
 If the checksum is actually obtained from the vendor's site, you can provide it along with its type (SHA256 by default) by returning corresponding `ChecksumXX` hash keys in the `au_GetLatest` function:
 
-    return @{ ... Checksum32 = 'xxxxxxxx'; ... }
+    return @{ ... Checksum32 = 'xxxxxxxx'; ChecksumType32 = 'md5'; ... }
 
-If the `ChecksumXX` hash key is present, the AU will change to checksum verification mode - it will download the installer and verify that its checksum matches the one provided. If the key is not present, the AU will calculate hash with using the given `ChecksumTypeXX` algorithm (which is by default 'sha512').
+If the `ChecksumXX` hash key is present, the AU will change to checksum verification mode - it will download the installer and verify that its checksum matches the one provided. If the key is not present, the AU will calculate hash with the given `ChecksumTypeXX` algorithm.
 
 **NOTE**: This feature works by monkey patching the `Get-ChocolateyWebFile` helper function and invoking the `chocolateyInstall.ps1` afterwards for the package in question. This means that it downloads the files using whatever method is specified in the package installation script.
 
@@ -147,11 +147,11 @@ If the `ChecksumXX` hash key is present, the AU will change to checksum verifica
 
 You can force the update even if no new version is found by using the parameter `Force` (or global variable `$au_Force`). This can be useful for troubleshooting, bug fixing, recalculating the checksum after the package was created and already pushed to Chocolatey or if URLs to installer changed without adequate version change.
 
-The version of the package will be changed so that it follows 'chocolatey fix standard' where current date is added in the 'revision' of the package version in the format 'yyyyMMdd'. More precisely, 
+The version of the package will be changed so that it follows _chocolatey fix standard_ where current date is added in the _revision_ component of the package version in the format `yyyyMMdd`. More precisely, 
 
-- choco 'fix version' always go in the 'Revision' part of the package version.
-- existing 'fixed versions' are changed to contain the current date if the revision does not exist or if it already contains choco fix.
-- if 'Revision' part is present in the package version and it is not in the 'choco fix format', just keep existing one but notify about it.
+- choco "fix version" always goes in to the _Revision_ part of the package version.
+- existing "fixed versions" are changed to contain the current date if the revision does not exist or if it already contains choco fix.
+- if _Revision_ part is present in the package version and it is not in the "choco fix format", just keep existing one but notify about it.
 
 **Example**:
 
