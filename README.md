@@ -35,14 +35,20 @@ AU module requires minimally PowerShell version 4: `$host.Version -ge '4.0'`
 
 The AU uses `update.ps1` script that package maintainers should create in the package directory. No templates are used, just plain PowerShell.
 
-To write the package update scrip, the following steps are generally required:
+To write the package update script, it is required to implement 2 functions:
 
-- Import the module: `import-module au`.
-- Implement global function `au_GetLatest`.  
-Function returns [HashTable] with the latest remote version along with other arbitrary user data which you can use elsewhere. The returned version is then compared to the one in the nuspec file and if remote version is higher, the files will be updated. This HashTable is available via global variable `$Latest`.
-- Implement global function `au_SearchReplace`.  
-Function returns [HashTable] containing search and replace data for any package file in the form: 
-~~~
+### `au_GetLatest`  
+
+This function is used to get the latest package information.
+
+Function returns [HashTable] with the latest remote version along with other arbitrary user data which you can use elsewhere. The returned version is then compared to the one in the nuspec file and if remote version is higher, the files will be updated. The returned keys of this HashTable are available via global variable `$Latest`.
+
+
+### `au_SearchReplace`  
+
+Function returns [HashTable] containing search and replace data for any package file in the form:  
+
+~~~powershell
     @{
         file_path1 = @{
             search1 = replace1
@@ -53,13 +59,18 @@ Function returns [HashTable] containing search and replace data for any package 
         ...
     }
 ~~~
-The function can use `$Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc.  
+
+The function can use `$Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc.
+
 **NOTE**: The search and replace works on lines, multiple lines can not be matched with single regular expression.
-- Call the `Update-Package` (alias `update`) function from the `AU` module to update the package.
+
+### Update 
+
+With above functions implemented calling the `Update-Package` (alias `update`) function from the `AU` module will update the package when needed.
 
 This is best understood via the example - take a look at the real life package [installer script](https://github.com/majkinetor/chocolatey/blob/master/dngrep/tools/chocolateyInstall.ps1) and its [AU updater](https://github.com/majkinetor/chocolatey/blob/master/dngrep/update.ps1).
 
-With this set, you can update individual packages by calling appropriate `update.ps1` from within package directory:
+This system allows for update of individual packages by calling appropriate `update.ps1` from within the package directory:
 
 ```
 PS C:\chocolatey\dngrep> .\update.ps1
