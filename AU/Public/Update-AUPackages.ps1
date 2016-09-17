@@ -22,7 +22,7 @@
 .EXAMPLE
     $au_root = 'c:\chocolatey'; updateall @{ Force = $true }
 
-    Force update of all automatic packages in the given directory.
+    Force update of all automatic ackages in the given directory.
 
 .LINK
     Update-Package
@@ -43,33 +43,30 @@ function Update-AUPackages {
           Force       - Force package update even if no new version is found;
           Push        - Set to true to push updated packages to chocolatey repository;
           Mail        - Hashtable with mail notification options: To, Server, UserName, Password, Port, EnableSsl;
-          Script      - Specify script to be executed at the start and after the update. Script accepts two arguments:
-                          $PHASE  - can be 'start' or 'end'
-                          $ARG    - in start phase it is the list of packages to be updated;
-                                    in end phase it is the info object that contains information about the previous run;
+          PluginPath  - Additional path to look for user plugins. If not set only module integrated plugins will work;
+          Plugin      - Any HashTable key will be treated as plugin with the same name as the option name.
+                        Script with that name will be looked into AU module path and user specified path and if
+                        found, it will be called with splatted HashTable passed as parameters.
         #>
         [HashTable] $Options=@{}
     )
 
-    $cd = $pwd
-    $startTime = get-date
+    $startTime = Get-Date
 
-    if (!$Options.Threads) { $Options.Threads = 10 }
-    if (!$Options.Timeout) { $Options.Timeout = 100 }
-    if (!$Options.Force)   { $Options.Force   = $false }
-    if (!$Options.Push)    { $Options.Push    = $false }
+    if (!$Options.Threads)    { $Options.Threads    = 10 }
+    if (!$Options.Timeout)    { $Options.Timeout    = 100 }
+    if (!$Options.Force)      { $Options.Force      = $false }
+    if (!$Options.Push)       { $Options.Push       = $false }
+    if (!$Options.PluginPath) { $Options.PluginPath = '' }
 
     Remove-Job * -force #remove any previously run jobs
 
     $tmp_dir = "$ENV:Temp\chocolatey\au"
-    mkdir -ea 0 $tmp_dir | out-null
+    mkdir -ea 0 $tmp_dir | Out-Null
     ls $tmp_dir | ? PSIsContainer -eq $false | rm   #clear tmp dir files
 
     $aup = Get-AUPackages $Name
     Write-Host 'Updating' $aup.Length  'automatic packages at' $($startTime.ToString("s") -replace 'T',' ') $(if ($Options.Force) { "(forced)" } else {})
-
-    $script_err = 0
-    if ($Options.Script) { try { & $Options.Script 'START' $aup | Write-Host } catch { Write-Error $_; $script_err += 1 } }
 
     $threads = New-Object object[] $Options.Threads
     $result  = @()
@@ -142,13 +139,33 @@ function Update-AUPackages {
     }
     $result = $result | sort Name
 
-    $info = get-info
-    if ($Options.Script) { try { & $Options.Script 'END' $info | Write-Host } catch { Write-Error $_; $script_err += 1 } }
+    $info = get_info
+    run_plugins
 
     @('') + $info.stats + '' | Write-Host
     send-notification
 
     $result
+}
+
+function run_plugins {
+    foreach ($key in $Options.Keys) {
+        $params = $Options.$key
+        if ($params -isnot [HashTable]) { continue }
+
+        $plugin_path = "$PSScriptRoot/../Plugins/$key.ps1"
+        if (!(Test-Path $plugin_path)) {
+            if([string]::IsNullOrWhiteSpace($Options.PluginPath)) { continue }
+
+            $plugin_path = $Options.PluginPath + "/$key.ps1"
+            if(!(Test-Path $plugin_path) { continue }
+        }
+
+        try {
+            Write-Host "Running $key"
+            . $plugin_path @params
+        } catch { "Plugin ERROR:`n" + $_ }
+    }
 }
 
 function send-notification() {
@@ -164,7 +181,7 @@ function send-notification() {
     } catch { Write-Error $_ }
 }
 
-function get-info {
+function get_info {
     $errors = $result | ? { $_.Error }
     $info = [PSCustomObject]@{
         result = [PSCustomObject]@{
