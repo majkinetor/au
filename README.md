@@ -17,7 +17,7 @@ To learn more about Chocolatey automatic packages, please refer to the relevant 
 - Sugar functions for Chocolatey package maintainers.
 - Update single package or any subset of previously created AU packages with a single command.
 - Multithread support when updating multiple packages.
-- Plugin system for integrations with the few integrated plugins to send email notifications, save results to gist and push updated packages to git repository.
+- Plugin system when updating everything, with the few integrated plugins to send email notifications, save results to gist and push updated packages to git repository.
 
 
 ## Installation
@@ -27,20 +27,22 @@ Use one of the following methods:
 - PowerShell 5+: [`Install-Module au`](https://www.powershellgallery.com/packages/AU).  
 - [Download](https://github.com/majkinetor/au/releases/latest) latest 7z package or latest build [artifact](https://ci.appveyor.com/project/majkinetor/au/build/artifacts).
 
-AU module requires minimally PowerShell version 4: `$host.Version -gt '4.0'`
+AU module requires minimally PowerShell version 4: `$host.Version -ge '4.0'`
 
 **NOTE**: All module functions work from within specific root folder. The folder contains all of your Chocolatey packages.
 
 ## Creating the package updater script
 
-- In the package directory, create the script `update.ps1`.
+The AU uses `update.ps1` script that package maintainers should create in the package directory. No templates are used, just plain PowerShell.
+
+To write the package update scrip, the following steps are generally required:
+
 - Import the module: `import-module au`.
-- Implement two global functions:
-  - `global:au_GetLatest`   
-  Function returns HashTable with the latest remote version along with other arbitrary user data which you can use elsewhere (for instance in search and replace). The returned version is then compared to the one in the nuspec file and if remote version is higher, the files will be updated. This HashTable is available via global variable `$Latest`.
-  - `global:au_SearchReplace`  
-  Function returns HashTable containing search and replace data for any package file in the form: 
-  ~~~
+- Implement global function `au_GetLatest`.  
+Function returns [HashTable] with the latest remote version along with other arbitrary user data which you can use elsewhere. The returned version is then compared to the one in the nuspec file and if remote version is higher, the files will be updated. This HashTable is available via global variable `$Latest`.
+- Implement global function `au_SearchReplace`.  
+Function returns [HashTable] containing search and replace data for any package file in the form: 
+~~~
     @{
         file_path1 = @{
             search1 = replace1
@@ -48,11 +50,11 @@ AU module requires minimally PowerShell version 4: `$host.Version -gt '4.0'`
             searchN = replaceN
         }
         file_path2 = @{ ... }
+        ...
     }
-  ~~~
-  The function can use `$Latest` hashtable to get any type of information obtained when `au_GetLatest` was executed. Besides this info, the script can access `$global:nuspec_version`.  
-  **NOTE**: The search and replace works on lines, multiple lines can not be matched with single regular expression.
-
+~~~
+The function can use `$Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc.  
+**NOTE**: The search and replace works on lines, multiple lines can not be matched with single regular expression.
 - Call the `Update-Package` (alias `update`) function from the `AU` module to update the package.
 
 This is best understood via the example - take a look at the real life package [installer script](https://github.com/majkinetor/chocolatey/blob/master/dngrep/tools/chocolateyInstall.ps1) and its [AU updater](https://github.com/majkinetor/chocolatey/blob/master/dngrep/update.ps1).
@@ -61,7 +63,7 @@ With this set, you can update individual packages by calling appropriate `update
 
 ```
 PS C:\chocolatey\dngrep> .\update.ps1
-dngrep - checking updates
+dngrep - checking updates using au version 2016.9.14
 nuspec version: 2.8.15.0
 remote version: 2.8.16.0
 New version found
