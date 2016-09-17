@@ -33,6 +33,7 @@ function deep_clone {
 function result($msg) { $Info.plugin_results.RunInfo += $msg; Write-Host $msg }
 
 $Info.plugin_results.RunInfo = @()
+$format = '{0,-15}{1}'
 
 $orig_opts = $Info.Options
 $opts      = deep_clone $orig_opts
@@ -50,8 +51,8 @@ foreach ($w in $Exclude) {
     }
 }
 
-if ($excluded) { result "Excluded: $excluded" }
-result "File: $Path"
+if ($excluded) { result ($format -f 'Excluded:', $excluded) }
+result ($format -f 'File:', $Path)
 $Info.Options = $opts
 $Info | Export-CliXML $Path
 $Info.Options = $orig_opts
