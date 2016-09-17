@@ -17,7 +17,8 @@ To learn more about Chocolatey automatic packages, please refer to the relevant 
 - Sugar functions for Chocolatey package maintainers.
 - Update single package or any subset of previously created AU packages with a single command.
 - Multithread support when updating multiple packages.
-- Send full command output to specified email in the case of errors.
+- Plugin system for integrations with the few integrated plugins to send email notifications, save results to gist and push updated packages to git repository.
+
 
 ## Installation
 
@@ -187,69 +188,92 @@ This is best understood via example - take a look at the [cpu-z](https://github.
 
 ## Updating all packages
 
-You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each in a separate thread, using the specified number of threads (10 by default). If it detects that a package is updated it will optionally try to push it to the Chocolatey repository.
+You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each in a separate thread. If it detects that a package is updated it will optionally try to push it to the Chocolatey repository and may also run configured plugins.
 
 For the push to work, specify your Choocolatey API key in the file `api_key` in the script's directory (or its parent directory) or set the environment variable `$Env:api_key`. If none provided cached nuget key will be used.
 
-This function is designed for scheduling. You can pass it a number of options, save as a script and call it via task scheduler. For example, you can get notified about possible errors during packages update procedure - if the update procedure fails for any reasons there is an option to send an email with results as an attachment in order to investigate the problem. 
+The function will search for packages in the current directory. To override that, use global variable `$au_Root`:
 
-You can use the following script as a prototype - `update_all.ps1`:
-
-    param($Name = $null)
-    cd $PSScriptRoot
-
-    $options = @{
+    PS> $au_root = 'c:\chocolatey_packages`
+    PS> $Options = @{
         Timeout = 10
-        Threads = 10
+        Threads = 15
         Push    = $false
-        Mail = @{
-            To       = 'meh@gmail.com'
-            Server   = 'smtp.gmail.com'
-            UserName = 'meh@gmail.com'
-            Password = '**************'
-            Port     = 587
-            EnableSsl= $true
-        }
     }
+    PS> updateall -Options $Options
 
-    Update-AUPackages -Name $Name -Options $options | Export-CliXML update_info.xml
+    Updating 6 automatic packages at 2016-09-16 22:03:33
+       copyq is updated to 2.6.1 and pushed 
+       dngrep had errors during update
+           Can't validate URL 'https://github.com/dnGrep/dnGrep/releases/download/v2.8.16.0/dnGREP.2.8.16.x64.msi'
+           Exception calling "GetResponse" with "0" argument(s): "The operation has timed out"
+       eac has no updates
+       pandoc has no updates
+       plantuml has no updates
+       yed had errors during update
+           Can't validate URL 'https://www.yworks.com'
+           Invalid content type: text/html
+
+    Finished 6 packages after .32 minutes.
+    1 packages updated and 1 pushed.
+    2 total errors - 2 update, 0 push.
+
 
 Use function parameter `Name` to specify package names via glob, for instance `updateall [a-d]*` would update only packages which names start with the letter 'a' trough 'd'. Add `Push` among options to push sucesifully built packages to the chocolatey repository. The result may look like this:
 
-    PS C:\chocolatey> .\update_all.ps1
+Take a look at the [real life example](https://gist.github.com/majkinetor/181b18886fdd363158064baf817fa2ff) of the update script.
 
-    Updating all automatic packages
-    copyq is updated to 2.6.1 and pushed 
-    dngrep had errors during update
-        Can't validate URL 'https://github.com/dnGrep/dnGrep/releases/download/v2.8.16.0/dnGREP.2.8.16.x64.msi'
-        Exception calling "GetResponse" with "0" argument(s): "The operation has timed out"
-    eac has no updates
-    pandoc has no updates
-    plantuml has no updates
-    yed had errors during update
-        Can't validate URL 'https://www.yworks.com'
-        Invalid content type: text/html
 
-    Finished 6 packages after .3 minutes.
-    1 packages updated and 1 pushed.
-    2 total errors; 2 update, 0 push.
+### Plugins
 
-    Mail with errors sent to meh@gmail.com
+It is possible to specify a custom user logic in `Options` parameter - every key that is of type `[HashTable]` will be considered plugin with the PowerShell script that is named the same as the key. The following code shows how to use 4 integrated plugins:
 
-The email attachment is a `$info` object that keeps all the information about that particular run, such as what happened to each package during update, how long the operation took etc. It can be loaded with `Import-CliXml result_info.xml` and inspected.
+```powershell
+    $Options = [ordered]@{
+        Timeout = 100
+        Threads = 15
+        Push    = $true
 
-Take a look at the [real life example](https://gist.github.com/majkinetor/181b18886fdd363158064baf817fa2ff) of the `update_all.ps1` script.
+        Gist = @{
+            Id            = $Env:gist_id
+            Github_ApiKey = $Env:github_api_key
+            Template      = 'gist.md'
+        }
+
+        Git = @{
+            UserRepo = $Env:github_user_repo
+            Password = $Env:github_api_key
+        }
+
+        RunInfo = @{}
+
+        Mail = if ($Env:mail_user) {
+                @{
+                   To        = $Env:mail_user
+                   Server    = 'smtp.gmail.com'
+                   UserName  = $Env:mail_user
+                   Password  = $Env:mail_pass
+                   Port      = 587
+                   EnableSsl = $true
+                }
+        } else {}
+    }
+```
+
+The plugins above - `Gist`, `Git`, `RunInfo` and `Mail` -  are executed in the given order (hence the `[ordered]` flag) and AU passes them given options and saves the run results. If PowerShell script by the name of the given key is not found, the plugin is ignored. 
+
+To add custom plugins, specify additional plugin search path via `$Options.PluginPath`. Plugin is a normal PowerShell script and apart from parameters given in its `[HashTable]` the AU will send it one more parameter `$Info` that contains current run info.
+
+To temporary disable plugins use updateall option `NoPlugins` or global variable `$au_NoPlugins`.
+
+### Update_all script
+
+Its desirable to put everything in a single script `update_all.ps1` so it can be scheduled and called with the desirable options. Rename `update_all_default.ps1` and set the options you need. 
 
 To make a local scheduled task, use the following code in the directory where your `update_all.ps1` script is found to install it:
 
     $At = '03:00'
     schtasks /create /tn "Update-AUPackages" /tr "powershell -File '$pwd\update_all.ps1'" /sc daily /st $At
-
-### Custom script
-
-It is possible to specify a custom user script in Update-AUPackages `Options` parameter (key `Options.Script`) that will be called before and after the update. The script receives two arguments: `$Phase` and `$Arg`. Currently phase can be one of the words `start` or `end`. Arg contains the list of packages to be updated in the 'start' phase and `Info` object in the 'end' phase which contains all the details about the current run. Use `$Arg | Get-Members` to see what kind of information is available.
-
-The purpose of this script is to attach custom logic at the end of the process (save results to gist, push to git or svn, send notifications etc.)
 
 ## Other functions
 
