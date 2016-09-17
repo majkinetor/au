@@ -35,7 +35,7 @@ AU module requires minimally PowerShell version 4: `$host.Version -ge '4.0'`
 
 The AU uses `update.ps1` script that package maintainers should create in the package directory. No templates are used, just plain PowerShell.
 
-To write the package update script, it is required to implement 2 functions:
+To write the package update script, it is generally required to implement 2 functions: `au_GetLatest` and `au_SearchReplace`.
 
 ### `au_GetLatest`  
 
@@ -66,7 +66,7 @@ The function can use `$Latest` variable to get any type of information obtained 
 
 ### Update 
 
-With above functions implemented calling the `Update-Package` (alias `update`) function from the `AU` module will update the package when needed.
+With above functions implemented calling the `Update-Package` (alias `update`) function from the AU module will update the package when needed.
 
 This is best understood via the example - take a look at the real life package [installer script](https://github.com/majkinetor/chocolatey/blob/master/dngrep/tools/chocolateyInstall.ps1) and its [AU updater](https://github.com/majkinetor/chocolatey/blob/master/dngrep/update.ps1).
 
@@ -110,7 +110,7 @@ The `update` function does the following checks:
 
 - The `$Latest.Version` will be checked to match a valid nuspec pattern.
 - Any hash key that starts with the word `Url`, will be checked for existence and MIME textual type, since binary is expected here.
-- If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existence of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict.
+- If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existence of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict. Besides this, this feature makes it possible not to persist state between the updates as once the package is updated and pushed, the next update will not push the package again. To persist the state of updated packages you can use for instance `Git` plugin which saves the updated packages to the git repository. 
 - The regex patterns in `au_SearchReplace` will be checked for existence.
 
 If any of the checks fails, package will not get updated. This feature releases you from the worries about how precise is your pattern scan in `au_GetLatest` function and how often original site changes as if something like that happens package wont get updated or pushed with incorrect data.
