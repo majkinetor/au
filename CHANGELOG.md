@@ -19,6 +19,7 @@
     - `Gist`    - Dashboard that saves run info as gist via included templates (currently Markdown).
     - `Git`     - Commits package changes to the git repository.
   - New parameter `NoPlugins` (by default `$Env:au_NoPlugins` to disable all plugins.
+  - New option parameter `PluginPath` to specify additional path where plugins are located.
 
 ### Bugfixes
 
