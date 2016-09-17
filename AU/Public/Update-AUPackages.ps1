@@ -136,7 +136,7 @@ function Update-AUPackages {
             $type = ($pkg | gm).TypeName
             if ($type -ne 'AUPackage') { throw "'$using:package_name' update script didn't return AUPackage but: $type" }
 
-            if ($pkg.$Updated -and $using:Options.Push) {
+            if ($pkg.Updated -and $using:Options.Push) {
                 $pkg.Result += Push-Package
                 if ($LastExitCode -eq 0) { $pkg.Pushed = $true }
             }
@@ -144,7 +144,7 @@ function Update-AUPackages {
             $pkg
         } | Out-Null
     }
-    $result = $result | sort PackageName
+    $result = $result | sort Name
 
     $info = get-info
     if ($Options.Script) { try { & $Options.Script 'END' $info | Write-Host } catch { Write-Error $_; $script_err += 1 } }
