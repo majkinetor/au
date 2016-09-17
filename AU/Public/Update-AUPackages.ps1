@@ -70,7 +70,7 @@ function Update-AUPackages {
 
     $threads = New-Object object[] $Options.Threads
     $result  = @()
-    $j       = 0
+    $j = $p  = 0
     while( $p -ne $aup.length ) {
 
         # Check for completed jobs
