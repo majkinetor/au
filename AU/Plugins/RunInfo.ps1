@@ -7,6 +7,7 @@
 
 .DESCRIPTION
     Run this plugin as the last one to save all other info produced during the run.
+    To load it for inspection use `$info = Import-CliXml update_info.xml`.
 #>
 param(
     $Info,

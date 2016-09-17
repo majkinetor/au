@@ -3,8 +3,6 @@
 
 ## TODO
 
-- Integrate `save-xxx` user scripts internally
-
 ## NEXT
 
 - `Update-Package`
@@ -14,12 +12,21 @@
   - Test choco uninstaller. 
   - Refactoring.
 - Installer improvements.
+- `Update-AUPackages`
+  - User scripts removed
+  - Plugin system replaced user scripts with the following default plugins included:
+    - `RunInfo` - Save run info to the CliXml file and exclude sensitive information.
+    - `Gist`    - Dashboard that saves run info as gist via included templates (currently Markdown).
+    - `Git`     - Commits package changes to the git repository.
+  - New parameter `NoPlugins` (by default `$Env:au_NoPlugins` to disable all plugins.
 
 ### Bugfixes
-- Fixed bug due to the typo when pushing and sorting package
+
+- Fixed bug due to the typo when pushing and sorting packages when executing `Update-AUPackages`.
 
 ### CD
-  - New `./test.ps1` script.
+
+- New `./test.ps1` script that run some or all tests.
 
 ## 2016.9.14.233253
 
