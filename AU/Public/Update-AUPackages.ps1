@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 16-Sep-2016.
+# Last Change: 17-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -65,17 +65,16 @@ function Update-AUPackages {
     mkdir -ea 0 $tmp_dir | out-null
     ls $tmp_dir | ? PSIsContainer -eq $false | rm   #clear tmp dir files
 
-    $threads    = New-Object object[] $Options.Threads
-    $result     = @()
-    $script_err = 0
-
     $aup = Get-AUPackages $Name
-    $j = 0
-
     Write-Host 'Updating' $aup.Length  'automatic packages at' $($startTime.ToString("s") -replace 'T',' ') $(if ($Options.Force) { "(forced)" } else {})
 
+    $script_err = 0
     if ($Options.Script) { try { & $Options.Script 'START' $aup | Write-Host } catch { Write-Error $_; $script_err += 1 } }
-    while( $true ) {
+
+    $threads = New-Object object[] $Options.Threads
+    $result  = @()
+    $j       = 0
+    while( $p -ne $aup.length ) {
 
         # Check for completed jobs
         foreach ($job in (Get-Job | ? state -ne 'Running')) {
@@ -106,11 +105,8 @@ function Update-AUPackages {
             }
         }
 
-        # Check if all packages are done
-        $job_count = Get-Job | measure | % count
-        if ($p -eq $aup.length) { break }
-
         # Just sleep a bit and repeat if all threads are busy
+        $job_count = Get-Job | measure | % count
         if (($job_count -eq $Options.Threads) -or ($j -eq $aup.length)) { sleep 1; continue }
 
         # Start a new thread
