@@ -1,4 +1,9 @@
-param( [switch]$Chocolatey, [switch]$Pester )
+param(
+    [switch]$Chocolatey,
+
+    [switch]$Pester,
+    [string]$Tag
+)
 
 if (!$Chocolatey -and !$Pester) { $Chocolatey = $Pester = $true }
 
@@ -15,6 +20,5 @@ if ($Pester) {
     Write-Host "`n==| Running Pester tests"
 
     $testResultsFile = "$build_dir/TestResults.xml"
-    $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
-    $res
+    Invoke-Pester -Tag $Tag -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
 }

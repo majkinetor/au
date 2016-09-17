@@ -1,14 +1,15 @@
 remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU
 
-Describe 'Update-AUPackages' {
+Describe 'Update-AUPackages' -Tag updateall {
     $saved_pwd = $pwd
 
     function global:nuspec_file() { [xml](gc $PSScriptRoot/test_package/test_package.nuspec) }
     $pkg_no = 3
 
     BeforeEach {
-        $global:au_root = "TestDrive:\packages"
+        $global:au_Root      = "TestDrive:\packages"
+        $global:au_NoPlugins = $true
 
         rm -Recurse $global:au_root -ea ignore
         foreach ( $i in 1..$pkg_no ) {
@@ -28,8 +29,27 @@ Describe 'Update-AUPackages' {
         $Options = @{}
     }
 
+    It 'should execute RunInfo plugin' {
+        $Options.RunInfo = @{
+            Path    = "$global:au_Root\update_info.xml"
+            Exclude = 'password'
+        }
+        $Options.Test = @{
+            MyPassword = 'password'
+            Parameter2 = 'p2'
+        }
+
+        $global:au_NoPlugins = $false
+        $res = updateall -Options $Options
+
+        Test-Path $Options.RunInfo.Path | Should Be $true
+        $info = Import-Clixml $Options.RunInfo.Path
+        $info.plugin_results.RunInfo -match 'Test.MyPassword' | Should Be $true
+        $info.Options.Test.MyPassword | Should Be '*****' 
+    }
+
     It 'should update all packages when forced' {
-        $Options.Force = $true 
+        $Options.Force = $true
 
         $res = updateall -Options $Options 6> $null
 

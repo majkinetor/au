@@ -48,7 +48,10 @@ function Update-AUPackages {
                         Script with that name will be looked into AU module path and user specified path and if
                         found, it will be called with splatted HashTable passed as parameters.
         #>
-        [HashTable] $Options=@{}
+        [HashTable] $Options=@{},
+
+        #Do not run plugins, defaults to global variable `au_NoPlugins`.
+        [switch] $NoPlugins = $global:au_NoPlugins
     )
 
     $startTime = Get-Date
@@ -148,7 +151,11 @@ function Update-AUPackages {
     $result
 }
 
-function run_plugins {
+function run_plugins() {
+    if ($NoPlugins) { return }
+
+    rm -Force -Recurse $tmp_dir\plugins -ea Ignore
+    mkdir -Force $tmp_dir\plugins | Out-Null
     foreach ($key in $Options.Keys) {
         $params = $Options.$key
         if ($params -isnot [HashTable]) { continue }
@@ -163,8 +170,12 @@ function run_plugins {
 
         try {
             Write-Host "Running $key"
-            . $plugin_path @params
-        } catch { "Plugin ERROR:`n" + $_ }
+            & $plugin_path $Info @params *>&1 | tee $tmp_dir\plugins\$key | Out-String | Write-Host
+            $info.plugin_results.$key += gc $tmp_dir\plugins\$key -ea ignore
+        } catch {
+            $err_lines = $_.ToString() -split "`n"
+            Write-Host "  ERROR: " $(foreach ($line in $err_lines) { "`n" + ' '*4 + $line })
+        }
     }
 }
 
@@ -206,7 +217,10 @@ function get_info {
         updated   = $result | ? Updated | measure | % count
         stats     = ''
         options   = $Options
+        plugin_results = @{}
     }
+    $info.PSObject.TypeNames.Insert(0, 'AUInfo')
+
     $info.stats = get-stats
     $info.error_info = $errors | % {
         $s = "`nPackage: " + $_.Name + "`n"
@@ -217,10 +231,9 @@ function get_info {
 }
 
 function get-stats {
-    "Finished {0} packages after {1} minutes." -f $info.packages.length, $info.minutes
-    "{0} packages updated and {1} pushed." -f $info.updated, $info.pushed
-    "{0} total errors - {1} update, {2} push." -f $info.error_count.total, $info.error_count.update, $info.error_count.push
-    if ($Options.Script) { "$script_err user script errors." }
+    "Finished {0} packages after {1} minutes.  " -f $info.packages.length, $info.minutes
+    "{0} packages updated and {1} pushed.  " -f $info.updated, $info.pushed
+    "{0} total errors - {1} update, {2} push.  " -f $info.error_count.total, $info.error_count.update, $info.error_count.push
 }
 
 function send-mail($Mail, $Body) {

@@ -1,7 +1,7 @@
 remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU -force
 
-Describe 'Update-Package' {
+Describe 'Update-Package' -Tag update {
     $saved_pwd = $pwd
 
     function global:get_latest($Version='1.3', $URL='test') {
