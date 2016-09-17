@@ -158,7 +158,7 @@ function run_plugins {
             if([string]::IsNullOrWhiteSpace($Options.PluginPath)) { continue }
 
             $plugin_path = $Options.PluginPath + "/$key.ps1"
-            if(!(Test-Path $plugin_path) { continue }
+            if(!(Test-Path $plugin_path)) { continue }
         }
 
         try {
