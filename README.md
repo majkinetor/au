@@ -244,16 +244,19 @@ It is possible to specify a custom user logic in `Options` parameter - every key
             Password = $Env:github_api_key
         }
 
-        RunInfo = @{}
+        RunInfo = @{
+            Path = 'update_info.xml'
+        }
 
         Mail = if ($Env:mail_user) {
                 @{
-                   To        = $Env:mail_user
-                   Server    = 'smtp.gmail.com'
-                   UserName  = $Env:mail_user
-                   Password  = $Env:mail_pass
-                   Port      = 587
-                   EnableSsl = $true
+                   To         = $Env:mail_user
+                   Server     = 'smtp.gmail.com'
+                   UserName   = $Env:mail_user
+                   Password   = $Env:mail_pass
+                   Port       = 587
+                   EnableSsl  = $true
+                   Attachment = 'update_info.xml'
                 }
         } else {}
     }
@@ -263,7 +266,7 @@ The plugins above - `Gist`, `Git`, `RunInfo` and `Mail` -  are executed in the g
 
 To add custom plugins, specify additional plugin search path via `$Options.PluginPath`. Plugin is a normal PowerShell script and apart from parameters given in its `[HashTable]` the AU will send it one more parameter `$Info` that contains current run info.
 
-To temporary disable plugins use updateall option `NoPlugins` or global variable `$au_NoPlugins`.
+To temporary disable plugins use `updateall` option `NoPlugins` or global variable `$au_NoPlugins`.
 
 ### Make a script
 
