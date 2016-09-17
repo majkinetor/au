@@ -15,6 +15,9 @@
   - Refactoring.
 - Installer improvements.
 
+### Bugfixes
+- Fixed bug due to the typo when pushing and sorting package
+
 ### CD
   - New `./test.ps1` script.
 
