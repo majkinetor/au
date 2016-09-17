@@ -219,10 +219,9 @@ The function will search for packages in the current directory. To override that
     2 total errors - 2 update, 0 push.
 
 
-Use function parameter `Name` to specify package names via glob, for instance `updateall [a-d]*` would update only packages which names start with the letter 'a' trough 'd'. Add `Push` among options to push sucesifully built packages to the chocolatey repository. The result may look like this:
+Use `updateall` parameter `Name` to specify package names via glob, for instance `updateall [a-d]*` would update only packages which names start with the letter 'a' trough 'd'. Add `Push` among options to push successfully built packages to the chocolatey repository.
 
 Take a look at the [real life example](https://gist.github.com/majkinetor/181b18886fdd363158064baf817fa2ff) of the update script.
-
 
 ### Plugins
 
@@ -266,9 +265,9 @@ To add custom plugins, specify additional plugin search path via `$Options.Plugi
 
 To temporary disable plugins use updateall option `NoPlugins` or global variable `$au_NoPlugins`.
 
-### Update_all script
+### Make a script
 
-Its desirable to put everything in a single script `update_all.ps1` so it can be scheduled and called with the desirable options. Rename `update_all_default.ps1` and set the options you need. 
+Its desirable to put everything in a single script `update_all.ps1` so it can be scheduled and called with the given options. Rename `update_all_default.ps1` and uncomment and set the options you need. 
 
 To make a local scheduled task, use the following code in the directory where your `update_all.ps1` script is found to install it:
 
