@@ -1,6 +1,6 @@
 param($Name = $null)
 
-if (Test-Path vars.ps1) { . ./vars.ps1 }
+if (Test-Path update_vars.ps1) { . ./update_vars.ps1 }
 
 $Options = [ordered]@{
     #Timeout    = 100
@@ -8,6 +8,11 @@ $Options = [ordered]@{
     #Push       = $true
     #Force      = $false
     #PluginPath = ''
+
+    Report = @{
+        Template = 'markdown'
+        Path     = "$PSScriptRoot\gist.md"
+    }
 
     #Gist = @{
         #Id       = $Env:gist_id

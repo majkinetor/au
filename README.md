@@ -151,7 +151,7 @@ The version of the package will be changed so that it follows _chocolatey fix st
 
 - choco "fix version" always goes in to the _Revision_ part of the package version.
 - existing "fixed versions" are changed to contain the current date if the revision does not exist or if it already contains choco fix.
-- if _Revision_ part is present in the package version and it is not in the "choco fix format", just keep existing one but notify about it.
+- if _Revision_ part is present in the package version and it is not in the "choco fix format", AU will keep the existing version but notify about it.
 
 **Example**:
 

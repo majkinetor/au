@@ -7,10 +7,15 @@ param(
     # Install module in the system after the build
     [switch] $Install,
 
-    [switch] $ShortVersion
+    # Use short date string
+    [switch] $ShortVersion,
+
+    # Clean up
+    [switch] $Clean
 )
 
 $b = {
+    if ($Clean) { git clean -Xfd -e vars.ps1; return }
     if ($ShortVersion) { $Version = [string] $Version = [Version](Get-Date).ToUniversalTime().ToString("yyyy.M.d") }
 
     $module_path    = "$PSScriptRoot/AU"

@@ -29,7 +29,19 @@ Describe 'Update-AUPackages' -Tag updateall {
         $Options = @{}
     }
 
-    It 'should execute RunInfo plugin' {
+	Context 'Plugins' {
+		It 'should execute Report plugin' {
+			$Options.Report = @{
+				Template = 'markdown'
+				Path     = "$global:au_Root\report.md"
+			}
+
+			$res = updateall -NoPlugins:$false -Options $Options
+			
+			Test-Path $Options.Report.Path | Should Be $true
+		}
+
+	It 'should execute RunInfo plugin' {
         $Options.RunInfo = @{
             Path    = "$global:au_Root\update_info.xml"
             Exclude = 'password'
@@ -39,14 +51,16 @@ Describe 'Update-AUPackages' -Tag updateall {
             Parameter2 = 'p2'
         }
 
-        $global:au_NoPlugins = $false
-        $res = updateall -Options $Options
+        $res = updateall -NoPlugins:$false -Options $Options
 
         Test-Path $Options.RunInfo.Path | Should Be $true
         $info = Import-Clixml $Options.RunInfo.Path
         $info.plugin_results.RunInfo -match 'Test.MyPassword' | Should Be $true
         $info.Options.Test.MyPassword | Should Be '*****' 
     }
+	}
+
+   
 
     It 'should update all packages when forced' {
         $Options.Force = $true

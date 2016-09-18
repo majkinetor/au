@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 16-Sep-2016.
+# Last Change: 18-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -123,20 +123,6 @@ function Update-Package {
         for($i=1; $i -le 3; $i++) { 
             if ([int32]::MaxValue -lt [int64]$Matches[$i]) { throw "$Latest $($package.Name) version component is too big: $($Matches[$i])" }
         }
-    }
-
-    function updated() {
-        $remote_l = $package.RemoteVersion -replace '-.+'
-        $nuspec_l = $package.NuspecVersion -replace '-.+'
-        $remote_r = $package.RemoteVersion -replace '.+(?=(-.+)*)'
-        $nuspec_r = $package.NuspecVersion -replace '.+(?=(-.+)*)'
-
-        if ([version]$remote_l -eq [version] $nuspec_l) {
-            if (!$remote_r -and $nuspec_r) { return $true }
-            if ($remote_r -and !$nuspec_r) { return $false }
-            return ($remote_r -gt $nuspec_r)
-        }
-        [version]$remote_l -gt [version] $nuspec_l
     }
 
     function get_checksum()
@@ -333,7 +319,7 @@ function Update-Package {
     "nuspec version: " + $package.NuspecVersion | result
     "remote version: " + $package.RemoteVersion | result
 
-    if (updated) {
+    if (is_updated $package) {
         if (!($NoCheckChocoVersion -or $Force)) {
             $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $package.Name, $package.RemoteVersion
             try {
