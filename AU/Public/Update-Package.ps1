@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 18-Sep-2016.
+# Last Change: 19-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -258,6 +258,20 @@ function Update-Package {
         }
     }
 
+    function is_updated() {
+        $remote_l = $package.RemoteVersion -replace '-.+'
+        $nuspec_l = $package.NuspecVersion -replace '-.+'
+        $remote_r = $package.RemoteVersion -replace '.+(?=(-.+)*)'
+        $nuspec_r = $package.NuspecVersion -replace '.+(?=(-.+)*)'
+
+        if ([version]$remote_l -eq [version] $nuspec_l) {
+            if (!$remote_r -and $nuspec_r) { return $true }
+            if ($remote_r -and !$nuspec_r) { return $false }
+            return ($remote_r -gt $nuspec_r)
+        }
+        [version]$remote_l -gt [version] $nuspec_l
+    }
+
     function result() {
         if ($global:Silent) { return }
 
@@ -319,7 +333,7 @@ function Update-Package {
     "nuspec version: " + $package.NuspecVersion | result
     "remote version: " + $package.RemoteVersion | result
 
-    if (is_updated $package) {
+    if (is_updated) {
         if (!($NoCheckChocoVersion -or $Force)) {
             $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $package.Name, $package.RemoteVersion
             try {

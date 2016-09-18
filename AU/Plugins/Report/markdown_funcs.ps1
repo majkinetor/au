@@ -22,12 +22,12 @@ function md_table($result, $Columns, $MaxErrorLength=150) {
     $result | % {
         $o = $_ | select `
                 @{ N='Name'
-                   E={'[{0}](https://chocolatey.org/packages/{0}/{1})' -f $_.Name, $(if (is_updated $_) { $_.RemoteVersion } else {$_.NuspecVersion })}
+                   E={'[{0}](https://chocolatey.org/packages/{0}/{1})' -f $_.Name, $(if ($_.Updated) { $_.RemoteVersion } else {$_.NuspecVersion })}
                 },
                 @{ N='Updated'
                     E={
                         $r  = "[{0}](#{1})" -f $_.Updated, $_.Name.ToLower()
-                        $r += if ($_.NuspecVersion -ne $_.RemoteVersion) { ' &#x1F538;' }
+                        $r += if ($_.Updated) { ' &#x1F538;' }
                         $r
                     }
                 },

@@ -31,12 +31,13 @@ Describe 'Update-AUPackages' -Tag updateall {
 
 	Context 'Plugins' {
 		It 'should execute Report plugin' {
+			$Options.Force = $true
 			$Options.Report = @{
 				Template = 'markdown'
 				Path     = "$global:au_Root\report.md"
 			}
 
-			$res = updateall -NoPlugins:$false -Options $Options
+			$res = updateall -NoPlugins:$false -Options $Options  6> $null
 			
 			Test-Path $Options.Report.Path | Should Be $true
 		}
@@ -51,7 +52,7 @@ Describe 'Update-AUPackages' -Tag updateall {
             Parameter2 = 'p2'
         }
 
-        $res = updateall -NoPlugins:$false -Options $Options
+        $res = updateall -NoPlugins:$false -Options $Options  6> $null
 
         Test-Path $Options.RunInfo.Path | Should Be $true
         $info = Import-Clixml $Options.RunInfo.Path
