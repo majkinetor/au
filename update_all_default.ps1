@@ -11,13 +11,13 @@ $Options = [ordered]@{
 
     #Report = @{
         #Type = 'markdown'
-        #Path = "$PSScriptRoot\gist.md"
+        #Path = "$PSScriptRoot\report.md"
     #}
 
     #Gist = @{
-        #Id       = $Env:gist_id
-        #ApiKey   = $Env:github_api_key
-        #Template = 'gist.md'
+        #Id      = $Env:gist_id
+        #ApiKey  = $Env:github_api_key
+        #Path    = "$PSScriptRoot\report.md"
     #}
 
     #Git = @{
@@ -33,12 +33,13 @@ $Options = [ordered]@{
 
     #Mail = if ($Env:mail_user) {
             #@{
-                #To        = $Env:mail_user
-                #Server    = 'smtp.gmail.com'
-                #UserName  = $Env:mail_user
-                #Password  = $Env:mail_pass
-                #Port      = 587
-                #EnableSsl = $true
+                #To          = $Env:mail_user
+                #Server      = 'smtp.gmail.com'
+                #UserName    = $Env:mail_user
+                #Password    = $Env:mail_pass
+                #Port        = 587
+                #EnableSsl   = $true
+                #Attachments = "$PSScriptRoot\update_info.xml"
              #}
            #} else {}
 }

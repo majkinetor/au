@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 17-Sep-2016.
+# Last Change: 19-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -146,7 +146,6 @@ function Update-AUPackages {
     run_plugins
 
     @('') + $info.stats + '' | Write-Host
-    send-notification
 
     $result
 }

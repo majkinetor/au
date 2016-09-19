@@ -26,25 +26,53 @@ Describe 'Update-AUPackages' -Tag updateall {
             "import-module '$module_path' -Force", (gc $path\update.ps1 -ea ignore) | sc $path\update.ps1
         }
 
-        $Options = @{}
+        $Options = [ordered]@{}
     }
 
-	Context 'Plugins' {
-		It 'should execute Report plugin' {
-			$Options.Report = @{
-				Type = 'text'
-				Path = "$global:au_Root\report.txt"
-			}
+    Context 'Plugins' {
+        It 'should execute Mail plugin' {
+            $Options.Report = @{
+                Type = 'text'
+                Path = "$global:au_Root\report.txt"
+            }
 
-			$res = updateall -NoPlugins:$false -Options $Options  6> $null
-			
-			Test-Path $Options.Report.Path | Should Be $true
+            $Options.Mail = @{
+                To          = 'test@localhost'
+                Server      = 'localhost'
+                UserName    = 'test_user'
+                Password    = 'test_pass'
+                Port        = 25
+                EnableSsl   = $true
+                Attachment  =  ("$global:au_Root\report.txt" -replace 'TestDrive:', $TestDrive)
+                SendAlways  = $true
+            }
 
-			$report = gc $Options.Report.Path 
-			($report -match "test_package_[1-3]").Count | Should Be 9
-		}
+            if (!(ps papercut -ea ignore)) {
+                if (gcm papercut.exe -ea ignore) { start papercut.exe; sleep 5 }
+                else { Write-Warning 'Papercut is not installed - skipping test'; return }
+            }
+            rm $Env:APPDATA\Papercut\* -ea ignore
+            $res = updateall -NoPlugins:$false -Options $Options
 
-	It 'should execute RunInfo plugin' {
+            sleep 5
+            (ls $Env:APPDATA\Papercut\*).Count | Should Be 1
+        }
+
+        It 'should execute Report plugin' {
+            $Options.Report = @{
+                Type = 'text'
+                Path = "$global:au_Root\report.txt"
+            }
+
+            $res = updateall -NoPlugins:$false -Options $Options  6> $null
+
+            Test-Path $Options.Report.Path | Should Be $true
+
+            $report = gc $Options.Report.Path 
+            ($report -match "test_package_[1-3]").Count | Should Be 9
+        }
+
+    It 'should execute RunInfo plugin' {
         $Options.RunInfo = @{
             Path    = "$global:au_Root\update_info.xml"
             Exclude = 'password'
@@ -61,7 +89,7 @@ Describe 'Update-AUPackages' -Tag updateall {
         $info.plugin_results.RunInfo -match 'Test.MyPassword' | Should Be $true
         $info.Options.Test.MyPassword | Should Be '*****' 
     }
-	}
+    }
 
    
 

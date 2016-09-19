@@ -4,7 +4,9 @@ $s = {
     chocolatey
     psgallery
     git_4windows
+
     pester
+    cinst papercut
 }
 
 function git_4windows() {
