@@ -9,10 +9,10 @@ $Options = [ordered]@{
     #Force      = $false
     #PluginPath = ''
 
-    Report = @{
-        Template = 'markdown'
-        Path     = "$PSScriptRoot\gist.md"
-    }
+    #Report = @{
+        #Type = 'markdown'
+        #Path = "$PSScriptRoot\gist.md"
+    #}
 
     #Gist = @{
         #Id       = $Env:gist_id

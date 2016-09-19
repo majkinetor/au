@@ -32,8 +32,8 @@ Describe 'Update-AUPackages' -Tag updateall {
 	Context 'Plugins' {
 		It 'should execute Report plugin' {
 			$Options.Report = @{
-				Template = 'markdown'
-				Path     = "$global:au_Root\report.md"
+				Type = 'text'
+				Path = "$global:au_Root\report.txt"
 			}
 
 			$res = updateall -NoPlugins:$false -Options $Options  6> $null

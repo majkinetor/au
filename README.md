@@ -246,10 +246,9 @@ It is possible to specify a custom user logic in `Options` parameter - every key
         Threads = 15
         Push    = $true
 
-        Gist = @{
-            Id            = $Env:gist_id
-            Github_ApiKey = $Env:github_api_key
-            Template      = 'gist.md'
+        Report = @{
+            Type = 'text'
+            Path = "$PSScriptRoot\report.txt"
         }
 
         Git = @{
@@ -258,7 +257,7 @@ It is possible to specify a custom user logic in `Options` parameter - every key
         }
 
         RunInfo = @{
-            Path = 'update_info.xml'
+            Path = "$PSScriptRoot\update_info.xml"
         }
 
         Mail = if ($Env:mail_user) {
@@ -275,7 +274,7 @@ It is possible to specify a custom user logic in `Options` parameter - every key
     }
 ```
 
-The plugins above - `Gist`, `Git`, `RunInfo` and `Mail` -  are executed in the given order (hence the `[ordered]` flag) and AU passes them given options and saves the run results. If PowerShell script by the name of the given key is not found, the plugin is ignored. 
+The plugins above - `Report`, `Git`, `RunInfo` and `Mail` -  are executed in the given order (hence the `[ordered]` flag) and AU passes them given options and saves the run results. If PowerShell script by the name of the given key is not found, the plugin is ignored. 
 
 To add custom plugins, specify additional plugin search path via `$Options.PluginPath`. Plugin is a normal PowerShell script and apart from parameters given in its `[HashTable]` the AU will send it one more parameter `$Info` that contains current run info.
 
