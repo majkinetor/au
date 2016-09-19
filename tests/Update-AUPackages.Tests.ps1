@@ -31,7 +31,6 @@ Describe 'Update-AUPackages' -Tag updateall {
 
 	Context 'Plugins' {
 		It 'should execute Report plugin' {
-			$Options.Force = $true
 			$Options.Report = @{
 				Template = 'markdown'
 				Path     = "$global:au_Root\report.md"
@@ -40,6 +39,9 @@ Describe 'Update-AUPackages' -Tag updateall {
 			$res = updateall -NoPlugins:$false -Options $Options  6> $null
 			
 			Test-Path $Options.Report.Path | Should Be $true
+
+			$report = gc $Options.Report.Path 
+			($report -match "test_package_[1-3]").Count | Should Be 9
 		}
 
 	It 'should execute RunInfo plugin' {
