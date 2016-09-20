@@ -30,38 +30,39 @@ Describe 'Update-AUPackages' -Tag updateall {
     }
 
     Context 'Plugins' {
-        It 'should execute Gist plugin' {
-            $Options.Report = @{
-                Type = 'text'
-                Path = "$au_root\report.txt"
-            }
-            $Options.RunInfo = @{
-                Path = "$au_root\runinfo.xml"
-            }
-            $Options.Gist = @{
-                Path = "$au_root\*.*"
-            }
+        # Commented tests are invoked manually
 
-            #Used for manual testing so not to spam Github
+        #It 'should execute Gist plugin' {
+            #$Options.Report = @{
+                #Type = 'text'
+                #Path = "$au_root\report.txt"
+            #}
+            #$Options.RunInfo = @{
+                #Path = "$au_root\runinfo.xml"
+            #}
+            #$Options.Gist = @{
+                #Path = "$au_root\*.*"
+            #}
+
             #$res = updateall -NoPlugins:$false -Options $Options
-        }
+        #}
 
-        It 'should execute Mail plugin' {
-            $Options.Report = @{
-                Type = 'text'
-                Path = "$global:au_Root\report.txt"
-            }
+        #It 'should execute Mail plugin' {
+            #$Options.Report = @{
+                #Type = 'text'
+                #Path = "$global:au_Root\report.txt"
+            #}
 
-            $Options.Mail = @{
-                To          = 'test@localhost'
-                Server      = 'localhost'
-                UserName    = 'test_user'
-                Password    = 'test_pass'
-                Port        = 25
-                EnableSsl   = $true
-                Attachment  =  ("$global:au_Root\report.txt" -replace 'TestDrive:', $TestDrive)
-                SendAlways  = $true
-            }
+            #$Options.Mail = @{
+                #To          = 'test@localhost'
+                #Server      = 'localhost'
+                #UserName    = 'test_user'
+                #Password    = 'test_pass'
+                #Port        = 25
+                #EnableSsl   = $true
+                #Attachment  =  ("$global:au_Root\report.txt" -replace 'TestDrive:', $TestDrive)
+                #SendAlways  = $true
+            #}
 
             if (!(ps papercut -ea ignore)) {
                 if (gcm papercut.exe -ea ignore) { start papercut.exe; sleep 5 }
