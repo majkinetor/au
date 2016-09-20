@@ -30,6 +30,22 @@ Describe 'Update-AUPackages' -Tag updateall {
     }
 
     Context 'Plugins' {
+        It 'should execute Gist plugin' {
+            $Options.Report = @{
+                Type = 'text'
+                Path = "$au_root\report.txt"
+            }
+            $Options.RunInfo = @{
+                Path = "$au_root\runinfo.xml"
+            }
+            $Options.Gist = @{
+                Path = "$au_root\*.*"
+            }
+
+            #Used for manual testing so not to spam Github
+            #$res = updateall -NoPlugins:$false -Options $Options
+        }
+
         It 'should execute Mail plugin' {
             $Options.Report = @{
                 Type = 'text'
@@ -52,7 +68,7 @@ Describe 'Update-AUPackages' -Tag updateall {
                 else { Write-Warning 'Papercut is not installed - skipping test'; return }
             }
             rm $Env:APPDATA\Papercut\* -ea ignore
-            $res = updateall -NoPlugins:$false -Options $Options
+            $res = updateall -NoPlugins:$false -Options $Options 6> $null
 
             sleep 5
             (ls $Env:APPDATA\Papercut\*).Count | Should Be 1

@@ -7,7 +7,7 @@ param(
     [int]      $Port,
     [string[]] $Attachment,
     [switch]   $EnableSsl,
-    [switch]   $SendAlways
+    [switch]   $SendAlways,
 )
 
 if (($Info.error_count.total -eq 0) -and !$SendAlways) { return }
@@ -17,15 +17,22 @@ $errors_word = if ($Info.error_count.total -eq 1) {'error'} else {'errors' }
 $from = "Update-AUPackages@{0}.{1}" -f $Env:UserName, $Env:ComputerName
 
 $msg = New-Object System.Net.Mail.MailMessage $from, $To
-$msg.Subject    = "$($info.error_count.total) errors during update"
 $msg.IsBodyHTML = $true
 
-$msg.Body = @"
+if ($Info.error_count.total -eq 0) {
+    $msg.Subject = "AU: run was OK"
+    $msg.Body = $Info.stats
+}
+else {
+    $msg.Subject    = "AU: $($info.error_count.total) $errors_word during update"
+    $msg.Body = @"
 <body><pre>
-$($Info.error_count.total) #errors_word during update
+$($Info.error_count.total) $errors_word during update.
+
 $($info.error_info)
 </pre></body>
 "@
+}
 
 $Attachment | % { $msg.Attachments.Add($_) }
 

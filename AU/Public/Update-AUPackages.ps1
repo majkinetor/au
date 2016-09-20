@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 19-Sep-2016.
+# Last Change: 20-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -174,22 +174,11 @@ function run_plugins() {
         } catch {
             $err_lines = $_.ToString() -split "`n"
             Write-Host "  ERROR: " $(foreach ($line in $err_lines) { "`n" + ' '*4 + $line })
+            $info.plugin_errors.$key = $_.ToString()
         }
     }
 }
 
-function send-notification() {
-    if (!($info.error_count.total -and $Options.Mail)) { return }
-
-    $body = "$($info.error_count.total) errors during update`n"
-    $body += "Attachment contains complete output of the run, you can load it using Import-CliXML cmdlet.`n`n"
-    $body += $info.error_info
-
-    try {
-        send-mail $Options.Mail $body -ea Stop
-        Write-Host ("Mail with errors sent to " + $Options.Mail.To)
-    } catch { Write-Error $_ }
-}
 
 function get_info {
     $errors = $result | ? { $_.Error }
@@ -217,6 +206,7 @@ function get_info {
         stats     = ''
         options   = $Options
         plugin_results = @{}
+        plugin_errors = @{}
     }
     $info.PSObject.TypeNames.Insert(0, 'AUInfo')
 
@@ -235,24 +225,5 @@ function get-stats {
     "{0} total errors - {1} update, {2} push.  " -f $info.error_count.total, $info.error_count.update, $info.error_count.push
 }
 
-function send-mail($Mail, $Body) {
-    $from = "Update-AUPackages@{0}.{1}" -f $Env:UserName, $Env:ComputerName
-    $msg  = New-Object System.Net.Mail.MailMessage $from, $Mail.To
-    $msg.Subject    = "$($info.error_count.total) errors during update"
-    $msg.IsBodyHTML = $true
-    $msg.Body       = "<body><pre>$Body</pre></body>"
-
-    $info | Export-CliXML "$Env:TEMP\au_info.xml"
-    $attachment = new-object Net.Mail.Attachment( "$Env:TEMP\au_info.xml" )
-    $msg.Attachments.Add($attachment)
-
-    $smtp = new-object Net.Mail.SmtpClient($Mail.Server)
-    if ($Mail.UserName) {
-        $smtp.Credentials = new-object System.Net.NetworkCredential($Mail.UserName, $Mail.Password)
-    }
-    if ($Mail.Port) { $smtp.port = $Mail.Port }
-    $smtp.EnableSsl = $Mail.EnableSsl
-    $smtp.Send($msg)
-}
 
 Set-Alias updateall Update-AuPackages

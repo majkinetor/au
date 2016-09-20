@@ -10,6 +10,7 @@ else {
 
 ""; $Info.stats
 
+
 if ($Info.pushed) {
     title Pushed
     $Info.result.pushed | select 'Name', 'Updated', 'Pushed', 'RemoteVersion', 'NuspecVersion' | ft | Out-String | set r
@@ -34,3 +35,4 @@ if ($ok) {
 
     $ok | % { $_.Name; indent $_.Result; "" }
 }
+

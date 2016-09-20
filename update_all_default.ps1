@@ -18,6 +18,7 @@ $Options = [ordered]@{
         #Id      = $Env:gist_id
         #ApiKey  = $Env:github_api_key
         #Path    = "$PSScriptRoot\report.md"
+        #Description = ''
     #}
 
     #Git = @{
