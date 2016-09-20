@@ -1,6 +1,6 @@
 param($Name = $null)
 
-if (Test-Path update_vars.ps1) { . ./update_vars.ps1 }
+if (Test-Path $PSScriptRoot/update_vars.ps1) { . $PSScriptRoot/update_vars.ps1 }
 
 $Options = [ordered]@{
     #Timeout    = 100
@@ -29,7 +29,7 @@ $Options = [ordered]@{
     #RunInfo = @{
         #Exlcude = 'password', 'api_key'
         #Path    = "$PSScriptRoot\update_info.xml"
-     #}
+    #}
 
     #Mail = if ($Env:mail_user) {
             #@{
@@ -40,6 +40,7 @@ $Options = [ordered]@{
                 #Port        = 587
                 #EnableSsl   = $true
                 #Attachments = "$PSScriptRoot\update_info.xml"
+                #SendAlways  = $false
              #}
            #} else {}
 }

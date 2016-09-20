@@ -16,8 +16,10 @@
   - User scripts removed
   - Plugin system replaced user scripts with the following default plugins included:
     - `RunInfo` - Save run info to the CliXml file and exclude sensitive information.
-    - `Gist`    - Dashboard that saves run info as gist via included templates (currently Markdown).
+    - `Report`  - Saves run info as gist via included templates (currently markdown and text).
+    - `Gist`    - Save file as gist.
     - `Git`     - Commits package changes to the git repository.
+    - `Mail`    - Send mail with attachments.
   - New parameter `NoPlugins` (by default `$Env:au_NoPlugins` to disable all plugins.
   - New option parameter `PluginPath` to specify additional path where plugins are located.
 
