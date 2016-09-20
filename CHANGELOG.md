@@ -13,11 +13,10 @@
   - Refactoring.
 - Installer improvements.
 - `Update-AUPackages`
-  - User scripts removed
-  - Plugin system replaced user scripts with the following default plugins included:
+  - Plugin system with the following default plugins included:
     - `RunInfo` - Save run info to the CliXml file and exclude sensitive information.
     - `Report`  - Saves run info as gist via included templates (currently markdown and text).
-    - `Gist`    - Save file as gist.
+    - `Gist`    - Save files as anonymous or user gists
     - `Git`     - Commits package changes to the git repository.
     - `Mail`    - Send mail with attachments.
   - New parameter `NoPlugins` (by default `$Env:au_NoPlugins` to disable all plugins.

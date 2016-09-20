@@ -71,6 +71,9 @@ function Update-AUPackages {
     $aup = Get-AUPackages $Name
     Write-Host 'Updating' $aup.Length  'automatic packages at' $($startTime.ToString("s") -replace 'T',' ') $(if ($Options.Force) { "(forced)" } else {})
 
+    $script_err = 0
+    if ($Options.Script) { try { & $Options.Script 'START' $aup | Write-Host } catch { Write-Error $_; $script_err += 1 } }
+
     $threads = New-Object object[] $Options.Threads
     $result  = @()
     $j = $p  = 0
@@ -144,6 +147,8 @@ function Update-AUPackages {
 
     $info = get_info
     run_plugins
+
+    if ($Options.Script) { try { & $Options.Script 'END' $info | Write-Host } catch { Write-Error $_; $script_err += 1 } }
 
     @('') + $info.stats + '' | Write-Host
 

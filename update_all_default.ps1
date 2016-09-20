@@ -8,6 +8,9 @@ $Options = [ordered]@{
     #Push       = $true
     #Force      = $false
     #PluginPath = ''
+    #Script     = @{}
+
+#=== PLUGINS ===============================
 
     #Report = @{
         #Type = 'markdown'
