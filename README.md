@@ -238,7 +238,7 @@ Take a look at the [real life example](https://gist.github.com/majkinetor/181b18
 
 ### Plugins
 
-It is possible to specify a custom user logic in `Options` parameter - every key that is of type `[HashTable]` will be considered plugin with the PowerShell script that is named the same as the key. The following code shows how to use 4 integrated plugins:
+It is possible to specify a custom user logic in `Options` parameter - every key that is of type `[HashTable]` will be considered plugin with the PowerShell script that is named the same as the key. The following code shows how to use 5 integrated plugins:
 
 ```powershell
     $Options = [ordered]@{
@@ -280,7 +280,7 @@ It is possible to specify a custom user logic in `Options` parameter - every key
     }
 ```
 
-The plugins above - `Report`, `Git`, `RunInfo` and `Mail` -  are executed in the given order (hence the `[ordered]` flag) and AU passes them given options and saves the run results. If PowerShell script by the name of the given key is not found, the plugin is ignored. 
+The plugins above - `Report`, `Git`, `Gist`, `RunInfo` and `Mail` -  are executed in the given order (hence the `[ordered]` flag) and AU passes them given options and saves the run results. If PowerShell script by the name of the given key is not found, the plugin is ignored. 
 
 To add custom plugins, specify additional plugin search path via `$Options.PluginPath`. Plugin is a normal PowerShell script and apart from parameters given in its `[HashTable]` the AU will send it one more parameter `$Info` that contains current run info.
 
