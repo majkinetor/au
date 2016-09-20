@@ -68,38 +68,7 @@ The function can use `$Latest` variable to get any type of information obtained 
 
 With above functions implemented calling the `Update-Package` (alias `update`) function from the AU module will update the package when needed.
 
-What follows is the complete example:
-
-```powershell
-$releases = 'https://github.com/dnGrep/dnGrep/releases'
-
-function global:au_SearchReplace {
-    @{
-        'tools\chocolateyInstall.ps1' = @{
-            "(^[$]url64\s*=\s*)('.*')"      = "`$1'$($Latest.URL64)'"
-            "(^[$]url32\s*=\s*)('.*')"      = "`$1'$($Latest.URL32)'"
-            "(^[$]checksum32\s*=\s*)('.*')" = "`$1'$($Latest.Checksum32)'"
-            "(^[$]checksum64\s*=\s*)('.*')" = "`$1'$($Latest.Checksum64)'"
-        }
-     }
-}
-
-function global:au_GetLatest {
-    $download_page = Invoke-WebRequest -Uri $releases
-
-    $re      = 'dnGREP.*.msi'
-    $url     = $download_page.links | ? href -match $re | select -First 2 -expand href
-    $url64   = 'https://github.com' + $url[0]
-    $url32   = 'https://github.com' + $url[1]
-    $version = ($url[0] -split '\/' | select -Index 5).Substring(1)
-
-    return @{ URL64 = $url64; URL32 = $url32; Version = $version }
-}
-
-Update-Package
-```
-
-You can then update the individual package by running  the appropriate `update.ps1` script from within the package directory:
+You can then update the individual package by running the appropriate `update.ps1` script from within the package directory:
 
 ```
 PS C:\chocolatey\dngrep> .\update.ps1
