@@ -64,16 +64,16 @@ Describe 'Update-AUPackages' -Tag updateall {
                 #SendAlways  = $true
             #}
 
-            if (!(ps papercut -ea ignore)) {
-                if (gcm papercut.exe -ea ignore) { start papercut.exe; sleep 5 }
-                else { Write-Warning 'Papercut is not installed - skipping test'; return }
-            }
-            rm $Env:APPDATA\Papercut\* -ea ignore
-            $res = updateall -NoPlugins:$false -Options $Options 6> $null
+            #if (!(ps papercut -ea ignore)) {
+                #if (gcm papercut.exe -ea ignore) { start papercut.exe; sleep 5 }
+                #else { Write-Warning 'Papercut is not installed - skipping test'; return }
+            #}
+            #rm $Env:APPDATA\Papercut\* -ea ignore
+            #$res = updateall -NoPlugins:$false -Options $Options 6> $null
 
-            sleep 5
-            (ls $Env:APPDATA\Papercut\*).Count | Should Be 1
-        }
+            #sleep 5
+            #(ls $Env:APPDATA\Papercut\*).Count | Should Be 1
+        #}
 
         It 'should execute Report plugin' {
             $Options.Report = @{
