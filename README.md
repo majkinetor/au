@@ -281,6 +281,12 @@ It is possible to specify a custom user logic in `Options` parameter - every key
             Type = 'text'
             Path = "$PSScriptRoot\report.txt"
         }
+        
+        Gist = @{
+            ApiKey = $Env:github_api_key
+            Id     = $Env:github_gist_id
+            Path   = "$PSScriptRoot\report.txt"
+        }
 
         Git = @{
             UserRepo = $Env:github_user_repo
