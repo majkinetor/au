@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 20-Sep-2016.
+# Last Change: 21-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -136,7 +136,7 @@ function Update-AUPackages {
             if ($type -ne 'AUPackage') { throw "'$using:package_name' update script didn't return AUPackage but: $type" }
 
             if ($pkg.Updated -and $using:Options.Push) {
-                $pkg.Result += Push-Package
+                $pkg.Result += Push-Package *>&1 | Out-String
                 if ($LastExitCode -eq 0) { $pkg.Pushed = $true }
             }
 
