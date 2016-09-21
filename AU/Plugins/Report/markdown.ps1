@@ -26,7 +26,7 @@ $icon_er = 'https://cdn0.iconfinder.com/data/icons/shift-free/32/Error-128.png'
 
 $errors_word = if ($Info.error_count.total -eq 1) {'error'} else {'errors' }
 if ($Info.error_count.total) {
-    "<img src='$icon_er' width='24'> **LAST RUN HAD $($Info.error_count.total) [$errors_word](#errors) !!!**" }
+    "<img src='$icon_er' width='24'> **LAST RUN HAD $($Info.error_count.total) [$errors_word.ToUpper()](#errors) !!!**" }
 else {
     "<img src='$icon_ok' width='24'> **Last run was OK**"
 }

@@ -48,7 +48,7 @@ function Update-AUPackages {
                         Script with that name will be looked into AU module path and user specified path and if
                         found, it will be called with splatted HashTable passed as parameters.
         #>
-        [HashTable] $Options=@{},
+        [System.Collections.Specialized.OrderedDictionary] $Options=@{},
 
         #Do not run plugins, defaults to global variable `au_NoPlugins`.
         [switch] $NoPlugins = $global:au_NoPlugins
