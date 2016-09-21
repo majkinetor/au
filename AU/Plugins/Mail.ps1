@@ -7,7 +7,8 @@ param(
     [int]      $Port,
     [string[]] $Attachment,
     [switch]   $EnableSsl,
-    [switch]   $SendAlways,
+    # Do not send only on errors
+    [switch]   $SendAlways
 )
 
 if (($Info.error_count.total -eq 0) -and !$SendAlways) { return }
@@ -21,9 +22,10 @@ $msg.IsBodyHTML = $true
 
 if ($Info.error_count.total -eq 0) {
     $msg.Subject = "AU: run was OK"
-    $msg.Body = $Info.stats
+    $msg.Body = $Info.stats | Out-String
 }
 else {
+    $context = "with errors "
     $msg.Subject    = "AU: $($info.error_count.total) $errors_word during update"
     $msg.Body = @"
 <body><pre>
@@ -34,13 +36,13 @@ $($info.error_info)
 "@
 }
 
-$Attachment | % { $msg.Attachments.Add($_) }
+$Attachment | % { if ($_) { $msg.Attachments.Add($_)} }
 
 # Send mail message
 $smtp = new-object Net.Mail.SmtpClient($Server)
 if ($UserName) { $smtp.Credentials = new-object System.Net.NetworkCredential($UserName, $Password) }
 if ($Port)     { $smtp.Port = $Port }
-$smtp.EnableSsl = $Mail.EnableSsl
+$smtp.EnableSsl = $EnableSsl
 $smtp.Send($msg)
 
-Write-Host "Mail with errors sent to $To"
+Write-Host "Mail ${context}sent to $To"

@@ -89,26 +89,25 @@ Describe 'Update-AUPackages' -Tag updateall {
             ($report -match "test_package_[1-3]").Count | Should Be 9
         }
 
-    It 'should execute RunInfo plugin' {
-        $Options.RunInfo = @{
-            Path    = "$global:au_Root\update_info.xml"
-            Exclude = 'password'
+        It 'should execute RunInfo plugin' {
+            $Options.RunInfo = @{
+                Path    = "$global:au_Root\update_info.xml"
+                Exclude = 'password'
+            }
+            $Options.Test = @{
+                MyPassword = 'password'
+                Parameter2 = 'p2'
+            }
+
+            $res = updateall -NoPlugins:$false -Options $Options  6> $null
+
+            Test-Path $Options.RunInfo.Path | Should Be $true
+            $info = Import-Clixml $Options.RunInfo.Path
+            $info.plugin_results.RunInfo -match 'Test.MyPassword' | Should Be $true
+            $info.Options.Test.MyPassword | Should Be '*****' 
         }
-        $Options.Test = @{
-            MyPassword = 'password'
-            Parameter2 = 'p2'
-        }
-
-        $res = updateall -NoPlugins:$false -Options $Options  6> $null
-
-        Test-Path $Options.RunInfo.Path | Should Be $true
-        $info = Import-Clixml $Options.RunInfo.Path
-        $info.plugin_results.RunInfo -match 'Test.MyPassword' | Should Be $true
-        $info.Options.Test.MyPassword | Should Be '*****' 
-    }
     }
 
-   
 
     It 'should update all packages when forced' {
         $Options.Force = $true
