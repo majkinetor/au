@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 17-Sep-2016.
+# Last Change: 21-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -16,7 +16,7 @@ param(
     [string] $Path = 'update_info.xml',
 
     #Match options with those words to erase
-    [string[]] $Exclude = @('password', 'api_key')
+    [string[]] $Exclude = @('password', 'apikey')
 )
 
 function deep_clone {
