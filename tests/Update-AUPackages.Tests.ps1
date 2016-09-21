@@ -77,8 +77,9 @@ Describe 'Update-AUPackages' -Tag updateall {
 
         It 'should execute Report plugin' {
             $Options.Report = @{
-                Type = 'text'
-                Path = "$global:au_Root\report.txt"
+                Type = 'markdown'
+                Path = "$global:au_Root\report.md"
+                Params = @{ Github_UserRepo = 'majkinetor/chocolatey' }
             }
 
             $res = updateall -NoPlugins:$false -Options $Options  6> $null
@@ -96,7 +97,7 @@ Describe 'Update-AUPackages' -Tag updateall {
             }
             $Options.Test = @{
                 MyPassword = 'password'
-                Parameter2 = 'p2'
+                Parameter2 = 'p2'`
             }
 
             $res = updateall -NoPlugins:$false -Options $Options  6> $null

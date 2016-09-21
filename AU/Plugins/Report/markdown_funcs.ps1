@@ -1,10 +1,10 @@
 function md_fix_newline($Text) {
-    $Text -replace "\.`n", "\.`n  "
+    $Text -replace "\.`n", "\.`n  " | Out-String
 }
 
 function md_title($Title, $Level=2 ) {
     ""
-    "#"*$Level + ' ' + $Title
+    "#"*$Level + ' ' + $Title | Out-String
     ""
 }
 

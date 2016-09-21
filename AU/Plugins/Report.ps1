@@ -1,7 +1,8 @@
 param(
     $Info,
     [string] $Type = 'markdown',
-    [string] $Path = 'update_report.md'
+    [string] $Path = 'update_report.md',
+    [HashTable] $Params
 )
 
 Write-Host "Saving $Type report: $Path"
