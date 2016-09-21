@@ -136,8 +136,12 @@ function Update-AUPackages {
             if ($type -ne 'AUPackage') { throw "'$using:package_name' update script didn't return AUPackage but: $type" }
 
             if ($pkg.Updated -and $using:Options.Push) {
-                $pkg.Result += Push-Package *>&1 | Out-String
-                if ($LastExitCode -eq 0) { $pkg.Pushed = $true }
+                $pkg.Result += $r = Push-Package | Out-String
+                if ($LastExitCode -eq 0) {
+                    $pkg.Pushed = $true
+                } else {
+                    $pkg.Error = ($r | select -skip 1)
+                }
             }
 
             $pkg
