@@ -10,7 +10,7 @@ param(
     [string] $Password
 )
 
-if (!$Info.pushed) { Write-Host "No package is pushed to Chocolatey community feed, skipping"; return }
+if (!$Info.pushed) { Write-Host "  No package is pushed to Chocolatey community feed, skipping"; return }
 
 $root = Split-Path $Info.pushed[0].Path
 pushd $root

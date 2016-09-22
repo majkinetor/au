@@ -5,7 +5,7 @@ param(
     [HashTable] $Params
 )
 
-Write-Host "Saving $Type report: $Path"
+Write-Host "  Saving $Type report: $Path"
 
 $Type = "$PSScriptRoot\Report\$Type.ps1"
 if (!(Test-Path $Type )) { throw "Report type not found: '$Type" }
