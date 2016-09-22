@@ -12,7 +12,7 @@ param(
     [string[]] $Path,
 
     # Gist description
-    [string] $Description = "Update-AUPackages Result"
+    [string] $Description = "Update-AUPackages Report #powershell #chocolatey"
 )
 
 # Create gist
