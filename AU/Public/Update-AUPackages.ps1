@@ -177,7 +177,7 @@ function run_plugins() {
         }
 
         try {
-            Write-Host "Running $key"
+            Write-Host "`nRunning $key"
             & $plugin_path $Info @params *>&1 | tee $tmp_dir\plugins\$key | Write-Host
             $info.plugin_results.$key += gc $tmp_dir\plugins\$key -ea ignore
         } catch {
