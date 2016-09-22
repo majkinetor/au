@@ -7,17 +7,18 @@ param(
     [string] $User,
 
     # Git password. You can use Github Token here if you omit username.
-    [string] $Password
+    [string] $Password,
+
+    #Force git commit when package is updated but not pushed.
+    [switch] $Force
 )
 
-if (!$Info.pushed) { Write-Host "No package is pushed to Chocolatey community feed, skipping"; return }
+$packages = if ($Force) { $Info.result.updated } else { $Info.result.pushed }
+if ($packages.Length -eq 0) { Write-Host "No package updated, skipping"; return }
 
-$root = Split-Path $Info.pushed[0].Path
+$root = Split-Path $packages[0].Path
 pushd $root
-
-$Message = "AU: $Info.Pushed updated: " + "$($Info.result.pushed | % Name)"
-
-$origin = git config --get remote.origin.url
+$origin  = git config --get remote.origin.url
 $machine = $origin -match '(?<=:/+)[^/]+'; $Matches[0]
 
 if ($User -and $Password) {
@@ -32,21 +33,18 @@ if ($User -and $Password) {
     Add-Content "$env:USERPROFILE\.git-credentials" "https://$Password:x-oauth-basic@$machine`n"
 }
 
-
-$pushed = $Info.result.pushed
-
-""
 "Executing git pull"
 git checkout master
 git pull
 
-"Commiting updated packages to git repository"
-$pushed | % { git add $_.Name }
+"Adding updated packages to git repository"
+$packages | % { git add $_.Name }
 
-$s = if ($Info.pushed -gt 1) { 's' } else { '' }
+"Commiting"
+$Message = "AU: $($packages.Length) updated: " + "$($packages | % Name)"
 git commit -m "$Message [skip ci]"
 
-"Pushing git changes"
+"Pushing changes"
 git push
 
 popd $root
