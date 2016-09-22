@@ -31,7 +31,7 @@ if ($User -and $Password) {
     "machine $machine", "login $User", "password $Password" | Out-File -Append ~/_netrc -Encoding ascii
 } elseif ($Password) {
     Write-Host 'Setting oauth token'
-    Add-Content "$env:USERPROFILE\.git-credentials" "https://$Password:x-oauth-basic@$machine`n"
+    Add-Content "$env:USERPROFILE\.git-credentials" "https://${Password}:x-oauth-basic@$machine`n"
 }
 
 Write-Host "Executing git pull"
