@@ -17,6 +17,7 @@ else {
 
 ""; $Info.stats
 
+"$UserMessage"
 
 if ($Info.pushed) {
     title Pushed

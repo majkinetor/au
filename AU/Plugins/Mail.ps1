@@ -7,6 +7,7 @@ param(
     [int]      $Port,
     [string[]] $Attachment,
     [switch]   $EnableSsl,
+    [string]   $UserMessage,
     # Do not send only on errors
     [switch]   $SendAlways
 )
@@ -34,7 +35,7 @@ else {
     $msg.Body = @"
 <body><pre>
 $($Info.error_count.total) $errors_word during update.
-
+$UserMessage
 $($info.error_info | Out-String)
 </pre></body>
 "@

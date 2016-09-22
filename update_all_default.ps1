@@ -20,6 +20,7 @@ $Options = [ordered]@{
         #Path = "$PSScriptRoot\Update-AUPacakges.md"
         #Params= @{
             #Github_UserRepo = '' # used by markdown report
+            #UserMessage = ''     # used by markdown and text reports
         }
     #}
 
@@ -49,6 +50,7 @@ $Options = [ordered]@{
                 #Port        = 587
                 #EnableSsl   = $true
                 #Attachments = "$PSScriptRoot\update_info.xml"
+                #UserMessage = ''
                 #SendAlways  = $false
              #}
            #} else {}
