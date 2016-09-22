@@ -15,13 +15,15 @@ $Options = [ordered]@{
     #Report = @{
         #Type = 'markdown'
         #Path = "$PSScriptRoot\Update-AUPacakges.md"
-        #Params= @{ Github_UserRepo = '' }
+        #Params= @{
+            #Github_UserRepo = '' # used by markdown report
+        }
     #}
 
     #Gist = @{
-        #Id      = $Env:gist_id
-        #ApiKey  = $Env:github_api_key
-        #Path    = "$PSScriptRoot\Update-AUPacakges.md"
+        #Id          = $Env:gist_id
+        #ApiKey      = $Env:github_api_key
+        #Path        = "$PSScriptRoot\Update-AUPacakges.md"
         #Description = ''
     #}
 

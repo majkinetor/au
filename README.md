@@ -234,7 +234,7 @@ The function will search for packages in the current directory. To override that
 
 Use `updateall` parameter `Name` to specify package names via glob, for instance `updateall [a-d]*` would update only packages which names start with the letter 'a' trough 'd'. Add `Push` among options to push successfully built packages to the chocolatey repository.
 
-Take a look at the [real life example](https://gist.github.com/majkinetor/181b18886fdd363158064baf817fa2ff) of the update script.
+Take a look at the [real life example](https://gist.github.com/majkinetor/a700c70b8847b29ebb1c918d47ee4eb1) of the update script.
 
 ### Plugins
 
@@ -258,7 +258,7 @@ It is possible to specify a custom user logic in `Options` parameter - every key
         }
 
         Git = @{
-            UserRepo = $Env:github_user_repo
+            User = ''
             Password = $Env:github_api_key
         }
 
