@@ -221,7 +221,7 @@ function get_info {
 
     $info.stats = get-stats
     $info.error_info = $errors | % {
-        $s = "`nPackage: " + $_.Name + "`n"
+        "`nPackage: " + $_.Name + "`n"
         $_.Error
     }
 
