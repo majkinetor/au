@@ -140,7 +140,7 @@ function Update-AUPackages {
                 if ($LastExitCode -eq 0) {
                     $pkg.Pushed = $true
                 } else {
-                    $pkg.Error = "Push ERROR:`n" + ($r | select -skip 1)
+                    $pkg.Error = "Push ERROR`n" + ($r | select -skip 1)
                 }
             }
 
@@ -230,8 +230,8 @@ function get_info {
 
 function get-stats {
     "Finished {0} packages after {1} minutes.  " -f $info.packages.length, $info.minutes
-    "{0} packages updated and {1} pushed.  " -f $info.updated, $info.pushed
-    "{0} total errors - {1} update, {2} push.  " -f $info.error_count.total, $info.error_count.update, $info.error_count.push
+    "{0} updated and {1} pushed.  " -f $info.updated, $info.pushed
+    "{0} errors - {1} update, {2} push.  " -f $info.error_count.total, $info.error_count.update, $info.error_count.push
 }
 
 
