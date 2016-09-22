@@ -35,8 +35,7 @@ if ($User -and $Password) {
 }
 
 Write-Host "Executing git pull"
-git checkout origin master
-git pull
+git pull origin master
 
 Write-Host "Adding updated packages to git repository: $( $packages | % Name);"
 $packages | % { git add $_.Name }

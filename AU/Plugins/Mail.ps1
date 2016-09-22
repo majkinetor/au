@@ -35,7 +35,7 @@ else {
 <body><pre>
 $($Info.error_count.total) $errors_word during update.
 
-$($info.error_info)
+$($info.error_info | Out-String)
 </pre></body>
 "@
 }
