@@ -12,7 +12,7 @@ param(
 )
 
 if (($Info.error_count.total -eq 0) -and !$SendAlways) {
-    Write-Host '  Mail not sent as there are no errors (override with SendAlways param)'
+    Write-Host 'Mail not sent as there are no errors (override with SendAlways param)'
     return
 }
 

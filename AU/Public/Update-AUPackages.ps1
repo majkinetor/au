@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 21-Sep-2016.
+# Last Change: 22-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -136,11 +136,11 @@ function Update-AUPackages {
             if ($type -ne 'AUPackage') { throw "'$using:package_name' update script didn't return AUPackage but: $type" }
 
             if ($pkg.Updated -and $using:Options.Push) {
-                $pkg.Result += $r = Push-Package | Out-String
+                $pkg.Result += $r = Push-Package
                 if ($LastExitCode -eq 0) {
                     $pkg.Pushed = $true
                 } else {
-                    $pkg.Error = ($r | select -skip 1)
+                    $pkg.Error = "Push ERROR:`n" + ($r | select -skip 1)
                 }
             }
 
