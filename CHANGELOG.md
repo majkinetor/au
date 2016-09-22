@@ -16,19 +16,22 @@
   - Plugin system with the following default plugins included:
     - `RunInfo` - Save run info to the CliXml file and exclude sensitive information.
     - `Report`  - Saves run info as gist via included templates (currently markdown and text).
-    - `Gist`    - Save files as anonymous or user gists
+    - `Gist`    - Save files as anonymous or user gists.
     - `Git`     - Commits package changes to the git repository.
     - `Mail`    - Send mail with attachments.
   - New parameter `NoPlugins` (by default `$Env:au_NoPlugins` to disable all plugins.
   - New option parameter `PluginPath` to specify additional path where plugins are located.
-
-### Bugfixes
-
-- Fixed bug due to the typo when pushing and sorting packages when executing `Update-AUPackages`.
+  - Many small improvements.
 
 ### CD
 
 - New `./test.ps1` script that run some or all tests.
+
+## 2016.9.21
+
+### Bugfixes
+
+- Push was not working when package was updated.
 
 ## 2016.9.14.233253
 
