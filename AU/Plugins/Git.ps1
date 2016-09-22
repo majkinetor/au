@@ -28,7 +28,7 @@ if ($User -and $Password) {
     if ( "machine $server" -notmatch (gc ~/_netrc)) {
         Write-Host "Credentials already found for machine: $machine"
     }
-    "machine $server", "login $User", "password $Password" | Out-File -Append ~/_netrc -Encoding ascii
+    "machine $machine", "login $User", "password $Password" | Out-File -Append ~/_netrc -Encoding ascii
 } elseif ($Password) {
     Write-Host 'Setting oauth token'
     Add-Content "$env:USERPROFILE\.git-credentials" "https://$Password:x-oauth-basic@$machine`n"
