@@ -17,7 +17,7 @@ else {
 
 ""; $Info.stats
 
-"$UserMessage"
+"$($Params.UserMessage)"
 
 if ($Info.pushed) {
     title Pushed
