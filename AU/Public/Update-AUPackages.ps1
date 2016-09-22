@@ -178,7 +178,7 @@ function run_plugins() {
 
         try {
             Write-Host "Running $key"
-            & $plugin_path $Info @params *>&1 | tee $tmp_dir\plugins\$key | Out-String | Write-Host
+            & $plugin_path $Info @params *>&1 | tee $tmp_dir\plugins\$key | Write-Host
             $info.plugin_results.$key += gc $tmp_dir\plugins\$key -ea ignore
         } catch {
             $err_lines = $_.ToString() -split "`n"

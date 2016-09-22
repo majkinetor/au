@@ -1,3 +1,5 @@
+# AU template: https://raw.githubusercontent.com/majkinetor/au/master/update_all_default.ps1
+
 param($Name = $null)
 
 if (Test-Path $PSScriptRoot/update_vars.ps1) { . $PSScriptRoot/update_vars.ps1 }
@@ -5,8 +7,8 @@ if (Test-Path $PSScriptRoot/update_vars.ps1) { . $PSScriptRoot/update_vars.ps1 }
 $Options = [ordered]@{
     #Timeout    = 100
     #Threads    = 10
-    #Push       = $true
-    #Force      = $false
+    #Push       = $Env:au_Push -eq 'true'
+    #Force      = $Env:au_Force -eq 'true'
     #PluginPath = ''
     #Script     = @{}
 
@@ -52,8 +54,7 @@ $Options = [ordered]@{
 }
 
 $au_Root = $PSScriptRoot
-updateall -Name $Name -Options $Options | ft
+$info = updateall -Name $Name -Options $Options
 
 #Uncomment to fail the build on AppVeyor on any package error
-#$info = Import-CliXml $PSScriptRoot\update_info.xml
 #if ($info.error_count.total) { throw 'Errors during update' }
