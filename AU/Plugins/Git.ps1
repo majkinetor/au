@@ -30,7 +30,7 @@ if ($User -and $Password) {
     }
     "machine $machine", "login $User", "password $Password" | Out-File -Append ~/_netrc -Encoding ascii
 } elseif ($Password) {
-    Write-Host 'Setting oauth token'
+    Write-Host 'Setting oauth token for: $machine'
     Add-Content "$env:USERPROFILE\.git-credentials" "https://${Password}:x-oauth-basic@$machine`n"
 }
 
