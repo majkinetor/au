@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 16-Sep-2016.
+# Last Change: 22-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -16,7 +16,6 @@
 
     Get all automatic packages that start with 'p'.
 #>
-
 function Get-AUPackages($Name=$null) {
     $root = $global:au_root
     if (!$root) { $root = '.' }

@@ -1,5 +1,9 @@
 #requires -version 3
 
+<#
+.SYNOPSIS
+    AU build script
+#>
 param(
     # Version to set
     [string] $Version = [Version](Get-Date).ToUniversalTime().ToString("yyyy.M.d.HHmmss"),
@@ -11,7 +15,10 @@ param(
     [switch] $ShortVersion,
 
     # Clean up
-    [switch] $Clean
+    [switch] $Clean,
+
+    # Do not build chocolatey package
+    [switch] $NoChocoPackage
 )
 
 $b = {
@@ -61,6 +68,8 @@ function init() {
 }
 
 function build_chocolatey_package {
+    if ($NoChocoPackage) { Write-Host "Skipping chocolatey package build"; return }
+
     & $PSScriptRoot/chocolatey/build-package.ps1
     mv "$PSScriptRoot/chocolatey/${module_name}.$version.nupkg" $build_dir
 }

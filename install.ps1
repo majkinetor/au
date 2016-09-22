@@ -1,8 +1,13 @@
 #requires -version 2
 
-# Always install AU versionless in Program Files to support older PowerShell versions ( v < 5 )
-# Multiple AU versions can be installed using Install-Module if needed (on Posh 5+).
+<#
+.SYNOPSIS
+    AU install script
 
+.NOTES
+    Always install AU versionless in Program Files to support older PowerShell versions ( v < 5 )
+    Multiple AU versions can be installed using Install-Module if needed (on Posh 5+).
+#>
 param(
     #If given it is path to the module to be installed.
     #If not given, use first build directory and if doesn't exist, try scripts folder.
