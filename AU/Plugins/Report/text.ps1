@@ -1,12 +1,13 @@
-function title($txt) { "`r`n{0}`r`n{1}`r`n" -f $txt,('-'*$txt.Length) }
+function title($txt) { "r`n{0}`r`n{1}`r`n" -f $txt,('-'*$txt.Length) }
 function indent($txt, $level=4) { $txt -split "`n" | % { ' '*$level + $_ } }
 
 $now             = $Info.startTime.ToUniversalTime().ToString('yyyy-MM-dd HH:mm')
 $au_version      = gmo au -ListAvailable | % Version | select -First 1 | % { "$_" }
+$package_no      = $Info.result.all.Length
 
-"{0,15}{1}" -f 'Time:', $now
-"{0,15}{1}" -f 'AU version:', $au_version
-"{0,15}{1}" -f 'AU packages:', $package_no
+"{0,-15}{1}" -f 'Time:', $now
+"{0,-15}{1}" -f 'AU version:', $au_version
+"{0,-15}{1}" -f 'AU packages:', $package_no
 
 $errors_word = if ($Info.error_count.total -eq 1) {'error'} else {'errors' }
 if ($Info.error_count.total) {
