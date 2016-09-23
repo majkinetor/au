@@ -288,7 +288,7 @@ It is possible to specify a custom user logic in `Options` parameter - every key
                    Port        = 587
                    EnableSsl   = $true
                    Attachment  = "$PSScriptRoot\$update_info.xml"
-                   UserMessage = "Save attachment and load it for detailed inspection: <code>$info = Import-CliXCML update_info.xml</code>"
+                   UserMessage = 'Save attachment and load it for detailed inspection: <code>$info = Import-CliXCML update_info.xml</code>'
                 }
         } else {}
     }
