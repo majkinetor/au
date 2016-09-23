@@ -1,31 +1,47 @@
-
 # AU Project Changelog
 
 ## TODO
 
 ## NEXT
 
+**NOTE**: This update breaks compatibility with existing `update_all.ps1` script - parameter `Options`
+is now of type ordered HashTable ( `[ordered]@{...}` ).  This is the only required change for the script
+to continue working, however, other things are required in order to fully use AU features:
+
+- Remove the user scripts `Save-XXX.ps1` as improved versions now come with AU (plugins).
+- Take a look at the [update_all_default.ps1](https://github.com/majkinetor/au/blob/master/update_all_default.ps1) 
+  to see how plugins are used and setup. Migrate current custom options to the new style. 
+  See [plugins section](https://github.com/majkinetor/au#plugins) for details.
+
+### Changes
+
 - `Update-Package`
     - Support for Semantic Versioning [#21](https://github.com/majkinetor/au/issues/21).
 - `Test-Package` 
   - Optional parameter Nu to test package from the .nupkg, .nuspec or directory.
-  - Test choco uninstaller. 
+  - Test chocolatey uninstaller. 
   - Refactoring.
 - Installer improvements.
 - `Update-AUPackages`
   - Plugin system with the following default plugins included:
     - `RunInfo` - Save run info to the CliXml file and exclude sensitive information.
     - `Report`  - Saves run info as gist via included templates (currently markdown and text).
-    - `Gist`    - Save files as anonymous or user gists.
+    - `Gist`    - Save files as anonymous or user gists
     - `Git`     - Commits package changes to the git repository.
     - `Mail`    - Send mail with attachments.
   - New parameter `NoPlugins` (by default `$Env:au_NoPlugins` to disable all plugins.
   - New option parameter `PluginPath` to specify additional path where plugins are located.
-  - Many small improvements.
+- Added `update_all_default.ps1` that contains all of the AU options listed for easier setup.
+- Added `update_vars_default.ps1` that contains all environment variables used by the `uppdate_all.ps1` script.
+
+### Bugfixes
+
+- Fixed bug due to the typo when pushing and sorting packages when executing `Update-AUPackages`.
 
 ### CD
 
-- New `./test.ps1` script that run some or all tests.
+- New `./test.ps1` script that run some or all of the tests.
+
 
 ## 2016.9.21
 
