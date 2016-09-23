@@ -41,7 +41,7 @@ To write the package update script, it is generally required to implement 2 func
 
 This function is used to get the latest package information.
 
-As an example, the following function uses `Invoke-WebRequest` to download a page, take the first parsed link `href` attribute as an new package URL and parses version from the link itself:
+As an example, the following function uses [Invoke-WebRequest](https://technet.microsoft.com/en-us/library/hh849901.aspx?f=255&MSPPError=-2147217396) to download a page, take the first parsed link `href` attribute as an new package URL and parses version from the link itself:
 
 ```powershell
 function global:au_GetLatest {
