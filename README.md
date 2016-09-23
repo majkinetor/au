@@ -182,7 +182,7 @@ Updating files
 
 ### Global variables
 
-To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up any `update` parameter via global variables. The names of global variables are the same as the names of parameters with the prefix `au_`. As an example, the following code will change the update behavior so that URL is not checked for existence and MIME type and update is forced: 
+To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up any **already unset** `update` parameter via global variables. The names of global variables are the same as the names of parameters with the prefix `au_`. As an example, the following code will change the update behavior so that URL is not checked for existence and MIME type and update is forced: 
 
     $au_NoCheckUrl = $au_Force = $true
     ./update.ps1
@@ -192,9 +192,6 @@ This is the same as if you added the parameters to `update` function inside the 
     update -NoCheckUrl -Force
 
 however, its way easier to setup global variable with manual intervention on multiple packages.
-
-**NOTE**: Only if parameters are not set on function call, the global variables will take over if they are set.
-
 
 ### Reusing the AU updater with metapackages
 
@@ -256,27 +253,32 @@ It is possible to specify a custom user logic in `Options` parameter - every key
         Timeout = 100
         Threads = 15
         Push    = $true
-
+          
+        # Save text report in the loccal file report.txt
         Report = @{
             Type = 'text'
             Path = "$PSScriptRoot\report.txt"
         }
         
+        # Then save this report as a gist using your api key and gist id
         Gist = @{
             ApiKey = $Env:github_api_key
             Id     = $Env:github_gist_id
             Path   = "$PSScriptRoot\report.txt"
         }
 
+        # Persist pushed packages to your repository
         Git = @{
             User = ''
             Password = $Env:github_api_key
         }
-
+        
+        # Then save run info which can be loaded with Import-CliXML and inspected
         RunInfo = @{
             Path = "$PSScriptRoot\update_info.xml"
         }
 
+        # Finally, send an email to the user if any error occurs and attach previously created run info
         Mail = if ($Env:mail_user) {
                 @{
                    To         = $Env:mail_user
