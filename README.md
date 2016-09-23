@@ -161,8 +161,8 @@ You can force the update even if no new version is found by using the parameter 
 The version of the package will be changed so that it follows _chocolatey fix standard_ where current date is added in the _revision_ component of the package version in the format `yyyyMMdd`. More precisely, 
 
 - choco "fix version" always goes in to the _Revision_ part of the package version.
-- existing "fixed versions" are changed to contain the current date if the revision does not exist or if it already contains choco fix.
-- if _Revision_ part is present in the package version and it is not in the "choco fix format", AU will keep the existing version but notify about it.
+- existing "fixed versions" are changed to contain the current date.
+- if _Revision_ part is present in the package version and it is not in the _chocolatey fix standard_ form, AU will keep the existing version but notify about it.
 
 **Example**:
 
