@@ -281,13 +281,14 @@ It is possible to specify a custom user logic in `Options` parameter - every key
         # Finally, send an email to the user if any error occurs and attach previously created run info
         Mail = if ($Env:mail_user) {
                 @{
-                   To         = $Env:mail_user
-                   Server     = 'smtp.gmail.com'
-                   UserName   = $Env:mail_user
-                   Password   = $Env:mail_pass
-                   Port       = 587
-                   EnableSsl  = $true
-                   Attachment = "$PSScriptRoot\$update_info.xml"
+                   To          = $Env:mail_user
+                   Server      = 'smtp.gmail.com'
+                   UserName    = $Env:mail_user
+                   Password    = $Env:mail_pass
+                   Port        = 587
+                   EnableSsl   = $true
+                   Attachment  = "$PSScriptRoot\$update_info.xml"
+                   UserMessage = "Save attachment and load it for detailed inspection: <code>$info = Import-CliXCML update_info.xml</code>"
                 }
         } else {}
     }
