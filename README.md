@@ -41,14 +41,25 @@ To write the package update script, it is generally required to implement 2 func
 
 This function is used to get the latest package information.
 
-Function returns [HashTable] with the latest remote version along with other arbitrary user data which you can use elsewhere. The returned version is then compared to the one in the nuspec file and if remote version is higher, the files will be updated. The returned keys of this HashTable are available via global variable `$Latest`.
+As an example, the following function uses `Invoke-WebRequest` to download a page, take the first parsed link `href` attribute as an new package URL and parses version from the link itself:
 
+```powershell
+function global:au_GetLatest {
+     $download_page = Invoke-WebRequest -Uri $releases
+     $url32   = $download_page.links | ? href -match '.exe$' | select -First 1 -expand href
+     $version = $url -split '-|.exe' | select -Last 1 -Skip 2                                 
+     return @{ Version = $vrsion; URL32 = $url }
+}
+```
+The returned version is then compared to the one in the nuspec file and if remote version is higher, the files will be updated. The returned keys of this HashTable are available via global variable `$global:Latest` (along with some keys that AU generates).
+
+You can put whatever data you need in the returned [HashTable]; this data can be used later in `au_SearchReplace`.
 
 ### `au_SearchReplace`  
 
 Function returns [HashTable] containing search and replace data for any package file in the form:  
 
-~~~powershell
+```powershell
     @{
         file_path1 = @{
             search1 = replace1
@@ -58,9 +69,9 @@ Function returns [HashTable] containing search and replace data for any package 
         file_path2 = @{ ... }
         ...
     }
-~~~
+```
 
-The function can use `$Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc.
+The function can use `$global:Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc.
 
 **NOTE**: The search and replace works on lines, multiple lines can not be matched with single regular expression.
 
