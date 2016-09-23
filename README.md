@@ -254,7 +254,7 @@ It is possible to specify a custom user logic in `Options` parameter - every key
         Threads = 15
         Push    = $true
           
-        # Save text report in the loccal file report.txt
+        # Save text report in the local file report.txt
         Report = @{
             Type = 'text'
             Path = "$PSScriptRoot\report.txt"

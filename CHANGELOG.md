@@ -4,7 +4,7 @@
 
 ## NEXT
 
-**NOTE**: This update breaks compatibility with existing `update_all.ps1` script - parameter `Options`
+**NOTE**: This update breaks compatibility with existing `update_all.ps1` scripts - parameter `Options`
 is now of type ordered HashTable ( `[ordered]@{...}` ).  This is the only required change for the script
 to continue working, however, other things are required in order to fully use AU features:
 
@@ -25,14 +25,13 @@ to continue working, however, other things are required in order to fully use AU
 - `Update-AUPackages`
   - Plugin system with the following default plugins included:
     - `RunInfo` - Save run info to the CliXml file and exclude sensitive information.
-    - `Report`  - Saves run info as gist via included templates (currently markdown and text).
-    - `Gist`    - Save files as anonymous or user gists
+    - `Report`  - Saves run info as a report file via included templates (currently markdown and text).
+    - `Gist`    - Save files as anonymous or user gists.
     - `Git`     - Commits package changes to the git repository.
     - `Mail`    - Send mail with attachments.
   - New parameter `NoPlugins` (by default `$Env:au_NoPlugins` to disable all plugins.
   - New option parameter `PluginPath` to specify additional path where plugins are located.
-- Added `update_all_default.ps1` that contains all of the AU options listed for easier setup.
-- Added `update_vars_default.ps1` that contains all environment variables used by the `uppdate_all.ps1` script.
+- Added `update_all_default.ps1` that contains all of the AU options listed for easier setup. Added `update_vars_default.ps1` that contains all environment variables used by the `uppdate_all.ps1` script.
 
 ### Bugfixes
 
