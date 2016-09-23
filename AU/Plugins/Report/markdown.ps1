@@ -6,8 +6,8 @@ $package_no      = $Info.result.all.Length
 $Github_UserRepo = $Params.Github_UserRepo
 $UserMessage     = $Params.UserMessage
 
-$icon_ok = 'https://cdn.rawgit.com/majkinetor/au/integrate/AU/Plugins/Report/r_ok.png'
-$icon_er = 'https://cdn.rawgit.com/majkinetor/au/integrate/AU/Plugins/Report/r_er.png'
+$icon_ok = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_ok.png'
+$icon_er = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_er.png'
 
 "# Update-AUPackages"
 
