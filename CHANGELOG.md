@@ -5,13 +5,15 @@
 ## NEXT
 
 **NOTE**: This update breaks compatibility with existing `update_all.ps1` scripts - parameter `Options`
-is now of type ordered HashTable ( `[ordered]@{...}` ).  This is the only required change for the script
-to continue working, however, other things are required in order to fully use AU features:
+is now of the type ordered HashTable ( `[ordered]@{...}` ).  This is the only required change for the script
+to continue working and behave the same as before, however, other things are required in order to fully use AU features:
 
 - Remove the user scripts `Save-XXX.ps1` as improved versions now come with AU (plugins).
 - Take a look at the [update_all_default.ps1](https://github.com/majkinetor/au/blob/master/update_all_default.ps1) 
   to see how plugins are used and setup. Migrate current custom options to the new style. 
-  See [plugins section](https://github.com/majkinetor/au#plugins) for details.
+  See [plugins section](https://github.com/majkinetor/au#plugins) for details. 
+
+Take a look at the [working example](https://github.com/majkinetor/chocolatey/blob/master/update_all.ps1).
 
 ### Changes
 
