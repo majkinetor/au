@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 19-Sep-2016.
+# Last Change: 23-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -169,17 +169,20 @@ function Update-Package {
         }
 
         function fix_choco {
+            Sleep -Milliseconds (Get-Random 500) #reduce probability multiple updateall threads entering here at the same time (#29)
+
             # Copy choco modules once a day
             if (Test-Path $choco_tmp_path) {
                 $ct = gi $choco_tmp_path | % creationtime
                 if (((get-date) - $ct).Days -gt 1) { rm -recurse -force $choco_tmp_path } else { Write-Verbose 'Chocolatey copy is recent, aborting monkey patching'; return }
             }
+
             Write-Verbose "Monkey patching chocolatey in: '$choco_tmp_path'"
             cp -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
             if (Test-Path $Env:ChocolateyInstall\extensions) { cp -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions }
 
             $fun_path = "$choco_tmp_path\helpers\functions\Get-ChocolateyWebFile.ps1"
-            (gc $fun_path) -replace '^\s+return \$fileFullPath\s*$', '  throw "au_break: $fileFullPath"' | sc $fun_path
+            (gc $fun_path) -replace '^\s+return \$fileFullPath\s*$', '  throw "au_break: $fileFullPath"' | sc $fun_path -ea ignore
         }
 
         "Automatic checksum started" | result
