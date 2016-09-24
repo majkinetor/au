@@ -14,7 +14,7 @@ $icon_er = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_er.p
 "# Update-AUPackages"
 
 #=== Header ===============================
-if (!$NoAppVeyor -or !$Github_UserRepo) { "[![](https://ci.appveyor.com/api/projects/status/github/${Github_UserRepo}?svg=true)](https://ci.appveyor.com/project/$Github_UserRepo/build/$Env:APPVEYOR_BUILD_NUMBER)" }
+if (!$NoAppVeyor -and $Github_UserRepo) { "[![](https://ci.appveyor.com/api/projects/status/github/${Github_UserRepo}?svg=true)](https://ci.appveyor.com/project/$Github_UserRepo/build/$Env:APPVEYOR_BUILD_NUMBER)" }
 
 @"
 [![$package_no](https://img.shields.io/badge/AU%20packages-$($package_no)-red.svg)](#ok)
