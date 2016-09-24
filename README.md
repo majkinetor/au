@@ -72,7 +72,24 @@ Function returns [HashTable] containing search and replace data for any package 
     }
 ```
 
-File paths are relative to the package directory. The function can use `$global:Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc.
+Search and replace strings are operands for PowerShell [replace](http://www.regular-expressions.info/powershell.html) operator. You do not have to write them most of the time however, they are rarely changed.
+
+File paths are relative to the package directory. The function can use `$global:Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc. 
+
+The following example illustrates the usage:
+
+```powershell
+function global:au_SearchReplace {
+    @{
+        "tools\chocolateyInstall.ps1" = @{
+            "(^[$]url32\s*=\s*)('.*')"      = "`$1'$($Latest.URL32)'"           #1
+            "(^[$]checksum32\s*=\s*)('.*')" = "`$1'$($Latest.Checksum32)'"      #2
+        }
+    }
+}
+```
+
+Here, line of the format `$url32 = '<package_url>'` in the file `tools\chocolateyInstall.ps1` will have its quoted string replaced with latest URL (#1). The next line replaces variable `$checksum32` on the start of the line with the latest checksum that is automatically injected in the $Latest variable by the AU framework (#2). Replacement of the latest version in the nuspec file is handled automatically. 
 
 **NOTE**: The search and replace works on lines, multiple lines can not be matched with single regular expression.
 
