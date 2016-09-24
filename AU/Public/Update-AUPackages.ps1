@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 22-Sep-2016.
+# Last Change: 24-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -70,6 +70,8 @@ function Update-AUPackages {
 
     $aup = Get-AUPackages $Name
     Write-Host 'Updating' $aup.Length  'automatic packages at' $($startTime.ToString("s") -replace 'T',' ') $(if ($Options.Force) { "(forced)" } else {})
+    Write-Host 'Push is ' ( if ($Options.Push) { 'enabled' } else { 'disabled' } )
+    if ($Options.Force) { Write-Host 'FORCE IS ENABLED. All packages will be updated' }
 
     $script_err = 0
     if ($Options.Script) { try { & $Options.Script 'START' $aup | Write-Host } catch { Write-Error $_; $script_err += 1 } }
