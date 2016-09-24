@@ -1,10 +1,11 @@
 . $PSScriptRoot\markdown_funcs.ps1
 
+$Github_UserRepo = $Params.Github_UserRepo
+$UserMessage     = $Params.UserMessage
+
 $now             = $Info.startTime.ToUniversalTime().ToString('yyyy-MM-dd HH:mm')
 $au_version      = gmo au -ListAvailable | % Version | select -First 1 | % { "$_" }
 $package_no      = $Info.result.all.Length
-$Github_UserRepo = $Params.Github_UserRepo
-$UserMessage     = $Params.UserMessage
 
 $icon_ok = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_ok.png'
 $icon_er = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_er.png'
