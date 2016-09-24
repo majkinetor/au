@@ -2,6 +2,7 @@
 
 $Github_UserRepo = $Params.Github_UserRepo
 $UserMessage     = $Params.UserMessage
+$NoAppVeyor      = $Params.NoAppVeyor
 
 $now             = $Info.startTime.ToUniversalTime().ToString('yyyy-MM-dd HH:mm')
 $au_version      = gmo au -ListAvailable | % Version | select -First 1 | % { "$_" }
@@ -13,8 +14,9 @@ $icon_er = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_er.p
 "# Update-AUPackages"
 
 #=== Header ===============================
+if (!$NoAppVeyor) "[![](https://ci.appveyor.com/api/projects/status/github/${Github_UserRepo}?svg=true)](https://ci.appveyor.com/project/$Github_UserRepo/build/$Env:APPVEYOR_BUILD_NUMBER)"
+
 @"
-[![](https://ci.appveyor.com/api/projects/status/github/${Github_UserRepo}?svg=true)](https://ci.appveyor.com/project/$Github_UserRepo/build/$Env:APPVEYOR_BUILD_NUMBER)
 [![$package_no](https://img.shields.io/badge/AU%20packages-$($package_no)-red.svg)](#ok)
 [![$au_version](https://img.shields.io/badge/AU-$($au_version)-blue.svg)](https://www.powershellgallery.com/packages/AU)
 [![](http://transparent-favicon.info/favicon.ico)](#)[![](http://transparent-favicon.info/favicon.ico)](#)
