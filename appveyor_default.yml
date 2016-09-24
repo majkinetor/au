@@ -1,3 +1,5 @@
+# AU template: https://github.com/majkinetor/au/blob/master/appveyor_default.yml
+
 version: '{build}'
 max_jobs: 1
 image: WMF 5
