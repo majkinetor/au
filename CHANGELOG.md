@@ -33,7 +33,9 @@ Take a look at the [working example](https://github.com/majkinetor/chocolatey/bl
     - `Mail`    - Send mail with attachments.
   - New parameter `NoPlugins` (by default `$Env:au_NoPlugins` to disable all plugins.
   - New option parameter `PluginPath` to specify additional path where plugins are located.
+  - Output now shows if Push and Force options are used.
 - Added `update_all_default.ps1` that contains all of the AU options listed for easier setup. Added `update_vars_default.ps1` that contains all environment variables used by the `uppdate_all.ps1` script.
+- Added `appveyor_default.yaml` template.
 - Documentation is rewritten and wiki created.
 
 ### Bugfixes
