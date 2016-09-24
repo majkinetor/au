@@ -311,6 +311,7 @@ To make a local scheduled task, use the following code in the directory where yo
     $At = '03:00'
     schtasks /create /tn "Update-AUPackages" /tr "powershell -File '$pwd\update_all.ps1'" /sc daily /st $At
 
+Its preferable to run the updater on [AppVeyor](https://github.com/majkinetor/au/wiki/AppVeyor).
 
 ## Other functions
 
