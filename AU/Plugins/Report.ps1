@@ -4,7 +4,7 @@
 param(
     $Info,
     [string] $Type = 'markdown',
-    [string] $Path = 'update_report.md',
+    [string] $Path = 'Update-AUPackages.md',
     [HashTable] $Params
 )
 

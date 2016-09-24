@@ -300,6 +300,8 @@ To add custom plugins, specify additional plugin search path via `$Options.Plugi
 
 To temporary disable plugins use `updateall` option `NoPlugins` or global variable `$au_NoPlugins`.
 
+For more information take a look at the wiki section about [plugins](https://github.com/majkinetor/au/wiki/Plugins).
+
 ### Make a script
 
 Its desirable to put everything in a single script `update_all.ps1` so it can be scheduled and called with the given options. Rename `update_all_default.ps1` and uncomment and set the options you need. 
@@ -308,6 +310,7 @@ To make a local scheduled task, use the following code in the directory where yo
 
     $At = '03:00'
     schtasks /create /tn "Update-AUPackages" /tr "powershell -File '$pwd\update_all.ps1'" /sc daily /st $At
+
 
 ## Other functions
 

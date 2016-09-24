@@ -8,7 +8,7 @@ param(
     [string] $Id,
 
     # Github ApiKey, create in Github profile -> Settings -> Personal access tokens -> Generate new token
-    # Make sure token has 'gist' privilege.
+    # Make sure token has 'gist' scope set.
     [string] $ApiKey,
 
     # File paths to attach to gist
