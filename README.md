@@ -89,7 +89,7 @@ function global:au_SearchReplace {
 }
 ```
 
-Here, line of the format `$url32 = '<package_url>'` in the file `tools\chocolateyInstall.ps1` will have its quoted string replaced with latest URL (#1). The next line replaces variable `$checksum32` on the start of the line with the latest checksum that is automatically injected in the $Latest variable by the AU framework (#2). Replacement of the latest version in the nuspec file is handled automatically. 
+Here, line of the format `$url32 = '<package_url>'` in the file `tools\chocolateyInstall.ps1` will have its quoted string replaced with latest URL (#1). The next line replaces value of the variable `$checksum32` on the start of the line with the latest checksum that is automatically injected in the `$Latest` variable by the AU framework (#2). Replacement of the latest version in the nuspec file is handled automatically. 
 
 **NOTE**: The search and replace works on lines, multiple lines can not be matched with single regular expression.
 
@@ -139,10 +139,10 @@ The `update` function does the following checks:
 
 - The `$Latest.Version` will be checked to match a valid nuspec pattern.
 - Any hash key that starts with the word `Url`, will be checked for existence and MIME textual type, since binary is expected here.
-- If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existence of this package version (this works for unpublished packages too). This allows multiple users to update packages without a conflict. Besides this, this feature makes it possible not to persist state between the updates as once the package is updated and pushed, the next update will not push the package again. To persist the state of updated packages you can use for instance `Git` plugin which saves the updated packages to the git repository. 
+- If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existence of this package version (this works for unpublished packages too). This allows multiple users to update same set of packages without a conflict. Besides, this feature makes it possible not to persist state between the updates as once the package is updated and pushed, the next update will not push the package again. To persist the state of updated packages you can use for instance [Git](https://github.com/majkinetor/au/blob/master/AU/Plugins/Git.ps1) plugin which saves the updated and published packages to the git repository. 
 - The regex patterns in `au_SearchReplace` will be checked for existence.
 
-If any of the checks fails, package will not get updated. This feature releases you from the worries about how precise is your pattern match in the `au_GetLatest` function and how often original site changes as if something like that happens package wont get updated or pushed with incorrect data.
+If any of the checks fails, package will not get updated. This feature releases you from the worries about how precise is your pattern match in both `au_` functions - if for example, a vendor site changes, the package update will fail because of the wrongly parsed data. 
 
 For some packages, you may want to disable some of the checks by specifying additional parameters of the `update` function (not all can be disabled):
 
@@ -174,11 +174,11 @@ If the `ChecksumXX` hash key is present, the AU will change to checksum verifica
 
 ### Force update
 
-You can force the update even if no new version is found by using the parameter `Force` (or global variable `$au_Force`). This can be useful for troubleshooting, bug fixing, recalculating the checksum after the package was created and already pushed to Chocolatey or if URLs to installer changed without adequate version change.
+You can force the update even if no new version is found by using the parameter `Force` (or global variable `$au_Force`). This can be useful for testing the update and bug fixing, recalculating the checksum after the package was created and already pushed to Chocolatey or if URLs to installer changed without change in version.
 
 The version of the package will be changed so that it follows _chocolatey fix standard_ where current date is added in the _revision_ component of the package version in the format `yyyyMMdd`. More precisely, 
 
-- choco "fix version" always goes in to the _Revision_ part of the package version.
+- chocolatey "fix version" always goes in to the _Revision_ part of the package version.
 - existing "fixed versions" are changed to contain the current date.
 - if _Revision_ part is present in the package version and it is not in the _chocolatey fix standard_ form, AU will keep the existing version but notify about it.
 
@@ -200,7 +200,7 @@ Updating files
 
 ### Global variables
 
-To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up any **already unset** `update` parameter via global variables. The names of global variables are the same as the names of parameters with the prefix `au_`. As an example, the following code will change the update behavior so that URL is not checked for existence and MIME type and update is forced: 
+To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up any **already unset** `update` parameter via global variable. The names of global variables are the same as the names of parameters with the prefix `au_`. As an example, the following code will change the update behavior so that URL is not checked for existence and MIME type and update is forced: 
 
     $au_NoCheckUrl = $au_Force = $true
     ./update.ps1
@@ -237,11 +237,12 @@ The function will search for packages in the current directory. To override that
     PS> $Options = @{
         Timeout = 10
         Threads = 15
-        Push    = $false
+        Push    = $true
     }
     PS> updateall -Options $Options
 
     Updating 6 automatic packages at 2016-09-16 22:03:33
+    Push is enabled
        copyq is updated to 2.6.1 and pushed 
        dngrep had errors during update
            Can't validate URL 'https://github.com/dnGrep/dnGrep/releases/download/v2.8.16.0/dnGREP.2.8.16.x64.msi'
@@ -254,8 +255,8 @@ The function will search for packages in the current directory. To override that
            Invalid content type: text/html
 
     Finished 6 packages after .32 minutes.
-    1 packages updated and 1 pushed.
-    2 total errors - 2 update, 0 push.
+    1 updated and 1 pushed.
+    2 errors - 2 update, 0 push.
 
 
 Use `updateall` parameter `Name` to specify package names via glob, for instance `updateall [a-d]*` would update only packages which names start with the letter 'a' trough 'd'. Add `Push` among options to push successfully built packages to the chocolatey repository.
@@ -312,9 +313,9 @@ It is possible to specify a custom user logic in `Options` parameter - every key
     }
 ```
 
-The plugins above - `Report`, `Git`, `Gist`, `RunInfo` and `Mail` -  are executed in the given order (hence the `[ordered]` flag) and AU passes them given options and saves the run results. If PowerShell script by the name of the given key is not found, the plugin is ignored. 
+The plugins above - `Report`, `Gist`,`Git`,`RunInfo` and `Mail` -  are executed in the given order (hence the `[ordered]` flag) and AU passes them given options and saves the run results. 
 
-To add custom plugins, specify additional plugin search path via `$Options.PluginPath`. Plugin is a normal PowerShell script and apart from parameters given in its `[HashTable]` the AU will send it one more parameter `$Info` that contains current run info.
+To add custom plugins, specify additional plugin search path via `$Options.PluginPath`. Plugin is a normal PowerShell script and apart from parameters given in its `[HashTable]` the AU will send it one more parameter `$Info` that contains current run info. The name of the script file must be the same as that of the key which value is used to pass the parameters to the plugin. If key with the [HashTable] value doesn't point to existing PowerShell script it is not considered to be an AU plugin.
 
 To temporary disable plugins use `updateall` option `NoPlugins` or global variable `$au_NoPlugins`.
 
