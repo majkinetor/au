@@ -3,9 +3,8 @@
 
 $Env:mail_user        = ''
 $Env:mail_pass        = ''
-$Env:api_key          = ''
+$Env:api_key          = ''          #Chocolatey api key
 $Env:gist_id          = ''
-$Env:github_user_repo = ''
+$Env:github_user_repo = ''          #{github_user>/{repo}
 $Env:github_api_key   = ''
-$Env:au_Push          = $false
-$Env:au_Force         = $false
+$Env:au_Push          = 'false'     #Push to chocolatey

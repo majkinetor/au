@@ -6,57 +6,53 @@ param($Name = $null)
 if (Test-Path $PSScriptRoot/update_vars.ps1) { . $PSScriptRoot/update_vars.ps1 }
 
 $Options = [ordered]@{
-    #Timeout    = 100
-    #Threads    = 10
-    #Push       = $Env:au_Push -eq 'true'
-    #Force      = $Env:au_Force -eq 'true'
-    #PluginPath = ''
-    #Script     = @{}
+    Timeout    = 100                                        #Connection timeout in seconds
+    Threads    = 10                                         #Number of background jobs to use
+    Push       = $Env:au_Push -eq 'true'                    #Push to chocolatey
+    PluginPath = ''                                         #Path to user plugins
 
-#=== PLUGINS ===============================
-
-    #Report = @{
-        #Type = 'markdown'
-        #Path = "$PSScriptRoot\Update-AUPacakges.md"
-        #Params= @{
-            #Github_UserRepo = '' # used by markdown report
-            #UserMessage = ''     # used by markdown and text reports
+    Report = @{
+        Type = 'markdown'                                   #Report type: markdown or text
+        Path = "$PSScriptRoot\Update-AUPacakges.md"         #Path where to save the report
+        Params= @{                                          #Report parameters:
+            Github_UserRepo = $Env:github_UserRepo          #  Markdown report shows this in upper right corner
+            UserMessage = ''                                #  Custom user message to show
         }
-    #}
+    }
 
-    #Gist = @{
-        #Id          = $Env:gist_id
-        #ApiKey      = $Env:github_api_key
-        #Path        = "$PSScriptRoot\Update-AUPacakges.md"
-        #Description = ''
-    #}
+    Gist = @{
+        Id          = ''                                    #Your gist id or leave empty for anonymous
+        ApiKey      = ''                                    #Your github api key
+        Path        = "$PSScriptRoot\Update-AUPacakges.md"  #List of files to add to gist
+    }
 
     #Git = @{
-        #User     = ''
-        #Password = $Env:github_api_key
+        #User     = ''                                       #Git username, leave empty if github api key is used
+        #Password = $Env:github_api_key                      #Password if username is not empty, otherwise api key
     #}
 
-    #RunInfo = @{
-        #Exlcude = 'password', 'apikey'
-        #Path    = "$PSScriptRoot\update_info.xml"
-    #}
+    RunInfo = @{
+        Exclude = 'password', 'apikey'                      #Option keys which contain those words will be removed
+        Path    = "$PSScriptRoot\update_info.xml"           #Path where to save the run info
+    }
 
-    #Mail = if ($Env:mail_user) {
-            #@{
-                #To          = $Env:mail_user
-                #Server      = 'smtp.gmail.com'
-                #UserName    = $Env:mail_user
-                #Password    = $Env:mail_pass
-                #Port        = 587
-                #EnableSsl   = $true
-                #Attachments = "$PSScriptRoot\update_info.xml"
-                #UserMessage = ''
-                #SendAlways  = $false
-             #}
-           #} else {}
+    Mail = if ($Env:mail_user) {
+            @{
+                To          = $Env:mail_user
+                Server      = 'smtp.gmail.com'
+                UserName    = $Env:mail_user
+                Password    = $Env:mail_pass
+                Port        = 587
+                EnableSsl   = $true
+                Attachments = "$PSScriptRoot\update_info.xml"
+                UserMessage = ''
+                SendAlways  = $false                        #Send notifications every time
+             }
+           } else {}
 }
 
-$au_Root = $PSScriptRoot
+$global:au_NoPlugins = $true                               #Quickly enable or disable plugins here
+$global:au_Root      = "$PSScriptRoot"                     #Path to the AU scripts
 $info = updateall -Name $Name -Options $Options
 
 #Uncomment to fail the build on AppVeyor on any package error
