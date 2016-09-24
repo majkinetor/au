@@ -52,7 +52,7 @@ $Options = [ordered]@{
            } else {}
 }
 
-$global:au_NoPlugins = $true                               #Quickly enable or disable plugins here
+$global:au_NoPlugins = $fasle                              #Quickly enable or disable plugins here
 $global:au_Root      = "$PSScriptRoot"                     #Path to the AU packages
 $info = updateall -Name $Name -Options $Options
 
