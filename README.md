@@ -55,7 +55,7 @@ function global:au_GetLatest {
 
 The returned version is later compared to the one in the nuspec file and if remote version is higher, the files will be updated. The returned keys of this [HashTable] are available via global variable `$global:Latest` (along with some keys that AU generates). You can put whatever data you need in the returned [HashTable] - this data can be used later in `au_SearchReplace`.
 
-**NOTE**: The only package maintainer effort when using AU framework is to actually write the correct regular expression that extracts the version from the given page or URL. Other then that, there isn't much else that maintainer does. Regular expressions are not mandatory - regular Powershell string functions can be used, however, "text life" is very much easier with good knowledge of regular expressions.
+The only effort package maintainer must do when using AU framework is to actually write the correct regular expression that extracts the version from the given page or URL. Other then that, there isn't much else that maintainer does. Regular expressions are not mandatory - regular Powershell string functions can be used, however, "text life" is very much easier with good knowledge of regular expressions.
 
 ### `au_SearchReplace`  
 
