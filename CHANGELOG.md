@@ -34,6 +34,7 @@ Take a look at the [working example](https://github.com/majkinetor/chocolatey/bl
   - New parameter `NoPlugins` (by default `$Env:au_NoPlugins` to disable all plugins.
   - New option parameter `PluginPath` to specify additional path where plugins are located.
 - Added `update_all_default.ps1` that contains all of the AU options listed for easier setup. Added `update_vars_default.ps1` that contains all environment variables used by the `uppdate_all.ps1` script.
+- Documentation is rewritten and wiki created.
 
 ### Bugfixes
 
