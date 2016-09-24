@@ -41,19 +41,22 @@ To write the package update script, it is generally required to implement 2 func
 
 This function is used to get the latest package information.
 
-As an example, the following function uses [Invoke-WebRequest](https://technet.microsoft.com/en-us/library/hh849901.aspx?f=255&MSPPError=-2147217396) to download a page, take the first parsed link `href` attribute ending with `.exe` as a new package URL and parses version from the link itself:
+As an example, the following function uses [Invoke-WebRequest](https://technet.microsoft.com/en-us/library/hh849901.aspx?f=255&MSPPError=-2147217396) to download a page. After that it takes the first parsed link `href` attribute that ends with word `.exe` as a new package URL and finally it parses version from the link itself:
 
 ```powershell
 function global:au_GetLatest {
      $download_page = Invoke-WebRequest -Uri $releases
-     $url32   = $download_page.links | ? href -match '.exe$' | select -First 1 -expand href
-     $version = $url -split '-|.exe' | select -Last 1 -Skip 2                                 
+     $regex = '.exe$'
+     $url32   = $download_page.links | ? href -match $regex | select -First 1 -expand href
+     $version = $url -split '-|.exe' | select -Last 1 -Skip 2
      return @{ Version = $vrsion; URL32 = $url }
 }
 ```
-The returned version is then compared to the one in the nuspec file and if remote version is higher, the files will be updated. The returned keys of this HashTable are available via global variable `$global:Latest` (along with some keys that AU generates).
+The returned version is then compared to the one in the nuspec file and if remote version is higher, the files will be updated. The returned keys of this [HashTable] are available via global variable `$global:Latest` (along with some keys that AU generates).
 
 You can put whatever data you need in the returned [HashTable]; this data can be used later in `au_SearchReplace`.
+
+**NOTE**: The only package maintainer effort when using AU framework is to actually write the correct regular expression that extracts the version from the given page or URL. Other then that, there isn't much else that maintainer does. Regular expressions are not mandatory - regular Powershell string functions can be used, however, "text life" is very much easier with good knowledge of regular expressions.
 
 ### `au_SearchReplace`  
 
@@ -71,7 +74,7 @@ Function returns [HashTable] containing search and replace data for any package 
     }
 ```
 
-The function can use `$global:Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc.
+File paths are relative to the package directory. The function can use `$global:Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc.
 
 **NOTE**: The search and replace works on lines, multiple lines can not be matched with single regular expression.
 
