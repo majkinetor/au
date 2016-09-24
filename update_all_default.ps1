@@ -52,7 +52,7 @@ $Options = [ordered]@{
 }
 
 $global:au_NoPlugins = $true                               #Quickly enable or disable plugins here
-$global:au_Root      = "$PSScriptRoot"                     #Path to the AU scripts
+$global:au_Root      = "$PSScriptRoot"                     #Path to the AU packages
 $info = updateall -Name $Name -Options $Options
 
 #Uncomment to fail the build on AppVeyor on any package error
