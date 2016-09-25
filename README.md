@@ -133,7 +133,7 @@ Successfully created package 'dngrep.2.8.16.0.nupkg'
 Package updated
 ```
 
-This is best understood via the example - take a look at the real life package [installer script](https://github.com/majkinetor/chocolatey/blob/master/dngrep/tools/chocolateyInstall.ps1) and its [AU updater](https://github.com/majkinetor/chocolatey/blob/master/dngrep/update.ps1).
+This is best understood via the example - take a look at the real life package [installer script](https://github.com/majkinetor/au-packages/blob/master/dngrep/tools/chocolateyInstall.ps1) and its [AU updater](https://github.com/majkinetor/au-packages/blob/master/dngrep/update.ps1).
 
 ### Checks
 
@@ -225,7 +225,7 @@ Metapackages can reuse an AU updater of its dependency by the following way:
 
 - In the metapackage updater dot source the dependent updater and override `au_SearchReplace`.
 
-This is best understood via example - take a look at the [cpu-z](https://github.com/majkinetor/chocolatey/blob/master/cpu-z/update.ps1) AU updater which uses the updater from the [cpu-z.install](https://github.com/majkinetor/chocolatey/blob/master/cpu-z.install/update.ps1) package on which it depends. It overrides the `au_SearchReplace` function and the `update` call but keeps the `au_GetLatest`.
+This is best understood via example - take a look at the [cpu-z](https://github.com/majkinetor/au-packages/blob/master/cpu-z/update.ps1) AU updater which uses the updater from the [cpu-z.install](https://github.com/majkinetor/au-packages/blob/master/cpu-z.install/update.ps1) package on which it depends. It overrides the `au_SearchReplace` function and the `update` call but keeps the `au_GetLatest`.
 
 ## Updating all packages
 
