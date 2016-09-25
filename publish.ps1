@@ -27,9 +27,9 @@ $p = {
 
     git_tag
 
+    Publish-Github
     Publish-PSGallery
     Publish-Chocolatey
-    Publish-Github
 }
 
 function git_tag() {
