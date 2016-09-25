@@ -8,7 +8,7 @@ $now             = $Info.startTime.ToUniversalTime().ToString('yyyy-MM-dd HH:mm'
 $au_version      = gmo au -ListAvailable | % Version | select -First 1 | % { "$_" }
 $package_no      = $Info.result.all.Length
 
-$update_all_url  = if ($Github_UserRepo) {"https://github.com/$Github_UserRepo/blob/master/update_all.ps1" } else { "https://github.com/majkinetor/au/blob/master/update_all_default.ps1" }
+$update_all_url  = if ($Github_UserRepo) {"https://github.com/$Github_UserRepo/blob/master/update_all.ps1" } else { "https://github.com/majkinetor/au-packages-template/blob/master/update_all.ps1" }
 
 $icon_ok = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_ok.png'
 $icon_er = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_er.png'
