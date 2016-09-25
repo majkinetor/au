@@ -29,7 +29,7 @@ Use one of the following methods:
 
 AU module requires minimally PowerShell version 4: `$host.Version -ge '4.0'`
 
-To quickly start using AU fork [au-packages-template](https://github.com/majkinetor/au-packages-template) repository.
+To quickly start using AU, fork [au-packages-template](https://github.com/majkinetor/au-packages-template) repository and rename it to `au-packages`.
 
 **NOTE**: All module functions work from within specific root folder. The folder contains all of your Chocolatey packages.
 
