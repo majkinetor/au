@@ -55,12 +55,12 @@ function global:au_GetLatest {
 }
 ```
 
-The returned version is later compared to the one in the nuspec file and if remote version is higher, the files will be updated. The returned keys of this [HashTable] are available via global variable `$global:Latest` (along with some keys that AU generates). You can put whatever data you need in the returned [HashTable] - this data can be used later in `au_SearchReplace`.
+The returned version is later compared to the one in the nuspec file and if remote version is higher, the files will be updated. The returned keys of this HashTable are available via global variable `$global:Latest` (along with some keys that AU generates). You can put whatever data you need in the returned HashTable - this data can be used later in `au_SearchReplace`.
 
 
 ### `au_SearchReplace`  
 
-Function returns [HashTable] containing search and replace data for any package file in the form:  
+Function returns HashTable containing search and replace data for any package file in the form:  
 
 ```powershell
     @{
@@ -317,7 +317,7 @@ It is possible to specify a custom user logic in `Options` parameter - every key
 
 The plugins above - `Report`, `Gist`,`Git`,`RunInfo` and `Mail` -  are executed in the given order (hence the `[ordered]` flag) and AU passes them given options and saves the run results. 
 
-To add custom plugins, specify additional plugin search path via `$Options.PluginPath`. Plugin is a normal PowerShell script and apart from parameters given in its `[HashTable]` the AU will send it one more parameter `$Info` that contains current run info. The name of the script file must be the same as that of the key which value is used to pass the parameters to the plugin. If key with the [HashTable] value doesn't point to existing PowerShell script it is not considered to be an AU plugin.
+To add custom plugins, specify additional plugin search path via `$Options.PluginPath`. Plugin is a normal PowerShell script and apart from parameters given in its HashTable the AU will send it one more parameter `$Info` that contains current run info. The name of the script file must be the same as that of the key which value is used to pass the parameters to the plugin. If a key with the value of type `[HashTable]` doesn't point to existing PowerShell script it is not considered to be an AU plugin.
 
 To temporary disable plugins use `updateall` option `NoPlugins` or global variable `$au_NoPlugins`.
 To temporary exclude the AU package from `updateall` procedure add `_` prefix to the package directory name.
