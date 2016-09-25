@@ -29,6 +29,8 @@ Use one of the following methods:
 
 AU module requires minimally PowerShell version 4: `$host.Version -ge '4.0'`
 
+To quickly start using AU fork [au-packages-template](https://github.com/majkinetor/au-packages-template) repository.
+
 **NOTE**: All module functions work from within specific root folder. The folder contains all of your Chocolatey packages.
 
 ## Creating the package updater script
@@ -318,6 +320,7 @@ The plugins above - `Report`, `Gist`,`Git`,`RunInfo` and `Mail` -  are executed 
 To add custom plugins, specify additional plugin search path via `$Options.PluginPath`. Plugin is a normal PowerShell script and apart from parameters given in its `[HashTable]` the AU will send it one more parameter `$Info` that contains current run info. The name of the script file must be the same as that of the key which value is used to pass the parameters to the plugin. If key with the [HashTable] value doesn't point to existing PowerShell script it is not considered to be an AU plugin.
 
 To temporary disable plugins use `updateall` option `NoPlugins` or global variable `$au_NoPlugins`.
+To temporary exclude the AU package from `updateall` procedure add `_` prefix to the package directory name.
 
 For more information take a look at the wiki section about [plugins](https://github.com/majkinetor/au/wiki/Plugins).
 
