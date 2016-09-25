@@ -2,18 +2,18 @@
 
 ## TODO
 
-## NEXT
+## 2016.9.25
 
 **NOTE**: This update breaks compatibility with existing `update_all.ps1` scripts - parameter `Options`
 is now of the type ordered HashTable ( `[ordered]@{...}` ).  This is the only required change for the script
 to continue working and behave the same as before, however, other things are required in order to fully use AU features:
 
 - Remove the user scripts `Save-XXX.ps1` as improved versions now come with AU (plugins).
-- Take a look at the [update_all_default.ps1](https://github.com/majkinetor/au/blob/master/update_all_default.ps1) 
+- Take a look at the [update_all.ps1](https://github.com/majkinetor/au-packages-template/blob/master/update_all.ps1) 
   to see how plugins are used and setup. Migrate current custom options to the new style. 
   See [plugins section](https://github.com/majkinetor/au#plugins) for details. 
 
-Take a look at the [working example](https://github.com/majkinetor/chocolatey/blob/master/update_all.ps1) and [plugin wiki page](https://github.com/majkinetor/au/wiki/Plugins).
+Take a look at the [working example](https://github.com/majkinetor/au-packages/blob/master/update_all.ps1) and [plugin wiki page](https://github.com/majkinetor/au/wiki/Plugins).
 
 ### Changes
 
@@ -34,9 +34,8 @@ Take a look at the [working example](https://github.com/majkinetor/chocolatey/bl
   - New parameter `NoPlugins` (by default `$Env:au_NoPlugins` to disable all plugins.
   - New option parameter `PluginPath` to specify additional path where plugins are located.
   - Output now shows if Push and Force options are used.
-- Added `update_all_default.ps1` that contains all of the AU options listed for easier setup. Added `update_vars_default.ps1` that contains all environment variables used by the `uppdate_all.ps1` script.
-- Added `appveyor_default.yaml` template.
-- Documentation is rewritten and wiki created.
+- Created [au-packages-template](https://github.com/majkinetor/au-packages-template) to quick start AU.
+- Documentation is rewritten and [wiki](https://github.com/majkinetor/au/wiki) created.
 
 ### Bugfixes
 
