@@ -62,5 +62,5 @@ $functions | % {
 }
 
 remove-module $module_name
-Write-Host "`nTo learn more about $module_name:      man about_${module_name}"
+Write-Host "`nTo learn more about ${module_name}:      man about_${module_name}"
 Write-Host "See help for any function:   man updateall`n"
