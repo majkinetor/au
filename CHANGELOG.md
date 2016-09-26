@@ -44,6 +44,7 @@ Take a look at the [working example](https://github.com/majkinetor/au-packages/b
 ### CD
 
 - New `./test.ps1` script that run some or all of the tests.
+- AU version environment variable added to `appveyor.yml`.
 
 
 ## 2016.9.21
