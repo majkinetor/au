@@ -23,9 +23,9 @@ $module_name = 'AU'
 $module_dst  = "$Env:ProgramFiles\WindowsPowerShell\Modules"
 
 rm -Force -Recurse "$module_dst\$module_name" -ErrorAction ignore
-if ($Remove) { remove-module au -ea ignore; Write-Host "Module AU removed"; return }
+if ($Remove) { remove-module $module_name -ea ignore; Write-Host "Module $module_name removed"; return }
 
-Write-Host "`n==| Starting AU installation`n"
+Write-Host "`n==| Starting $module_name installation`n"
 
 if (!$module_path) {
     if (Test-Path $PSScriptRoot\_build\*) {
@@ -61,6 +61,6 @@ $functions | % {
 }
 }
 
-remove-module au
-Write-Host "`nTo learn more about AU:      man about_au"
+remove-module $module_name
+Write-Host "`nTo learn more about $module_name:      man about_${module_name}"
 Write-Host "See help for any function:   man updateall`n"
