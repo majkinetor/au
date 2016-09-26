@@ -42,12 +42,12 @@ Write-Host "Executing git pull"
 git checkout master
 git pull origin master
 
-Write-Host "Adding updated packages to git repository: $( $packages | % Name);"
+Write-Host "Adding updated packages to git repository: $( $packages | % Name)"
 $packages | % { git add $_.Name }
 git status
 
 Write-Host "Commiting"
-$Message = "AU: $($packages.Length) updated: " + "$($packages | % Name)"
+$Message = "AU: $($packages.Length) updated - $($packages | % Name)"
 git commit -m "$Message [skip ci]"
 
 Write-Host "Pushing changes"
