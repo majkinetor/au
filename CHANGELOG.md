@@ -2,6 +2,13 @@
 
 ## TODO
 
+- `WhatIf` parameter (#30)
+
+
+## Next
+
+- Git error - A positional parameter cannot be found error fixed (#31)
+
 ## 2016.9.25
 
 **NOTE**: This update breaks compatibility with existing `update_all.ps1` scripts - parameter `Options`

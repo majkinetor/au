@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 24-Sep-2016.
+# Last Change: 26-Sep-2016.
 
 # https://www.appveyor.com/docs/how-to/git-push/
 
@@ -53,4 +53,4 @@ git commit -m "$Message [skip ci]"
 Write-Host "Pushing changes"
 git push
 
-popd $root
+popd
