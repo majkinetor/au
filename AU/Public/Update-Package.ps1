@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 23-Sep-2016.
+# Last Change: 28-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -209,7 +209,7 @@ function Update-Package {
     function set_choco_fix() {
         $script:is_forced = $true
 
-        $date_format = 'yyyMMdd'
+        $date_format = 'yyyyMMdd'
         $d = (get-date).ToString($date_format)
         $v = [version]($package.NuspecVersion -replace '-.+')
         $rev = $v.Revision.ToString()
