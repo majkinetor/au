@@ -4,6 +4,7 @@
 
 - `WhatIf` parameter (#30)
 
+- `Test-Package` new option `Parameters` to support testing packages with custom parameters.
 
 ## Next
 

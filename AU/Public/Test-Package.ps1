@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 16-Sep-2016.
+# Last Change: 28-Sep-2016.
 
 <#
 .SYNOPSIS
@@ -22,7 +22,10 @@ function Test-Package {
         [switch] $Install,
 
         # Test chocolateyUninstall.ps1 only.
-        [switch] $Uninstall
+        [switch] $Uninstall,
+
+        # Package parameters
+        $Parameters
     )
     if (!$Install -and !$Uninstall) { $Install = $Uninstall = $true }
 
@@ -50,13 +53,14 @@ function Test-Package {
     $package_version = ($Nu.BaseName -replace $package_name).Substring(1)
 
     Write-Host "`nPackage info"
-    Write-Host "  Path:".PadRight(15)     $Nu
-    Write-Host "  Name:".PadRight(15)     $package_name
-    Write-Host "  Version:".PadRight(15)  $package_version
+    Write-Host "  Path:".PadRight(15)      $Nu
+    Write-Host "  Name:".PadRight(15)      $package_name
+    Write-Host "  Version:".PadRight(15)   $package_version
+    if ($Parameters) { Write-Host "  Parameters:".PadRight(15) $Parameters }
 
     if ($Install) {
         Write-Host "`nTesting package install"
-        choco install -r $package_name --version $package_version --source "'$($Nu.DirectoryName);https://chocolatey.org/api/v2/'" --force | Write-Host
+        choco install -r $package_name --version $package_version --source "'$($Nu.DirectoryName);https://chocolatey.org/api/v2/'" --force --packageParameters "'$Parameters'" | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "choco install failed with $LastExitCode"}
     }
 
