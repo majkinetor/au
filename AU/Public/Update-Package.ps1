@@ -234,9 +234,9 @@ function Update-Package {
             $msg ="updating version: {0} -> {1}" -f $package.NuspecVersion, $package.RemoteVersion
             if ($script:is_forced) {
                 if ($package.RemoteVersion -eq $package.NuspecVersion) {
-                    $msg = "version not changed as it already uses 'revision': {0}" -f $package.NuspecVersion
+                    $msg = "    version not changed as it already uses 'revision': {0}" -f $package.NuspecVersion
                 } else {
-                    $msg = "updating version using Chocolatey fix notation: {0} -> {1}" -f $package.NuspecVersion, $package.RemoteVersion
+                    $msg = "    using Chocolatey fix notation: {0} -> {1}" -f $package.NuspecVersion, $package.RemoteVersion
                 }
             }
             $msg | result
