@@ -8,7 +8,7 @@
 
 ## Next
 
-- Git error - A positional parameter cannot be found error fixed (#31)
+- Git error - A positional parameter cannot be found error fixed ([#31](https://github.com/majkinetor/au/issues/31))
 
 ## 2016.9.25
 
