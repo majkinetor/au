@@ -6,7 +6,7 @@
     Push package to the Chocolatey repository
 
 .DESCRIPTION
-    The function uses they API key from the file api_key in current or parrent directory, environment variable
+    The function uses they API key from the file api_key in current or parent directory, environment variable
     or cached nuget API key.
 #>
 function Push-Package() {
