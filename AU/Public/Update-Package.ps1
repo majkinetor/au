@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 28-Sep-2016.
+# Last Change: 07-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -316,7 +316,7 @@ function Update-Package {
     $module = $MyInvocation.MyCommand.ScriptBlock.Module
     "{0} - checking updates using {1} version {2}" -f $package.Name, $module.Name, $module.Version | result
     try {
-        $res = au_GetLatest
+        $res = au_GetLatest | select -Last 1
         if ($res -eq $null) { throw 'au_GetLatest returned nothing' }
 
         $res_type = $res.GetType()

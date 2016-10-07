@@ -2,16 +2,17 @@
 
 ## TODO
 
-- `WhatIf` parameter (#30)
+- `WhatIf` parameter ([#30](https://github.com/majkinetor/au/issues/30)).
 
 ## Next
 
+- `Update-Package` uses last returned value of `au_GetLatest` instead of everything ([#28](https://github.com/majkinetor/au/issues/28)).
 - `Test-Package` new option `Parameters` to support testing packages with custom parameters.
 
 ### Bugfixes
 
-- Test-Package - Uninstall test fixed
-- Git error - _A positional parameter cannot be found_ error fixed ([#31](https://github.com/majkinetor/au/issues/31))
+- Test-Package - Uninstall test fixed.
+- Git error - _A positional parameter cannot be found_ error fixed ([#31](https://github.com/majkinetor/au/issues/31)).
 
 ## 2016.9.25
 
