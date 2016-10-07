@@ -11,9 +11,9 @@
 
 ### Bugfixes
 
-- Test-Package - Uninstall test fixed.
-- Git error - _A positional parameter cannot be found_ error fixed ([#31](https://github.com/majkinetor/au/issues/31)).
-- Small fixes
+- `Test-Package` - Uninstall test fixed.
+- `Git` plugin error - _A positional parameter cannot be found_ error fixed ([#31](https://github.com/majkinetor/au/issues/31)).
+- Small fixes.
 
 ## 2016.9.25
 
