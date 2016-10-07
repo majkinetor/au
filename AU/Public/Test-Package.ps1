@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 28-Sep-2016.
+# Last Change: 07-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -60,13 +60,13 @@ function Test-Package {
 
     if ($Install) {
         Write-Host "`nTesting package install"
-        choco install -r $package_name --version $package_version --source "'$($Nu.DirectoryName);https://chocolatey.org/api/v2/'" --force --packageParameters "'$Parameters'" | Write-Host
+        choco install -y -r $package_name --version $package_version --source "'$($Nu.DirectoryName);https://chocolatey.org/api/v2/'" --force --packageParameters "'$Parameters'" | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "choco install failed with $LastExitCode"}
     }
 
-    if ($Uninsstall) {
+    if ($Uninstall) {
         Write-Host "`nTesting package uninstall"
-        choco uninstall -r $package_name | Write-Host
+        choco uninstall -y -r $package_name | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "choco uninstall failed with $LastExitCode"}
     }
 }
