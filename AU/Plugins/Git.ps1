@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 26-Sep-2016.
+# Last Change: 07-Oct-2016.
 
 # https://www.appveyor.com/docs/how-to/git-push/
 
@@ -33,7 +33,7 @@ if ($User -and $Password) {
     }
     "machine $machine", "login $User", "password $Password" | Out-File -Append ~/_netrc -Encoding ascii
 } elseif ($Password) {
-    Write-Host 'Setting oauth token for: $machine'
+    Write-Host "Setting oauth token for: $machine"
     git config --global credential.helper store
     Add-Content "$env:USERPROFILE\.git-credentials" "https://${Password}:x-oauth-basic@$machine`n"
 }
