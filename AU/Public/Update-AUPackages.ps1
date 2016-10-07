@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 25-Sep-2016.
+# Last Change: 07-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -197,7 +197,7 @@ function get_info {
         result = [PSCustomObject]@{
             all     = $result
             errors  = $errors
-            ok      = $result | ? { !$_.Error.Length }
+            ok      = $result | ? { !$_.Error }
             pushed  = $result | ? Pushed
             updated = $result | ? Updated
         }
