@@ -6,6 +6,8 @@
 
 ## Next
 
+## 2016.10.9
+
 - `Update-Package` uses last returned value of `au_GetLatest` instead of everything ([#28](https://github.com/majkinetor/au/issues/28)).
 - `Test-Package` new option `Parameters` to support testing packages with custom parameters.
 
