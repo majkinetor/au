@@ -48,10 +48,10 @@ As an example, the following function uses [Invoke-WebRequest](https://technet.m
 ```powershell
 function global:au_GetLatest {
      $download_page = Invoke-WebRequest -Uri $releases #1 
-     $regex = '.exe$'
-     $url32   = $download_page.links | ? href -match $regex | select -First 1 -expand href #2
+     $regex   = '.exe$'
+     $url     = $download_page.links | ? href -match $regex | select -First 1 -expand href #2
      $version = $url -split '-|.exe' | select -Last 1 -Skip 2 #3
-     return @{ Version = $vrsion; URL32 = $url }
+     return @{ Version = $version; URL32 = $url }
 }
 ```
 
