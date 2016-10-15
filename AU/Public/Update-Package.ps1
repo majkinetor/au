@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 07-Oct-2016.
+# Last Change: 15-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -100,18 +100,20 @@ function Update-Package {
     }
 
     function check_url() {
+        "URL check" | result
         $Latest.Keys | ? {$_ -like 'url*' } | % {
             $url = $Latest[ $_ ]
+            $res = $false
             try
             {
                 $response = request $url $Timeout
-                if ($response.ContentType -like '*text/html*') { $res = $false; $err="Latest $($package.Name) URL content type is text/html" }
-                else { $res = $true }
+                if ($response.ContentType -like '*text/html*') { $err="Latest $($package.Name) URL content type is text/html" }
+                else {
+                    $res = $true
+                    "  $url" | result
+                }
             }
-            catch {
-                $res = $false
-                $err = $_
-            }
+            catch { $err = $_ }
 
             if (!$res) { throw "Can't validate latest $($package.Name) URL (disable using `$NoCheckUrl`): '$url' `n$err" }
         }

@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 07-Oct-2016.
+# Last Change: 12-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -95,6 +95,8 @@ function Update-AUPackages {
 
                 if ($job.State -eq 'Failed') { continue }
 
+                if (!$pkg.Name) { $pkg.Name = $job.Name }  # Because of iwr bug 
+
                 $message = $pkg.Name + ' '
                 $message += if ($pkg.Updated) { 'is updated to ' + $pkg.RemoteVersion } else { 'has no updates' }
                 if ($pkg.Updated -and $Options.Push) {
@@ -126,12 +128,13 @@ function Update-AUPackages {
             $global:au_Force   = $using:Options.Force
             $global:au_Result  = 'pkg'
 
+            $pkg = $null #test double report when it fails
             try {
                 $pkg = ./update.ps1 6> $out
             } catch {
                 $pkg.Error = $_
             }
-            if (!$pkg) { throw "'$using:package_name' update s script returned nothing" }
+            if (!$pkg) { throw "'$using:package_name' update script returned nothing" }
 
             $pkg = $pkg[-1]
             $type = ($pkg | gm).TypeName
