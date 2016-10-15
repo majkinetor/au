@@ -339,7 +339,7 @@ Its preferable to run the updater on [AppVeyor](https://github.com/majkinetor/au
 Apart from the functions used in the updating process, there are few suggars for regular maintenance of the package:
 
 - Test-Package  
-Quickly `cpack` and install the package from the current directory.
+Quickly `choco pack` and install the package from the current directory.
 
 - Push-Package (alias `pp`)  
 Push the latest package using your API key.
