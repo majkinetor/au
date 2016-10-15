@@ -6,6 +6,12 @@
 
 ## Next
 
+- `Update-Package`
+  - Show 'URL check in output'.
+  - Fixed URL check timeout [#35](https://github.com/majkinetor/au/issues/35).
+- `Update-AUPackages`
+  - Small fixes
+
 ## 2016.10.9
 
 - `Update-Package` uses last returned value of `au_GetLatest` instead of everything ([#28](https://github.com/majkinetor/au/issues/28)).
