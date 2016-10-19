@@ -250,6 +250,7 @@ function Update-Package {
         $sr.Keys | % {
             $fileName = $_
             "  $fileName" | result
+            $fileName = Resolve-Path $fileName
 
             $fileContent = gc $fileName -Encoding UTF8
             $sr[ $fileName ].GetEnumerator() | % {
@@ -259,7 +260,7 @@ function Update-Package {
             }
 
             $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($False)
-            [System.IO.File]::WriteAllLines((Resolve-Path $fileName), $fileContent, $Utf8NoBomEncoding)
+            [System.IO.File]::WriteAllLines($fileName, $fileContent, $Utf8NoBomEncoding)
         }
     }
 
