@@ -94,7 +94,7 @@ Describe 'Update-Package' -Tag update {
                 }
 
                 function global:au_GetLatest {
-                    @{ PackageName = 'test'; Version = 1.3  }
+                    @{ PackageName = 'test'; Version = '1.3'  }
                 }
 
                 update

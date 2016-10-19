@@ -17,7 +17,7 @@ function git_4windows() {
 function pester() {
     "Installing pester"
 
-    inmo pester #3.4.3
+    inmo pester -Force #3.4.3
     $version = gmo pester -ListAvailable | % { $_.Version.ToString() }
     "Pester version: $version"
 }
