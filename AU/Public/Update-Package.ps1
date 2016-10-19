@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 15-Oct-2016.
+# Last Change: 19-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -109,7 +109,6 @@ function Update-Package {
                 $response = request $url $Timeout
                 if ($response.ContentType -like '*text/html*') { $err="Latest $($package.Name) URL content type is text/html" }
                 else {
-                    $res = $true
                     "  $url" | result
                 }
             }
@@ -252,14 +251,15 @@ function Update-Package {
             $fileName = $_
             "  $fileName" | result
 
-            $fileContent = gc $fileName
+            $fileContent = gc $fileName -Encoding UTF8
             $sr[ $fileName ].GetEnumerator() | % {
                 ('    {0} = {1} ' -f $_.name, $_.value) | result
                 if (!($fileContent -match $_.name)) { throw "Search pattern not found: '$($_.name)'" }
                 $fileContent = $fileContent -replace $_.name, $_.value
             }
 
-            $fileContent | Out-File -Encoding UTF8 $fileName
+            $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($False)
+            [System.IO.File]::WriteAllLines((Resolve-Path $fileName), $fileContent, $Utf8NoBomEncoding)
         }
     }
 

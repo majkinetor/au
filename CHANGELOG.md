@@ -9,8 +9,11 @@
 - `Update-Package`
   - Show 'URL check in output'.
   - Fixed URL check timeout [#35](https://github.com/majkinetor/au/issues/35).
-- `Update-AUPackages`
-  - Small fixes
+
+### Bugfixes
+
+- AU updated nuspec file to UTF-8 with BOM [#39](https://github.com/majkinetor/au/issues/39).
+- Small fixes.
 
 ## 2016.10.9
 
@@ -132,8 +135,3 @@ Take a look at the [working example](https://github.com/majkinetor/au-packages/b
 - Automatic checksum.
 - Raise errors on search pattern not found.
 - Bugfixes and small improvements.
-
-
-
-
-
