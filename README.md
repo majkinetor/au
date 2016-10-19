@@ -24,7 +24,6 @@ To learn more about Chocolatey automatic packages, please refer to the relevant 
 
 Use one of the following methods:
 - PowerShell 5+: [`Install-Module au`](https://www.powershellgallery.com/packages/AU).  
-- Chocolatey:  [`cinst au`](https://chocolatey.org/packages/au).  
 - [Download](https://github.com/majkinetor/au/releases/latest) latest 7z package or latest build [artifact](https://ci.appveyor.com/project/majkinetor/au/build/artifacts).
 
 AU module requires minimally PowerShell version 4: `$host.Version -ge '4.0'`
@@ -340,7 +339,7 @@ Its preferable to run the updater on [AppVeyor](https://github.com/majkinetor/au
 Apart from the functions used in the updating process, there are few suggars for regular maintenance of the package:
 
 - Test-Package  
-Quickly `cpack` and install the package from the current directory.
+Quickly `choco pack` and install the package from the current directory.
 
 - Push-Package (alias `pp`)  
 Push the latest package using your API key.
