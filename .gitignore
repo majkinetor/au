@@ -3,3 +3,4 @@
 /chocolatey/tools/install.ps1
 /chocolatey/*.nupkg
 /vars.ps1
+/tests/.vscode/launch.json

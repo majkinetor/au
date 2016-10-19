@@ -5,4 +5,5 @@ function request( [string]$Url, $Timeout=100 ) {
 
     $response = $request.GetResponse()
     $response.Close()
+    $response
 }

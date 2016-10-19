@@ -109,6 +109,7 @@ function Update-Package {
                 $response = request $url $Timeout
                 if ($response.ContentType -like '*text/html*') { $err="Latest $($package.Name) URL content type is text/html" }
                 else {
+                    $res = $true
                     "  $url" | result
                 }
             }
@@ -215,7 +216,7 @@ function Update-Package {
         $v = [version]($package.NuspecVersion -replace '-.+')
         $rev = $v.Revision.ToString()
         try { $revdate = [DateTime]::ParseExact($rev, $date_format,[System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None) } catch {}
-        if (($rev -ne -1) -and !$revdate) { return $v }
+        if (($rev -ne -1) -and !$revdate) { return }
 
         $build = if ($v.Build -eq -1) {0} else {$v.Build}
         $Latest.Version = $package.RemoteVersion = '{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d
