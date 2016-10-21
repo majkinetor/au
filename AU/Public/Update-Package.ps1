@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 19-Oct-2016.
+# Last Change: 21-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -302,12 +302,9 @@ function Update-Package {
         }
     }
 
-    $package = [PSCustomObject]@{Path=''; Name=''; Updated=$false; Pushed=$false; RemoteVersion=''; NuspecVersion=''; Result=@(); Error=''}
+    $package = New-AUPackage $pwd
     if ($Result) { sv -Scope Global -Name $Result -Value $package }
-    $package.PSObject.TypeNames.Insert(0, 'AUPackage')
 
-    $package.Path = $pwd
-    $package.Name = Split-Path $pwd -Leaf
     $global:Latest = @{PackageName = $package.Name}
 
     $nuspecFile = gi "$($package.Name).nuspec" -ea ignore
