@@ -205,7 +205,8 @@ function Update-Package {
         $c32 = $global:Latest.Checksum32; $c64 = $global:Latest.Checksum64          #https://github.com/majkinetor/au/issues/36
         $global:Latest.Remove('Checksum32'); $global:Latest.Remove('Checksum64')    #  -||-
         update_files -SkipNuspecFile | out-null
-        $global:Latest.Checksum32 = $c32; $global:Latest.Checksum64 = $c64          #https://github.com/majkinetor/au/issues/36
+        if ($c32) {$global:Latest.Checksum32 = $c32}
+        if ($c64) {$global:Latest.Checksum64 = $c64}                                #https://github.com/majkinetor/au/issues/36
 
         $global:Silent = $false
 
