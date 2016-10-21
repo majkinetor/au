@@ -108,13 +108,26 @@ Describe 'Update-AUPackages' -Tag updateall {
             $info.Options.Test.MyPassword | Should Be '*****' 
         }
     }
+    
+    # It 'should update package with checsum verification mode' {
 
+    #     $choco_path = gcm choco.exe | % Source
+    #     $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | % Hash
+    #     gc $global:au_Root\test_package_1\update.ps1 | set content
+    #     $content -replace '@\{.+\}', "@{ Version = '1.3'; ChecksumType32 = 'sha256'; Checksum32 = '$choco_hash'}" | set content
+    #     $content -replace 'update', "update -ChecksumFor 32" | set content
+    #     $content | sc $global:au_Root\test_package_1\update.ps1
+        
+    #     $res = updateall -Options $Options 6> $null
+    #     $res.Count | Should Be $pkg_no
+    #     $res[0].Updated | Should Be $true
+    # }
 
     It 'should update all packages when forced' {
         $Options.Force = $true
 
         $res = updateall -Options $Options 6> $null
-
+        
         lsau | measure | % Count | Should Be $pkg_no
         $res.Count | Should Be $pkg_no
         ($res.Result -match 'update is forced').Count | Should Be $pkg_no
