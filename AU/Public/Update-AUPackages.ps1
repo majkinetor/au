@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 12-Oct-2016.
+# Last Change: 21-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -120,13 +120,20 @@ function Update-AUPackages {
         $package_path = $aup[$j++]
         $package_name = Split-Path $package_path -Leaf
         Write-Verbose "Starting $package_name"
-        Start-Job -Name $package_name {
+        Start-Job -Name $package_name {         #TODO: fix laxxed variables in job for BE and AE
+            $Options = $using:Options
+
             cd $using:package_path
             $out = "$using:tmp_dir\$using:package_name"
 
-            $global:au_Timeout = $using:Options.Timeout
-            $global:au_Force   = $using:Options.Force
+            $global:au_Timeout = $Options.Timeout
+            $global:au_Force   = $Options.Force
             $global:au_Result  = 'pkg'
+
+            if ($Options.BeforeEach) {
+                $s = [Scriptblock]::Create( $Options.BeforeEach )
+                . $s $using:package_name $Options
+            }
 
             $pkg = $null #test double report when it fails
             try {
@@ -136,17 +143,23 @@ function Update-AUPackages {
             }
             if (!$pkg) { throw "'$using:package_name' update script returned nothing" }
 
+
             $pkg = $pkg[-1]
             $type = ($pkg | gm).TypeName
             if ($type -ne 'AUPackage') { throw "'$using:package_name' update script didn't return AUPackage but: $type" }
 
-            if ($pkg.Updated -and $using:Options.Push) {
+            if ($pkg.Updated -and $Options.Push) {
                 $pkg.Result += $r = Push-Package
                 if ($LastExitCode -eq 0) {
                     $pkg.Pushed = $true
                 } else {
                     $pkg.Error = "Push ERROR`n" + ($r | select -skip 1)
                 }
+            }
+
+            if ($Options.AfterEach) {
+                $s = [Scriptblock]::Create( $Options.AfterEach )
+                . $s $using:package_name $Options
             }
 
             $pkg
