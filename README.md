@@ -321,6 +321,8 @@ To add custom plugins, specify additional plugin search path via `$Options.Plugi
 To temporary disable plugins use `updateall` option `NoPlugins` or global variable `$au_NoPlugins`.
 To temporary exclude the AU package from `updateall` procedure add `_` prefix to the package directory name.
 
+You can also execute a custom script via ScriptBlock specified via `BeforeEach` and `AfterEach` options. They will receive 2 parameters - package name and Options HashTable which you can use to pass any other parameter.
+
 For more information take a look at the wiki section about [plugins](https://github.com/majkinetor/au/wiki/Plugins).
 
 ### Make a script

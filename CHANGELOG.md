@@ -7,11 +7,17 @@
 ## Next
 
 - `Update-Package`
-  - Show 'URL check in output'.
-  - Fixed URL check timeout [#35](https://github.com/majkinetor/au/issues/35).
+  - Show 'URL check' in output.
+- `Update-AUPackages`
+  - Added `BeforeEach` and `AfterEach` scripts to Options.
+
+## CI
+
+- AppVeyor commit message parsing for AU options
 
 ### Bugfixes
 
+- Fixed frequent URL check timeout [#35](https://github.com/majkinetor/au/issues/35).
 - AU updated nuspec file to UTF-8 with BOM [#39](https://github.com/majkinetor/au/issues/39).
 - Small fixes.
 

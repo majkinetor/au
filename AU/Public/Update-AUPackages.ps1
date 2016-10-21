@@ -47,6 +47,9 @@ function Update-AUPackages {
           Plugin      - Any HashTable key will be treated as plugin with the same name as the option name.
                         Script with that name will be looked into AU module path and user specified path and if
                         found, it will be called with splatted HashTable passed as parameters.
+          BeforeEach  - User script that will be called before each pacakge, accepts 2 arguments: name & Options
+          AfterEach   - Similar as above
+          Script      - Script that will be called before and after everything
         #>
         [System.Collections.Specialized.OrderedDictionary] $Options=@{},
 
