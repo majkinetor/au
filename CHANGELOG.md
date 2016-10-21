@@ -13,6 +13,7 @@
 ### Bugfixes
 
 - AU updated nuspec file to UTF-8 with BOM [#39](https://github.com/majkinetor/au/issues/39).
+- Checksum verification mode didn't work with updateall [#36](https://github.com/majkinetor/au/issues/36).
 - Small fixes.
 
 ## 2016.10.9

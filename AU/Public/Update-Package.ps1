@@ -201,7 +201,12 @@ function Update-Package {
         # TODO: This will also leaves other then nuspec files updated which is undesired side effect (should be very rare)
         #
         $global:Silent = $true
+
+        $c32 = $global:Latest.Checksum32; $c64 = $global:Latest.Checksum64          #https://github.com/majkinetor/au/issues/36
+        $global:Latest.Remove('Checksum32'); $global:Latest.Remove('Checksum64')    #  -||-
         update_files -SkipNuspecFile | out-null
+        $global:Latest.Checksum32 = $c32; $global:Latest.Checksum64 = $c64          #https://github.com/majkinetor/au/issues/36
+
         $global:Silent = $false
 
         # Invoke installer for each architecture to download files

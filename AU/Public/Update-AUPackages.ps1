@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 12-Oct-2016.
+# Last Change: 21-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -94,8 +94,7 @@ function Update-AUPackages {
                 Remove-Job $job
 
                 if ($job.State -eq 'Failed') { continue }
-
-                if (!$pkg.Name) { $pkg.Name = $job.Name }  # Because of iwr bug 
+                if (!$pkg.Name) { Write-Warning "FAILED: $($job.Name)"; continue }
 
                 $message = $pkg.Name + ' '
                 $message += if ($pkg.Updated) { 'is updated to ' + $pkg.RemoteVersion } else { 'has no updates' }
