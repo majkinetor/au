@@ -13,7 +13,7 @@
 
 ## CI
 
-- AppVeyor commit message parsing for AU options
+- AppVeyor commit message parsing for AU options (in au-packages-template)
 
 ### Bugfixes
 
