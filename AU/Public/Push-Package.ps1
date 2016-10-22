@@ -1,9 +1,9 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 16-Sep-2016.
+# Last Change: 22-Oct-2016.
 
 <#
 .SYNOPSIS
-    Push package to the Chocolatey repository
+    Push latest created package to the Chocolatey community repository.
 
 .DESCRIPTION
     The function uses they API key from the file api_key in current or parent directory, environment variable

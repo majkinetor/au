@@ -1,12 +1,21 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 07-Oct-2016.
+# Last Change: 22-Oct-2016.
 
 <#
 .SYNOPSIS
     Test Chocolatey package
 
 .DESCRIPTION
-    The function tries to force install and then remove the Chocolatey package.
+    The function can test install, uninistall or both and provide package parameters during test.
+    It will force install and then remove the Chocolatey package if called without arguments.
+
+    It accepts either nupkg or nuspec path. If none specified, current directory will be searched
+    for any of them.
+
+.EXAMPLE
+    Test-Package -Install
+
+    Test the install of the package from the current directory.
 
 .LINK
     https://github.com/chocolatey/choco/wiki/CreatePackages#testing-your-package

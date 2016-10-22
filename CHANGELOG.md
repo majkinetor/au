@@ -12,10 +12,13 @@
   - Added `BeforeEach` and `AfterEach` scripts to Options.
   - New Option `UpdateTimeout` to limit update total execution time ([#38](https://github.com/majkinetor/au/issues/38)).
 - `Git` plugin: only push files that are changed, not entire package content.
+- PowerShell documentation updated.
 
-## CI
+## CD
 
-- AppVeyor commit message parsing for AU options (in au-packages-template)
+Changes in [au-packages-template](https://github.com/majkinetor/au-packages-template)
+- `update_all.ps1` now accepts `ForcedPackages` and `Root` parameters.
+- AppVeyor commit message parsing for AU options.
 
 ### Bugfixes
 
