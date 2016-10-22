@@ -262,7 +262,7 @@ The function will search for packages in the current directory. To override that
 
 Use `updateall` parameter `Name` to specify package names via glob, for instance `updateall [a-d]*` would update only packages which names start with the letter 'a' trough 'd'. Add `Push` among options to push successfully built packages to the chocolatey repository.
 
-Take a look at the [real life example](http://tiny.cc/v1u1ey) of the update script.
+Take a look at the [real life example](http://tiny.cc/v1u1ey) of the update script. To see all available options for `updateall` type `man updateall -Parameter Options`.
 
 ### Plugins
 
