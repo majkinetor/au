@@ -10,6 +10,7 @@
   - Show 'URL check' in output.
 - `Update-AUPackages`
   - Added `BeforeEach` and `AfterEach` scripts to Options.
+- `Git` plugin: only push files that are changed, not entire package content.
 
 ## CI
 

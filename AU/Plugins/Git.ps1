@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 07-Oct-2016.
+# Last Change: 22-Oct-2016.
 
 # https://www.appveyor.com/docs/how-to/git-push/
 
@@ -43,7 +43,7 @@ git checkout master
 git pull origin master
 
 Write-Host "Adding updated packages to git repository: $( $packages | % Name)"
-$packages | % { git add $_.Name }
+$packages | % { git add -u $_.Name }
 git status
 
 Write-Host "Commiting"
