@@ -105,6 +105,8 @@ function Update-AUPackages {
             }
             else {
                 Write-Verbose ($job.State + ' ' + $job.Name)
+
+                $pkg = $null
                 Receive-Job $job | set pkg
                 Remove-Job $job
 
