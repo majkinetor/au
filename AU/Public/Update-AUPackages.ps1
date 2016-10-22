@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 21-Oct-2016.
+# Last Change: 22-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -38,18 +38,19 @@ function Update-AUPackages {
 
         <#
         Hashtable with options:
-          Threads     - Number of background jobs to use, by default 10;
-          Timeout     - WebRequest timeout in seconds, by default 100;
-          Force       - Force package update even if no new version is found;
-          Push        - Set to true to push updated packages to chocolatey repository;
-          Mail        - Hashtable with mail notification options: To, Server, UserName, Password, Port, EnableSsl;
-          PluginPath  - Additional path to look for user plugins. If not set only module integrated plugins will work;
-          Plugin      - Any HashTable key will be treated as plugin with the same name as the option name.
-                        Script with that name will be looked into AU module path and user specified path and if
-                        found, it will be called with splatted HashTable passed as parameters.
-          BeforeEach  - User script that will be called before each pacakge, accepts 2 arguments: name & Options
-          AfterEach   - Similar as above
-          Script      - Script that will be called before and after everything
+          Threads       - Number of background jobs to use, by default 10;
+          Timeout       - WebRequest timeout in seconds, by default 100;
+          UpdateTimeout - Timeout for thread in seconds, by default 1200 (20 minutes);
+          Force         - Force package update even if no new version is found;
+          Push          - Set to true to push updated packages to chocolatey repository;
+          Mail          - Hashtable with mail notification options: To, Server, UserName, Password, Port, EnableSsl;
+          PluginPath    - Additional path to look for user plugins. If not set only module integrated plugins will work;
+          Plugin        - Any HashTable key will be treated as plugin with the same name as the option name.
+                          Script with that name will be looked into AU module path and user specified path and if
+                          found, it will be called with splatted HashTable passed as parameters.
+          BeforeEach    - User script that will be called before each pacakge, accepts 2 arguments: name & Options
+          AfterEach     - Similar as above
+          Script        - Script that will be called before and after everything
         #>
         [System.Collections.Specialized.OrderedDictionary] $Options=@{},
 
@@ -59,11 +60,12 @@ function Update-AUPackages {
 
     $startTime = Get-Date
 
-    if (!$Options.Threads)    { $Options.Threads    = 10 }
-    if (!$Options.Timeout)    { $Options.Timeout    = 100 }
-    if (!$Options.Force)      { $Options.Force      = $false }
-    if (!$Options.Push)       { $Options.Push       = $false }
-    if (!$Options.PluginPath) { $Options.PluginPath = '' }
+    if (!$Options.Threads)      { $Options.Threads       = 10 }
+    if (!$Options.Timeout)      { $Options.Timeout       = 100 }
+    if (!$Options.UpdateTimeout){ $Options.UpdateTimeout = 1200 }
+    if (!$Options.Force)        { $Options.Force         = $false }
+    if (!$Options.Push)         { $Options.Push          = $false }
+    if (!$Options.PluginPath)   { $Options.PluginPath    = '' }
 
     Remove-Job * -force #remove any previously run jobs
 
@@ -116,7 +118,18 @@ function Update-AUPackages {
 
         # Just sleep a bit and repeat if all threads are busy
         $job_count = Get-Job | measure | % count
-        if (($job_count -eq $Options.Threads) -or ($j -eq $aup.length)) { sleep 1; continue }
+        if (($job_count -eq $Options.Threads) -or ($j -eq $aup.Length)) {
+            sleep 1
+            foreach ($job in $(Get-Job -State Running)) {
+               $elapsed = ((get-date) - $job.PSBeginTime).TotalSeconds
+               if ($elapsed -lt $Options.UpdateTimeout) { continue }
+
+               Write-Warning "Terminating job $($job.Name) due to the $($Options.UpdateTimeout)s UpdateTimeout"
+               Remove-Job -Force $job
+               $p += 1
+            }
+            continue
+        }
 
         # Start a new thread
         $package_path = $aup[$j++]

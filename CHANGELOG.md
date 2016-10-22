@@ -10,6 +10,7 @@
   - Show 'URL check' in output.
 - `Update-AUPackages`
   - Added `BeforeEach` and `AfterEach` scripts to Options.
+  - New Option `UpdateTimeout` to limit update total execution time ([#38](https://github.com/majkinetor/au/issues/38)).
 - `Git` plugin: only push files that are changed, not entire package content.
 
 ## CI
