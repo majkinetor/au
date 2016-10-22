@@ -116,7 +116,7 @@ function Update-AUPackages {
             }
         }
 
-        # Just sleep a bit and repeat if all threads are busy
+        # Sleep a bit and check for running tasks update timeout
         $job_count = Get-Job | measure | % count
         if (($job_count -eq $Options.Threads) -or ($j -eq $aup.Length)) {
             sleep 1
