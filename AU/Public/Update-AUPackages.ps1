@@ -47,6 +47,9 @@ function Update-AUPackages {
           Plugin      - Any HashTable key will be treated as plugin with the same name as the option name.
                         Script with that name will be looked into AU module path and user specified path and if
                         found, it will be called with splatted HashTable passed as parameters.
+          BeforeEach  - User script that will be called before each pacakge, accepts 2 arguments: name & Options
+          AfterEach   - Similar as above
+          Script      - Script that will be called before and after everything
         #>
         [System.Collections.Specialized.OrderedDictionary] $Options=@{},
 
@@ -119,13 +122,20 @@ function Update-AUPackages {
         $package_path = $aup[$j++]
         $package_name = Split-Path $package_path -Leaf
         Write-Verbose "Starting $package_name"
-        Start-Job -Name $package_name {
+        Start-Job -Name $package_name {         #TODO: fix laxxed variables in job for BE and AE
+            $Options = $using:Options
+
             cd $using:package_path
             $out = "$using:tmp_dir\$using:package_name"
 
-            $global:au_Timeout = $using:Options.Timeout
-            $global:au_Force   = $using:Options.Force
+            $global:au_Timeout = $Options.Timeout
+            $global:au_Force   = $Options.Force
             $global:au_Result  = 'pkg'
+
+            if ($Options.BeforeEach) {
+                $s = [Scriptblock]::Create( $Options.BeforeEach )
+                . $s $using:package_name $Options
+            }
 
             $pkg = $null #test double report when it fails
             try {
@@ -135,17 +145,23 @@ function Update-AUPackages {
             }
             if (!$pkg) { throw "'$using:package_name' update script returned nothing" }
 
+
             $pkg = $pkg[-1]
             $type = ($pkg | gm).TypeName
             if ($type -ne 'AUPackage') { throw "'$using:package_name' update script didn't return AUPackage but: $type" }
 
-            if ($pkg.Updated -and $using:Options.Push) {
+            if ($pkg.Updated -and $Options.Push) {
                 $pkg.Result += $r = Push-Package
                 if ($LastExitCode -eq 0) {
                     $pkg.Pushed = $true
                 } else {
                     $pkg.Error = "Push ERROR`n" + ($r | select -skip 1)
                 }
+            }
+
+            if ($Options.AfterEach) {
+                $s = [Scriptblock]::Create( $Options.AfterEach )
+                . $s $using:package_name $Options
             }
 
             $pkg
