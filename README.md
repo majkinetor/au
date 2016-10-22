@@ -177,11 +177,11 @@ If the `ChecksumXX` hash key is present, the AU will change to checksum verifica
 
 You can force the update even if no new version is found by using the parameter `Force` (or global variable `$au_Force`). This can be useful for testing the update and bug fixing, recalculating the checksum after the package was created and already pushed to Chocolatey or if URLs to installer changed without change in version.
 
-The version of the package will be changed so that it follows _chocolatey fix standard_ where current date is added in the _revision_ component of the package version in the format `yyyyMMdd`. More precisely, 
+The version of the package will be changed so that it follows [chocolatey fix notation](https://github.com/chocolatey/choco/wiki/CreatePackages#package-fix-version-notation) where current date is added in the _revision_ component of the package version in the format `yyyyMMdd`. More precisely, 
 
 - chocolatey "fix version" always goes in to the _Revision_ part of the package version.
 - existing "fixed versions" are changed to contain the current date.
-- if _Revision_ part is present in the package version and it is not in the _chocolatey fix standard_ form, AU will keep the existing version but notify about it.
+- if _Revision_ part is present in the package version and it is not in the _chocolatey fix notation_ form, AU will keep the existing version but notify about it.
 
 **Example**:
 
