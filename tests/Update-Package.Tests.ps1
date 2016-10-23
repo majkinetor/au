@@ -26,7 +26,6 @@ Describe 'Update-Package' -Tag update {
         $global:au_NoCheckUrl          = $true
         $global:au_NoCheckChocoVersion = $true
         $global:au_ChecksumFor         = 'none'
-        $global:au_Version             = ''
 
         rv -Scope global Latest -ea ignore
         'BeforeUpdate', 'AfterUpdate' | % { rm "Function:/au_$_" -ea ignore }
@@ -44,7 +43,7 @@ Describe 'Update-Package' -Tag update {
                 $res = update -ChecksumFor 32 6> $null
 
                 $res.Updated  | Should Be $true
-                $res.RemoteVersion | Should Be $global:au_Version
+                $res.RemoteVersion | Should Be '1.0'
             }
 
             It 'automatically verifies the checksum' {
