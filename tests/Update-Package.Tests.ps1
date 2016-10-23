@@ -36,6 +36,18 @@ Describe 'Update-Package' -Tag update {
     InModuleScope AU {
 
         Context 'Updating' {
+            It 'automatically verifies the checksum' {
+                $choco_path = gcm choco.exe | % Source
+                $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | % Hash
+                
+                function global:au_GetLatest {
+                    @{ PackageName = 'test'; Version = '1.3'; URL32=$choco_path; Checksum32 = $choco_hash }
+                }
+
+                $res = update -ChecksumFor 32 6> $null
+                $res.Result -match 'hash checked for 32 bit version' | Should Be $true
+            }
+
             It 'automatically calculates the checksum' {
                 update -ChecksumFor 32 6> $null
 
