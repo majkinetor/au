@@ -177,12 +177,6 @@ If the `ChecksumXX` hash key is present, the AU will change to checksum verifica
 
 You can force the update even if no new version is found by using the parameter `Force` (or global variable `$au_Force`). This can be useful for testing the update and bug fixing, recalculating the checksum after the package was created and already pushed to Chocolatey or if URLs to installer changed without change in version.
 
-The version of the package will be changed so that it follows [chocolatey fix notation](https://github.com/chocolatey/choco/wiki/CreatePackages#package-fix-version-notation) where current date is added in the _revision_ component of the package version in the format `yyyyMMdd`. More precisely, 
-
-- chocolatey "fix version" always goes in to the _Revision_ part of the package version.
-- existing "fixed versions" are changed to contain the current date.
-- if _Revision_ part is present in the package version and it is not in the _chocolatey fix notation_ form, AU will keep the existing version but notify about it.
-
 **Example**:
 
 ```
@@ -198,6 +192,21 @@ Updating files
     updating version using Chocolatey fix notation: 1.77 -> 1.77.0.20160814
 ...
 ```
+
+Force option changes how package version is used. Without force, the `NuspecVersion` determines what is going on. Normally, if `NuspecVersion` is lower or equal then the `RemoteVersion` update happens. With `Force` this changes:
+
+- If `NuspecVersion` is lower then `RemoteVersion`, Force is ignored and update happens as it would normally
+- If `NuspecVersion` is the same as the `RemoteVersion`, the version will change to chocolatey fix notation.
+- If the `NuspecVersion` is already using chocolatey fix notation, the version will be updated to fix notation for the current date.
+- If the `NuspecVersion` is higher then the `RemoteVersion` update will happen but `RemoteVersion` will be used.
+
+All above doesn't apply if you set the explicit version using the variable `au_Version`.
+
+[Chocolatey fix notation](https://github.com/chocolatey/choco/wiki/CreatePackages#package-fix-version-notation) changes a version so that current date is added in the _revision_ component of the package version in the format `yyyyMMdd`. More precisely: 
+
+- chocolatey "fix version" always goes in to the _Revision_ part of the package version.
+- existing "fixed versions" are changed to contain the current date.
+- if _Revision_ part is present in the package version and it is not in the _chocolatey fix notation_ form, AU will keep the existing version but notify about it.
 
 ### Global variables
 
