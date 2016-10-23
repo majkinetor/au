@@ -221,6 +221,7 @@ function Update-Package {
             "Overriding version to: $global:au_Version" | result
             $global:Latest.Version = $package.RemoteVersion = $global:au_Version
             check_version
+            $global:au_Version = $null
             return
         }
 
