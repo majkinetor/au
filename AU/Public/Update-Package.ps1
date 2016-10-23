@@ -132,7 +132,7 @@ function Update-Package {
         function invoke_installer() {
             if (!(Test-Path tools\chocolateyInstall.ps1)) { "  aborted, chocolateyInstall not found for this package" | result; return }
 
-            Import-Module "$choco_tmp_path\helpers\chocolateyInstaller.psm1" -Force
+            Import-Module "$choco_tmp_path\helpers\chocolateyInstaller.psm1" -Force -Scope Global
 
             if ($ChecksumFor -eq 'none') { "Automatic checksum calculation is disabled"; return }
             if ($ChecksumFor -eq 'all')  { $arch = '32','64' } else { $arch = $ChecksumFor }
