@@ -8,6 +8,7 @@
 
 - `Update-Package`
   - Show 'URL check' in output.
+  - `$global_Version` can now be used when update is forced to explicitly provide version.
 - `Update-AUPackages`
   - Added `BeforeEach` and `AfterEach` scripts to Options.
   - New Option `UpdateTimeout` to limit update total execution time ([#38](https://github.com/majkinetor/au/issues/38)).

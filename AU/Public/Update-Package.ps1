@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 21-Oct-2016.
+# Last Change: 23-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -214,8 +214,15 @@ function Update-Package {
         invoke_installer
     }
 
-    function set_choco_fix() {
+    function set_fix_version() {
         $script:is_forced = $true
+
+        if ($global:au_Version) {
+            "Overriding version to: $global:au_Version" | result
+            $global:Latest.Version = $package.RemoteVersion = $global:au_Version
+            check_version
+            return
+        }
 
         $date_format = 'yyyyMMdd'
         $d = (get-date).ToString($date_format)
@@ -356,7 +363,7 @@ function Update-Package {
             'No new version found' | result
             return $package
         }
-        else { 'No new version found, but update is forced' | result; set_choco_fix }
+        else { 'No new version found, but update is forced' | result; set_fix_version }
 
     }
 

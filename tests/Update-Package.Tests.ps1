@@ -26,6 +26,7 @@ Describe 'Update-Package' -Tag update {
         $global:au_NoCheckUrl          = $true
         $global:au_NoCheckChocoVersion = $true
         $global:au_ChecksumFor         = 'none'
+        $global:au_Version             = ''
 
         rv -Scope global Latest -ea ignore
         'BeforeUpdate', 'AfterUpdate' | % { rm "Function:/au_$_" -ea ignore }
@@ -36,10 +37,20 @@ Describe 'Update-Package' -Tag update {
     InModuleScope AU {
 
         Context 'Updating' {
+            It 'can let user override the version' {
+                get_latest -Version 1.2.3
+                $global:au_Force = $true; $global:au_Version = '1.0'
+
+                $res = update -ChecksumFor 32 6> $null
+
+                $res.Updated  | Should Be $true
+                $res.RemoteVersion | Should Be $global:au_Version
+            }
+
             It 'automatically verifies the checksum' {
                 $choco_path = gcm choco.exe | % Source
                 $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | % Hash
-                
+
                 function global:au_GetLatest {
                     @{ PackageName = 'test'; Version = '1.3'; URL32=$choco_path; Checksum32 = $choco_hash }
                 }
