@@ -11,13 +11,13 @@ To learn more about Chocolatey automatic packages, please refer to the relevant 
 ## Features
 
 - Use only PowerShell to create automatic update script for given package.
-- Automatically downloads installers and provides/validates checksums for x32 and x64 versions.
-- Verifies URLs, nuspec versions, remote Chocolatey existence etc.
+- Automatically downloads installers and provides/verifies checksums for x32 and x64 versions.
+- Verifies URLs, nuspec versions, remote repository existence etc.
 - Can use global variables to change functionality.
 - Sugar functions for Chocolatey package maintainers.
 - Update single package or any subset of previously created AU packages with a single command.
 - Multithread support when updating multiple packages.
-- Plugin system when updating everything, with the few integrated plugins to send email notifications, save results to gist and push updated packages to git repository.
+- Plugin system when updating everything, with few integrated plugins to send email notifications, save results to gist and push updated packages to git repository.
 
 
 ## Installation
