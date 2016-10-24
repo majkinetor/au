@@ -204,9 +204,9 @@ All above doesn't apply if you set the explicit version using the variable `au_V
 
 [Chocolatey fix notation](https://github.com/chocolatey/choco/wiki/CreatePackages#package-fix-version-notation) changes a version so that current date is added in the _revision_ component of the package version in the format `yyyyMMdd`. More precisely: 
 
-- chocolatey "fix version" always goes in to the _Revision_ part of the package version.
-- existing "fixed versions" are changed to contain the current date.
-- if _Revision_ part is present in the package version and it is not in the _chocolatey fix notation_ form, AU will keep the existing version but notify about it.
+- chocolatey _fix version_ always ends up in to the _Revision_ part of the package version;
+- existing _fix versions_ are changed to contain the current date;
+- if _revision_ part is present in the package version and it is not in the _chocolatey fix notation_ form, AU will keep the existing version but notify about it;
 
 ### Global variables
 
