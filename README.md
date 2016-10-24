@@ -195,12 +195,12 @@ Updating files
 
 Force option changes how package version is used. Without force, the `NuspecVersion` determines what is going on. Normally, if `NuspecVersion` is lower or equal then the `RemoteVersion` update happens. With `Force` this changes:
 
-- If `NuspecVersion` is lower then `RemoteVersion`, Force is ignored and update happens as it would normally
-- If `NuspecVersion` is the same as the `RemoteVersion`, the version will change to chocolatey fix notation.
-- If the `NuspecVersion` is already using chocolatey fix notation, the version will be updated to fix notation for the current date.
-- If the `NuspecVersion` is higher then the `RemoteVersion` update will happen but `RemoteVersion` will be used.
+1. If `NuspecVersion` is lower then `RemoteVersion`, Force is ignored and update happens as it would normally
+2. If `NuspecVersion` is the same as the `RemoteVersion`, the version will change to chocolatey fix notation.
+3. If the `NuspecVersion` is already using chocolatey fix notation, the version will be updated to fix notation for the current date.
+4. If the `NuspecVersion` is higher then the `RemoteVersion` update will happen but `RemoteVersion` will be used.
 
-All above doesn't apply if you set the explicit version using the variable `au_Version`.
+Points 2-4 do not apply if you set the explicit version using the variable `au_Version`.
 
 [Chocolatey fix notation](https://github.com/chocolatey/choco/wiki/CreatePackages#package-fix-version-notation) changes a version so that current date is added in the _revision_ component of the package version in the format `yyyyMMdd`. More precisely: 
 
