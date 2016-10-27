@@ -1,22 +1,17 @@
 # AU Project Changelog
 
-## TODO
-
-- `WhatIf` parameter ([#30](https://github.com/majkinetor/au/issues/30)).
-
 ## Next
 
 - `Update-Package`
   - Show 'URL check' in output.
-  - `$global_Version` can now be used when update is forced to explicitly provide version.
+  - `$global:au_Version` can now be used when update is forced to explicitly provide version.
 - `Update-AUPackages`
   - Added `BeforeEach` and `AfterEach` scripts to Options.
   - New Option `UpdateTimeout` to limit update total execution time ([#38](https://github.com/majkinetor/au/issues/38)).
   - `Git` plugin: only push files that are changed, not entire package content.
 - `Test-Package`
-  - New string parameter `Vagrant` that contains path to [chocolatey-test-environment](https://github.com/majkinetor/chocolatey-test-environment) to test package using the Vagrant system. **NOTE**: This function requires above given fork of chocolatey-test environment.
-  - New switch parameter `VagrantClear` that will remove any existing packages from the vagrant `packages` directory.
-- PowerShell documentation updated.
+  - New string parameter `Vagrant` and global variable `$au_Vagrant` that contain path to the [chocolatey test environment](https://github.com/majkinetor/chocolatey-test-environment) so you can test the package using the Vagrant system.
+- PowerShell documentation improved.
 
 ## CD
 

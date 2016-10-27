@@ -33,11 +33,11 @@ function Test-Package {
         # Test chocolateyUninstall.ps1 only.
         [switch] $Uninstall,
 
-        # Path to chocolatey-test-environment to test package
+        # Path to chocolatey-test-environment: https://github.com/majkinetor/chocolatey-test-environment
         [string] $Vagrant = $Env:au_Vagrant,
 
-        # Remove any other package in Vagrant 'packages' directory
-        [switch] $VagrantClear,
+        # Open new shell window
+        [switch] $VagrantOpen,
 
         # Package parameters
         [string] $Parameters
@@ -75,14 +75,20 @@ function Test-Package {
     if ($Parameters) { Write-Host "  Parameters:".PadRight(15) $Parameters }
     if ($Vagrant)    { Write-Host "  Vagrant: ".PadRight(15) $Vagrant }
 
-
     if ($Vagrant) {
         Write-Host "`nTesting package using vagrant"
-        if ($VagrantClear) { Write-Host 'Removing existing vagrant packages'; rm $Vagrant\packages\*.nupkg -ea ig }
+
+        Write-Host 'Removing existing vagrant packages'
+        rm $Vagrant\packages\*.nupkg -ea ig
+
         cp $Nu $Vagrant\packages
         $options_file = "$package_name.$package_version.xml"
         @{ Install = $Install; Uninstall = $Uninstall; Parameters = $Parameters } | Export-CliXML "$Vagrant\packages\$options_file"
-        start powershell -Verb Open -ArgumentList "-NoExit -Command `$Env:http_proxy=`$Env:https_proxy=`$Env:ftp_proxy=`$Env:no_proxy=''; cd $Vagrant; vagrant up --provision"
+        if ($VagrantOpen) {
+            start powershell -Verb Open -ArgumentList "-NoProfile -NoExit -Command `$Env:http_proxy=`$Env:https_proxy=`$Env:ftp_proxy=`$Env:no_proxy=''; cd $Vagrant; vagrant up"
+        } else {
+            powershell -NoProfile -Command "`$Env:http_proxy=`$Env:https_proxy=`$Env:ftp_proxy=`$Env:no_proxy=''; cd $Vagrant; vagrant up"
+        }
         return
     }
 
