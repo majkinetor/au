@@ -12,7 +12,10 @@
 - `Update-AUPackages`
   - Added `BeforeEach` and `AfterEach` scripts to Options.
   - New Option `UpdateTimeout` to limit update total execution time ([#38](https://github.com/majkinetor/au/issues/38)).
-- `Git` plugin: only push files that are changed, not entire package content.
+  - `Git` plugin: only push files that are changed, not entire package content.
+- `Test-Package`
+  - New string parameter `Vagrant` that contains path to [chocolatey-test-environment](https://github.com/majkinetor/chocolatey-test-environment) to test package using the Vagrant system. **NOTE**: This function requires above given fork of chocolatey-test environment.
+  - New switch parameter `VagrantClear` that will remove any existing packages from the vagrant `packages` directory.
 - PowerShell documentation updated.
 
 ## CD
