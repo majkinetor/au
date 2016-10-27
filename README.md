@@ -350,7 +350,7 @@ Its preferable to run the updater on [AppVeyor](https://github.com/majkinetor/au
 Apart from the functions used in the updating process, there are few suggars for regular maintenance of the package:
 
 - Test-Package  
-Quickly `choco pack` and install the package from the current directory.
+Quickly test install and/or uninstall of the package from the current directory with optional parameters. This function can be used to start testing in [chocolatey-test-environment](https://github.com/majkinetor/chocolatey-test-environment) via `Vagrant` parameter.
 
 - Push-Package (alias `pp`)  
 Push the latest package using your API key.

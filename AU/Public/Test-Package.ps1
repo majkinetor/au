@@ -40,7 +40,7 @@ function Test-Package {
         [switch] $VagrantClear,
 
         # Package parameters
-        $Parameters
+        [string] $Parameters
     )
 
     if (!$Install -and !$Uninstall) { $Install = $Uninstall = $true }
@@ -80,6 +80,8 @@ function Test-Package {
         Write-Host "`nTesting package using vagrant"
         if ($VagrantClear) { Write-Host 'Removing existing vagrant packages'; rm $Vagrant\packages\*.nupkg -ea ig }
         cp $Nu $Vagrant\packages
+        $options_file = "$package_name.$package_version.xml"
+        @{ Install = $Install; Uninstall = $Uninstall; Parameters = $Parameters } | Export-CliXML "$Vagrant\packages\$options_file"
         start powershell -Verb Open -ArgumentList "-NoExit -Command `$Env:http_proxy=`$Env:https_proxy=`$Env:ftp_proxy=`$Env:no_proxy=''; cd $Vagrant; vagrant up --provision"
         return
     }
