@@ -13,18 +13,19 @@
   - New string parameter `Vagrant` and global variable `$au_Vagrant` that contain path to the [chocolatey test environment](https://github.com/majkinetor/chocolatey-test-environment) so you can test the package using the Vagrant system.
 - PowerShell documentation improved.
 
-## CD
-
-Changes in [au-packages-template](https://github.com/majkinetor/au-packages-template)
-- `update_all.ps1` now accepts `ForcedPackages` and `Root` parameters.
-- AppVeyor commit message parsing for AU options.
-
 ### Bugfixes
 
 - Fixed frequent URL check timeout [#35](https://github.com/majkinetor/au/issues/35).
 - AU updated nuspec file to UTF-8 with BOM [#39](https://github.com/majkinetor/au/issues/39).
 - Checksum verification mode didn't work with updateall [#36](https://github.com/majkinetor/au/issues/36).
 - Small fixes.
+
+### CD
+
+Changes in [au-packages-template](https://github.com/majkinetor/au-packages-template)
+- `update_all.ps1` now accepts `ForcedPackages` and `Root` parameters.
+- AppVeyor commit message parsing for AU options.
+
 
 ## 2016.10.9
 
