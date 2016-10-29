@@ -88,9 +88,6 @@ function Update-Package {
         #Do not show any Write-Host output.
         [switch] $NoHostOutput,
 
-        #Update together with dependency, to be used with virtual packages.
-        [switch] $WithDependency,
-
         #Output variable.
         [string] $Result
     )
@@ -333,11 +330,6 @@ function Update-Package {
         Write-Warning "Invalid NuspecVersion in the nuspec file '$($package.NuspecVersion)' - using 0.0"
         $global:Latest.NuspecVersion = $package.NuspecVersion = '0.0'
     }
-
-    if ($WithDependency) {
-        $dep = $nu.package.metadata.dependencies | select -first 1
-    }
-
 
     $module = $MyInvocation.MyCommand.ScriptBlock.Module
     "{0} - checking updates using {1} version {2}" -f $package.Name, $module.Name, $module.Version | result
