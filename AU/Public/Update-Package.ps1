@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 23-Oct-2016.
+# Last Change: 29-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -87,6 +87,9 @@ function Update-Package {
 
         #Do not show any Write-Host output.
         [switch] $NoHostOutput,
+
+        #Update together with dependency, to be used with virtual packages.
+        [switch] $WithDependency,
 
         #Output variable.
         [string] $Result
@@ -323,9 +326,18 @@ function Update-Package {
 
     $nuspecFile = gi "$($package.Name).nuspec" -ea ignore
     if (!$nuspecFile) { throw 'No nuspec file found in the current directory' }
+
     $nu = Load-NuspecFile
     $global:Latest.NuspecVersion = $package.NuspecVersion = $nu.package.metadata.version
-    if (!$package.NuspecVersion) {throw "Unable to get nuspec version"}
+    if (![version]::TryParse($package.NuspecVersion, [ref]($_))) {
+        Write-Warning "Invalid NuspecVersion in the nuspec file '$($package.NuspecVersion)' - using 0.0"
+        $global:Latest.NuspecVersion = $package.NuspecVersion = '0.0'
+    }
+
+    if ($WithDependency) {
+        $dep = $nu.package.metadata.dependencies | select -first 1
+    }
+
 
     $module = $MyInvocation.MyCommand.ScriptBlock.Module
     "{0} - checking updates using {1} version {2}" -f $package.Name, $module.Name, $module.Version | result

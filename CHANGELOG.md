@@ -5,6 +5,7 @@
 - `Update-Package`
   - Show 'URL check' in output.
   - `$global:au_Version` can now be used when update is forced to explicitly provide version.
+  - Invalid version in the nuspec file doesn't throw error any more but uses version 0.0 with warning.
 - `Update-AUPackages`
   - Added `BeforeEach` and `AfterEach` scripts to Options.
   - New Option `UpdateTimeout` to limit update total execution time ([#38](https://github.com/majkinetor/au/issues/38)).
