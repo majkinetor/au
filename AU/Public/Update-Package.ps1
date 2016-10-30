@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 29-Oct-2016.
+# Last Change: 30-Oct-2016.
 
 <#
 .SYNOPSIS
@@ -119,9 +119,9 @@ function Update-Package {
         }
     }
 
-    function check_version() {
+    function check_version($Version = $global:Latest.Version) {
         $re = '^(\d{1,16})\.(\d{1,16})\.*(\d{1,16})*\.*(\d{1,16})*(-[^.-]+)*$'
-        if ($Latest.Version -notmatch $re) { throw "Latest $($package.Name) version doesn't match the pattern '$re': '$($Latest.Version)'" }
+        if ($Version -notmatch $re) { throw "Latest $($package.Name) version doesn't match the pattern '$re': '$Version'" }
         for($i=1; $i -le 3; $i++) { 
             if ([int32]::MaxValue -lt [int64]$Matches[$i]) { throw "$Latest $($package.Name) version component is too big: $($Matches[$i])" }
         }
@@ -326,8 +326,8 @@ function Update-Package {
 
     $nu = Load-NuspecFile
     $global:Latest.NuspecVersion = $package.NuspecVersion = $nu.package.metadata.version
-    if (![version]::TryParse($package.NuspecVersion, [ref]($_))) {
-        Write-Warning "Invalid NuspecVersion in the nuspec file '$($package.NuspecVersion)' - using 0.0"
+    try { check_version $package.NuspecVersion } catch {
+        Write-Warning "Invalid nuspec file Version '$($package.NuspecVersion)' - using 0.0"
         $global:Latest.NuspecVersion = $package.NuspecVersion = '0.0'
     }
 

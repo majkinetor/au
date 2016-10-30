@@ -1,6 +1,6 @@
 # AU Project Changelog
 
-## Next
+## 2016.10.30
 
 - `Update-Package`
   - Show 'URL check' in output.
@@ -23,7 +23,7 @@
 
 ### CD
 
-Changes in [au-packages-template](https://github.com/majkinetor/au-packages-template)
+Changes in [au-packages-template](https://github.com/majkinetor/au-packages-template):
 - `update_all.ps1` now accepts `ForcedPackages` and `Root` parameters.
 - AppVeyor commit message parsing for AU options.
 

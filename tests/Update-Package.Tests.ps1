@@ -213,6 +213,16 @@ Describe 'Update-Package' -Tag update {
                 cd TestDrive:\
                 { update } | Should Throw 'No nuspec file'
             }
+
+            It "uses version 0.0 on invalid nuspec version" {
+                $nu = nuspec_file
+                $nu.package.metadata.version = '{{PackageVersion}}'
+                $nu.Save("$TestDrive\test_package\test_package.nuspec")
+
+                update *> $null
+
+                $global:Latest.NuspecVersion | Should Be 0.0
+            }
         }
 
         Context 'au_GetLatest' {
