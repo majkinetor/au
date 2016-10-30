@@ -1,5 +1,11 @@
 # AU Project Changelog
 
+## Next
+
+### Bugfixes
+
+- Fixed missing temporary directory for package download [ref](https://github.com/chocolatey/chocolatey-coreteampackages/pull/350).
+
 ## 2016.10.30
 
 - `Update-Package`

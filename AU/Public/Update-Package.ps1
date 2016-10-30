@@ -138,6 +138,7 @@ function Update-Package {
             if ($ChecksumFor -eq 'all')  { $arch = '32','64' } else { $arch = $ChecksumFor }
 
             $pkg_path = [System.IO.Path]::GetFullPath("$Env:TEMP\chocolatey\$($package.Name)\" + $global:Latest.Version) #https://github.com/majkinetor/au/issues/32
+            mkdir -Force $pkg_path | Out-Null
 
             $Env:ChocolateyPackageName         = "chocolatey\$($package.Name)"
             $Env:ChocolateyPackageVersion      = $global:Latest.Version
@@ -145,7 +146,7 @@ function Update-Package {
             foreach ($a in $arch) {
                 $Env:chocolateyForceX86 = if ($a -eq '32') { 'true' } else { '' }
                 try {
-                    rm -force -recurse -ea ignore $pkg_path
+                    #rm -force -recurse -ea ignore $pkg_path
                     .\tools\chocolateyInstall.ps1 | result
                 } catch {
                     if ( "$_" -notlike 'au_break: *') { throw $_ } else {
