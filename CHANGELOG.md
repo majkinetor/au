@@ -154,3 +154,13 @@ Take a look at the [working example](https://github.com/majkinetor/au-packages/b
 - Automatic checksum.
 - Raise errors on search pattern not found.
 - Bugfixes and small improvements.
+
+## 2016.7.21
+
+## 2016.6.6
+
+- First PowerShell Gallery version.
+
+## 2016.02.19
+
+- First PoC version.
