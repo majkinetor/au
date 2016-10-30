@@ -155,12 +155,10 @@ Take a look at the [working example](https://github.com/majkinetor/au-packages/b
 - Raise errors on search pattern not found.
 - Bugfixes and small improvements.
 
-## 2016.7.21
-
 ## 2016.6.6
 
 - First PowerShell Gallery version.
 
-## 2016.02.19
+## 2016.2.19
 
 - First PoC version.
