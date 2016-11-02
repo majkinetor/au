@@ -2,6 +2,13 @@
 
 ## Next
 
+### CD
+
+- Added script `scripts\Install-AU.ps1` to install any AU version or branch using git tags.
+
+Changes in [au-packages-template](https://github.com/majkinetor/au-packages-template):
+- Added new AppVeyor commit command `[PUSH pkg1 ... pkgN]` to push any package to the community repository.
+
 ### Bugfixes
 
 - Fixed missing temporary directory for package download [ref](https://github.com/chocolatey/chocolatey-coreteampackages/pull/350).
