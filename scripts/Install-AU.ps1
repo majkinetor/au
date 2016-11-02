@@ -1,6 +1,8 @@
 <#
-    Intall AU from Github using given version. Can also be used to install development branches.
-    Github releases are treated as autoritative AU release source.
+    Intall AU from git repository using given version. Can also be used to install development branches.
+    Git tags are treated as autoritative AU release source.
+
+    This script is used for build server.
 #>
 
 [CmdletBinding()]
@@ -21,13 +23,7 @@ if ($git_version -lt [version]2.5) { throw 'Git version must be higher then 2.5'
 $is_branch = ![version]::TryParse($Version, [ref]($_))
 $is_latest = [string]::IsNullOrWhiteSpace($Version)
 
-$temp_dir = "$Env:TEMP\au"
-mkdir -force $temp_dir | out-null
-rm -recurse -force -ea 0 $temp_dir\*
-pushd $temp_dir
-
-git clone -q $git_url; cd au
-git fetch --tags
+pushd $PSScriptRoot\..
 
 if ($is_latest) { $Version = (git tag | % { [version]$_ } | sort -desc | select -first 1).ToString() }
 if ($is_branch) {
