@@ -20,8 +20,8 @@ if (!(gcm git -ea 0)) { throw 'Git must be installed' }
 [version]$git_version = (git --version) -replace 'git|version|\.windows'
 if ($git_version -lt [version]2.5) { throw 'Git version must be higher then 2.5' }
 
-$is_branch = ![version]::TryParse($Version, [ref]($_))
 $is_latest = [string]::IsNullOrWhiteSpace($Version)
+$is_branch = !($is_latest -or [version]::TryParse($Version, [ref]($_))
 
 pushd $PSScriptRoot\..
 
