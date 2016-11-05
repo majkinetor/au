@@ -354,7 +354,7 @@ Apart from the functions used in the updating process, there are few suggars for
 - Test-Package  
 Quickly test install and/or uninstall of the package from the current directory with optional parameters. This function can be used to start testing in [chocolatey-test-environment](https://github.com/majkinetor/chocolatey-test-environment) via `Vagrant` parameter.
 
-- Push-Package (alias `pp`)  
+- Push-Package  
 Push the latest package using your API key.
 
 - Get-AuPackages (alias `gau` or `lsau`)  
