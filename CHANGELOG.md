@@ -2,6 +2,8 @@
 
 ## Next
 
+## 2016.11.5
+
 - `Update-Package`
   - It now automatically adds `$Latest.Filetype` based on the extension of the first URL it finds. 
 
