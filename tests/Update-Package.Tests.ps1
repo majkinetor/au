@@ -15,10 +15,10 @@ Describe 'Update-Package' -Tag update {
     function global:nuspec_file() { [xml](gc TestDrive:\test_package\test_package.nuspec) }
 
     BeforeEach {
-        cd TestDrive:\
+        cd $TestDrive
         rm -Recurse -Force TestDrive:\test_package -ea ignore
         cp -Recurse -Force $PSScriptRoot\test_package TestDrive:\test_package
-        cd TestDrive:\test_package
+        cd $TestDrive\test_package
 
         $global:au_Timeout             = 100
         $global:au_Force               = $false

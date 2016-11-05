@@ -92,12 +92,6 @@ function Update-Package {
         [string] $Result
     )
 
-    function Load-NuspecFile() {
-        $nu = New-Object xml
-        $nu.psbase.PreserveWhitespace = $true
-        $nu.Load($nuspecFile)
-        $nu
-    }
 
     function check_url() {
         "URL check" | result
@@ -243,10 +237,10 @@ function Update-Package {
         '  $Latest data:' | result;  ($global:Latest.keys | sort | % { "    {0,-15} ({1})    {2}" -f $_, $global:Latest[$_].GetType().Name, $global:Latest[$_] }) | result; '' | result
 
         if (!$SkipNuspecFile) {
-            "  $(Split-Path $nuspecFile -Leaf)" | result
+            "  $(Split-Path $package.NuspecPath -Leaf)" | result
 
             "    setting id:  $($global:Latest.PackageName)" | result
-            $nu.package.metadata.id = $package.Name = $global:Latest.PackageName.ToString()
+            $package.NuspecXml.package.metadata.id = $package.Name = $global:Latest.PackageName.ToString()
 
             $msg ="updating version: {0} -> {1}" -f $package.NuspecVersion, $package.RemoteVersion
             if ($script:is_forced) {
@@ -258,8 +252,8 @@ function Update-Package {
             }
             $msg | result
 
-            $nu.package.metadata.version = $package.RemoteVersion.ToString()
-            $nu.Save($nuspecFile)
+            $package.NuspecXml.package.metadata.version = $package.RemoteVersion.ToString()
+            $package.NuspecXml.Save($package.NuspecPath)
         }
 
         $sr = au_SearchReplace
@@ -317,16 +311,11 @@ function Update-Package {
         }
     }
 
-    $package = New-AUPackage $pwd
+    $package = [AUPackage]::new( $pwd )
     if ($Result) { sv -Scope Global -Name $Result -Value $package }
 
     $global:Latest = @{PackageName = $package.Name}
-
-    $nuspecFile = gi "$($package.Name).nuspec" -ea ignore
-    if (!$nuspecFile) { throw 'No nuspec file found in the current directory' }
-
-    $nu = Load-NuspecFile
-    $global:Latest.NuspecVersion = $package.NuspecVersion = $nu.package.metadata.version
+    $global:Latest.NuspecVersion = $package.NuspecVersion
     try { check_version $package.NuspecVersion } catch {
         Write-Warning "Invalid nuspec file Version '$($package.NuspecVersion)' - using 0.0"
         $global:Latest.NuspecVersion = $package.NuspecVersion = '0.0'
