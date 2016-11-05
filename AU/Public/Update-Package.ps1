@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 30-Oct-2016.
+# Last Change: 05-Nov-2016.
 
 <#
 .SYNOPSIS
@@ -370,10 +370,12 @@ function Update-Package {
             return $package
         }
         else { 'No new version found, but update is forced' | result; set_fix_version }
-
     }
 
     'New version is available' | result
+
+    $match_url = ($Latest.Keys | ? { $_ -match '^URL*' } | select -First 1 | % { $Latest[$_] } | split-Path -Leaf) -match '(?<=\.)[^.]+$'
+    if ($match_url) { $Latest.FileType = $Matches[0] }
 
     if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' | result }
 

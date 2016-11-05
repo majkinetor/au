@@ -2,6 +2,9 @@
 
 ## Next
 
+- `Update-Package`
+  - It now automatically adds `$Latest.Filetype` based on the extension of the first URL it finds. 
+
 ### CD
 
 - Added script `scripts\Install-AU.ps1` to install any AU version or branch using git tags.
