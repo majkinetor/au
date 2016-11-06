@@ -51,6 +51,6 @@ $Message = "AU: $($packages.Length) updated - $($packages | % Name)"
 git commit -m "$Message [skip ci]"
 
 Write-Host "Pushing changes"
-git push
+git push -q
 
 popd
