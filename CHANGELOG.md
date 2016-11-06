@@ -2,6 +2,10 @@
 
 ## Next
 
+### Bugfixes
+
+- `Git` plugin small bugfixes
+
 ## 2016.11.5
 
 - `Update-Package`
