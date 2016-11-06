@@ -16,7 +16,7 @@ param(
     [switch] $Force
 )
 
-$packages = if ($Force) { $Info.result.updated } else { $Info.result.pushed }
+[array]$packages = if ($Force) { $Info.result.updated } else { $Info.result.pushed }
 if ($packages.Length -eq 0) { Write-Host "No package updated, skipping"; return }
 
 $root = Split-Path $packages[0].Path
