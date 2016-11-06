@@ -3,6 +3,8 @@
 $Github_UserRepo = $Params.Github_UserRepo
 $UserMessage     = $Params.UserMessage
 $NoAppVeyor      = $Params.NoAppVeyor
+$IconSize        = if ($Params.IconSize) { $Params.IconSize } else { 32 }
+$NoIcons         = $Params.NoIcons
 
 $now             = $Info.startTime.ToUniversalTime().ToString('yyyy-MM-dd HH:mm')
 $au_version      = gmo au -ListAvailable | % Version | select -First 1 | % { "$_" }
@@ -41,14 +43,16 @@ else {
 ""
 md_fix_newline $Info.stats
 
+$columns = 'Icon', 'Name', 'Updated', 'Pushed', 'RemoteVersion', 'NuspecVersion'
+if ($NoIcons) { $columns = $columns[1.10] }
 if ($Info.pushed) {
     md_title Pushed
-    md_table $Info.result.pushed -Columns 'Name', 'Updated', 'Pushed', 'RemoteVersion', 'NuspecVersion'
+    md_table $Info.result.pushed -Columns $columns
 }
 
 if ($Info.error_count.total) {
     md_title Errors
-    md_table $Info.result.errors -Columns 'Name', 'NuspecVersion', 'Error'
+    md_table $Info.result.errors -Columns ($columns | ? { ('Updated', 'Pushed') -notcontains $_ } )
     $Info.result.errors | % {
         md_title $_.Name -Level 3
         md_code "$($_.Error)"
@@ -57,7 +61,7 @@ if ($Info.error_count.total) {
 
 if ($Info.result.ok) {
     md_title OK
-    md_table $Info.result.ok -Columns 'Name', 'Updated', 'Pushed', 'RemoteVersion', 'NuspecVersion'
+    md_table $Info.result.ok -Columns $columns
     $Info.result.ok | % {
         md_title $_.Name -Level 3
         md_code $_.Result

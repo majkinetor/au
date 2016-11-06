@@ -21,8 +21,11 @@ function md_table($result, $Columns, $MaxErrorLength=150) {
 
     $result | % {
         $o = $_ | select `
+                @{ N='Icon'
+                   E={'<img src="{0}" width="{1}" height="{1}"/>' -f $_.NuspecXml.package.metadata.iconUrl, $IconSize }
+                },
                 @{ N='Name'
-                   E={'[{0}](https://chocolatey.org/packages/{0}/{1})' -f $_.Name, $(if ($_.Updated) { $_.RemoteVersion } else {$_.NuspecVersion })}
+                   E={'[{0}](https://chocolatey.org/packages/{0}/{1})' -f $_.Name, $(if ($_.Updated) { $_.RemoteVersion } else {$_.NuspecVersion }) }
                 },
                 @{ N='Updated'
                     E={
