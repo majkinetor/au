@@ -20,6 +20,9 @@
     <bugTrackerUrl>https://github.com/majkinetor/au/issues</bugTrackerUrl>
     <projectSourceUrl>https://github.com/majkinetor/au</projectSourceUrl>
     <packageSourceUrl>https://github.com/majkinetor/au/tree/master/chocolatey</packageSourceUrl>
+    <dependencies>
+      <dependency id="powershell" version="5.0" />
+    </dependencies>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
