@@ -21,7 +21,7 @@ Write-Verbose "Generating module manifest"
 $params = @{
     Guid              = 'b2cb6770-ecc4-4a51-a57a-3a34654a0938'
     Author            = 'Miodrag Milic'
-    PowerShellVersion = '3.0'
+    PowerShellVersion = '5.0'
     Description       = 'Chocolatey Automatic Package Updater Module'
     HelpInfoURI       = 'https://github.com/majkinetor/au/blob/master/README.md'
     Tags              = 'chocolatey', 'update'

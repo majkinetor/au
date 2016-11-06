@@ -2,6 +2,12 @@
 
 ## Next
 
+**NOTE**: Minimal PowerShell version required to run AU is now 5.0 instead of 4.0. This wont affect AppVeyor builds, but might affect local runs. Please update your local PowerShell version (`cinst powershell`) if you run it locally.
+
+- `Update-AUPackages`
+  - New parameters for markdown report - `IconSize` and `NoIcons`. Icons are now shown by default.
+- Refactoring
+
 ### Bugfixes
 
 - `Git` plugin small bugfixes

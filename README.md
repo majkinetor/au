@@ -23,12 +23,13 @@ To see AU in action see [video tutorial](https://www.youtube.com/watch?v=m2XpV2L
 
 ## Installation
 
-Use one of the following methods:
-- PowerShell 5+: [`Install-Module au`](https://www.powershellgallery.com/packages/AU).  
+AU module requires minimally PowerShell version 5: `$host.Version -ge '5.0'`
+
+To install it, use one of the following methods:
+- PowerShell Gallery: [`Install-Module au`](https://www.powershellgallery.com/packages/AU).  
 - Chocolatey:  [`cinst au`](https://chocolatey.org/packages/au). 
 - [Download](https://github.com/majkinetor/au/releases/latest) latest 7z package or latest build [artifact](https://ci.appveyor.com/project/majkinetor/au/build/artifacts).
 
-AU module requires minimally PowerShell version 4: `$host.Version -ge '4.0'`
 
 To quickly start using AU, fork [au-packages-template](https://github.com/majkinetor/au-packages-template) repository and rename it to `au-packages`.
 
