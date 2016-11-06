@@ -52,7 +52,7 @@ if ($Info.pushed) {
 
 if ($Info.error_count.total) {
     md_title Errors
-    md_table $Info.result.errors -Columns ($columns | ? { ('Updated', 'Pushed') -notcontains $_ } )
+    md_table $Info.result.errors -Columns ($columns + 'Error'| ? { ('Updated', 'Pushed') -notcontains $_ } )
     $Info.result.errors | % {
         md_title $_.Name -Level 3
         md_code "$($_.Error)"
