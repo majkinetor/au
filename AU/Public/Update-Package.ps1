@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 05-Nov-2016.
+# Last Change: 07-Nov-2016.
 
 <#
 .SYNOPSIS
@@ -373,6 +373,8 @@ function Update-Package {
     if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate | result }
 
     choco pack --limit-output | result
+    if ($LastExitCode -ne 0) { throw "Choco pack failed with exit code $LastExitCode" }
+
     'Package updated' | result
     $package.Updated = $true
 
