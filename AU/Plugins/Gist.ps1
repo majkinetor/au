@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 24-Sep-2016.
+# Last Change: 07-Nov-2016.
 
 param(
     $Info,
@@ -47,5 +47,5 @@ if ($ApiKey) {
 }
 $res = iwr @params
 
-$id = Split-Path ($res.Content | ConvertFrom-Json).url -Leaf
-"https://gist.github.com/$id"
+$url = Split-Path ($res.Content | ConvertFrom-Json).history.url
+$url
