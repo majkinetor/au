@@ -11,6 +11,7 @@
 ### Bugfixes
 
 - `Git` plugin small bugfixes
+- Small fixes
 
 ## 2016.11.5
 
