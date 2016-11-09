@@ -6,6 +6,7 @@
 
 - `Update-AUPackages`
   - New parameters for markdown report - `IconSize` and `NoIcons`. Icons are now shown by default.
+  - New plugin `History` that creates markdown report of package updates grouped by dates.
 - Refactoring
 
 ### Bugfixes

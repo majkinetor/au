@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 06-Nov-2016.
+# Last Change: 09-Nov-2016.
 
 # https://www.appveyor.com/docs/how-to/git-push/
 
@@ -48,7 +48,7 @@ git status
 
 Write-Host "Commiting"
 $Message = "AU: $($packages.Length) updated - $($packages | % Name)"
-git commit -m "$Message [skip ci]"
+git commit -m "$Message [skip ci]" --allow-empty
 
 Write-Host "Pushing changes"
 git push -q
