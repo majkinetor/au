@@ -47,8 +47,9 @@ $packages | % { git add -u $_.Name }
 git status
 
 Write-Host "Commiting"
-$Message = "AU: $($packages.Length) updated - $($packages | % Name)"
-git commit -m "$Message [skip ci]" --allow-empty
+$message = "AU: $($packages.Length) updated - $($packages | % Name)"
+$gist_url = $Info.plugin_results.Gist -split '\n' | select -Last 1
+git commit -m "$message`n[skip ci] $gist_url" --allow-empty
 
 Write-Host "Pushing changes"
 git push -q
