@@ -52,7 +52,8 @@ foreach ($commit in $all_commits.Matches.Value) {
 
 $res = $res | select -First $Lines
 
-$history = @"# Update History
+$history = @"
+# Update History
 
 Showing $Lines lines.  
 Click on the first letter of the package name to see its report.  
