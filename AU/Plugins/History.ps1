@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 09-Nov-2016.
+# Last Change: 10-Nov-2016.
 
 param(
     $Info,
@@ -12,18 +12,27 @@ Write-Host "Saving history to $Path"
 
 $res=[ordered]@{}
 $log = git --no-pager log -q --grep '^AU: ' --date iso | Out-String
-$all_commits = $log | sls 'commit(.|\n)+?\s+AU:.+' -AllMatches
+$all_commits = $log | sls 'commit(.|\n)+?(?=\ncommit )' -AllMatches
 foreach ($commit in $all_commits.Matches.Value) {
     $commit = $commit -split '\n'
 
-    $id   = $commit[0].Replace('commit','').Trim()
-    $date = $commit[2].Replace('Date:','').Trim()
-    $date = ([datetime]$date).Date.ToString("yyyy-MM-dd")
+    $id       = $commit[0].Replace('commit','').Trim().Substring(0,7)
+    $date     = $commit[2].Replace('Date:','').Trim()
+    $date     = ([datetime]$date).Date.ToString("yyyy-MM-dd")
+    $report   = $commit[5].Replace('[skip ci]','').Trim()
+    $packages = ($commit[4] -replace '^\s+AU:.+?(-|:) |\[skip ci\]').Trim()
 
-    $packages = $commit[-1] -replace '^\s+AU:.+?(-|:) |\[skip ci\]'
-    $packages = $packages.Trim() -split ' ' | % {"[$_](https://github.com/$Github_UserRepo/commit/{0})" -f $id.Substring(0,6)}
+    $packages_md = $packages -split ' ' | % {
+        $first = $_.Substring(0,1).ToUpper(); $rest  = $_.Substring(1)
+        if ($report) {
+            "[$firt]($report)[$rest](https://github.com/$Github_UserRepo/commit/$id)"
+        } else {
+            "[$_](https://github.com/$Github_UserRepo/commit/$id)"
+        }
+    }
+
     if (!$res.Contains($date)) { $res.$date=@() }
-    $res.$date += $packages -split ' '
+    $res.$date += $packages_md
 }
 
 $res = $res | select -First $Lines
