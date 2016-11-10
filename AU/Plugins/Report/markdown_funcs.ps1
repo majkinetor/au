@@ -28,13 +28,16 @@ function md_table($result, $Columns, $MaxErrorLength=150) {
                    E={'[{0}](https://chocolatey.org/packages/{0}/{1})' -f $_.Name, $(if ($_.Updated) { $_.RemoteVersion } else {$_.NuspecVersion }) }
                 },
                 @{ N='Updated'
-                    E={
+                   E={
                         $r  = "[{0}](#{1})" -f $_.Updated, $_.Name.ToLower()
                         $r += if ($_.Updated) { ' &#x1F538;' }
                         $r
                     }
                 },
-                'Pushed', 'RemoteVersion', 'NuspecVersion',
+                'Pushed', 'RemoteVersion',
+                @{ N='NuspecVersion'
+                   E={"[{0}]({1})" -f $_.NuspecVersion, $_.NuspecXml.package.metadata.packageSourceUrl }
+                },
                 @{ N='Error'
                    E={
                         $err = ("$($_.Error)" -replace "`r?`n", '; ').Trim()
