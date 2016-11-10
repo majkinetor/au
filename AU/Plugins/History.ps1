@@ -52,6 +52,14 @@ foreach ($commit in $all_commits.Matches.Value) {
 
 $res = $res | select -First $Lines
 
-$history = "# Update History`n"
+$history = @"# Update History
+
+Showing $Lines lines.  
+Click on the first letter of the package name to see its report.  
+Click on the other letters of the package name to see its git commit.
+
+---
+
+@"
 foreach ($kv in $res.GetEnumerator()) { $history += "`n{0,-25} {1}`n" -f "**$($kv.Key)**", "$($kv.Value -join ' &ndash; ')" }
 $history | Out-File $Path
