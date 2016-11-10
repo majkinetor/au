@@ -1,6 +1,14 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 07-Nov-2016.
+# Last Change: 10-Nov-2016.
+<#
+.SYNOPSIS
+    Create update history as markdown report using git commit log.
 
+.DESCRIPTION
+   Shows one date per line and all of the packages pushed to the Chocolatey community repository during that day.
+   First letter of the package name links to report (produced by the Report plugin), the rest links to actuall
+   commit (produced by the Git plugin).
+#>
 param(
     $Info,
 

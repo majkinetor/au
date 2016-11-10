@@ -1,10 +1,25 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
 # Last Change: 10-Nov-2016.
 
+<#
+.SYNOPSIS
+    Create update history as markdown report
+
+.DESCRIPTION
+    Shows one date per line and all of the packages pushed to the Chocolatey community
+    repository during that day. First letter of the package name links to report
+    (produced by the Report plugin), the rest links to the actuall commit (produced by the Git plugin).
+#>
 param(
     $Info,
+
+    #Number of dates to show in the report
     $Lines=30,
+
+    #Github user repository, used to create commit links
     $Github_UserRepo = 'chocolatey/chocolatey-coreteampackages',
+
+    #File path where to save the markdown report
     $Path = "UpdateHistory.md"
 )
 
