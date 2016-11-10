@@ -40,7 +40,7 @@ foreach ($commit in $all_commits.Matches.Value) {
     $packages_md = $packages -split ' ' | % {
         $first = $_.Substring(0,1).ToUpper(); $rest  = $_.Substring(1)
         if ($report) {
-            "[$firt]($report)[$rest](https://github.com/$Github_UserRepo/commit/$id)"
+            "[$first]($report)[$rest](https://github.com/$Github_UserRepo/commit/$id)"
         } else {
             "[$_](https://github.com/$Github_UserRepo/commit/$id)"
         }
