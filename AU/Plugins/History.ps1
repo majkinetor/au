@@ -35,7 +35,7 @@ foreach ($commit in $all_commits.Matches.Value) {
     $date     = $commit[2].Replace('Date:','').Trim()
     $date     = ([datetime]$date).Date.ToString("yyyy-MM-dd")
     $report   = $commit[5].Replace('[skip ci]','').Trim()
-    $packages = ($commit[4] -replace '^\s+AU:.+?(-|:) |\[skip ci\]').Trim()
+    [array] $packages = ($commit[4] -replace '^\s+AU:.+?(-|:) |\[skip ci\]').Trim().ToLower()
 
     $packages_md = $packages -split ' ' | % {
         $first = $_.Substring(0,1).ToUpper(); $rest  = $_.Substring(1)
@@ -55,12 +55,11 @@ $res = $res | select -First $Lines
 $history = @"
 # Update History
 
-Showing $Lines lines.  
-Click on the first letter of the package name to see its report.  
-Click on the other letters of the package name to see its git commit.
+Showing maximum $Lines dates.  
+Click on the first letter of the package name to see its report and on the remaining letters to see its git commit.
 
 ---
 
 "@
-foreach ($kv in $res.GetEnumerator()) { $history += "`n{0,-25} {1}`n" -f "**$($kv.Key)**", "$($kv.Value -join ' &ndash; ')" }
+foreach ($kv in $res.GetEnumerator()) { $history += "`n{0} ({2}) {1}`n" -f "**$($kv.Key)**", "$($kv.Value -join ' &ndash; ')", $kv.Value.Length }
 $history | Out-File $Path
