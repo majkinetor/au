@@ -60,6 +60,6 @@ Click on the other letters of the package name to see its git commit.
 
 ---
 
-@"
+"@
 foreach ($kv in $res.GetEnumerator()) { $history += "`n{0,-25} {1}`n" -f "**$($kv.Key)**", "$($kv.Value -join ' &ndash; ')" }
 $history | Out-File $Path
