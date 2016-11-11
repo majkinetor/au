@@ -7,14 +7,15 @@
 - `Update-AUPackages`
   - New parameters for markdown report - `IconSize` and `NoIcons`. Icons are now shown by default.
   - New plugin `History` that creates markdown report of package updates grouped by dates.
-  - Report plugin added link to package source.
+  - Report plugin added link to package source and projectUrl
   - Plugins documentation updated.
 - Refactoring
 
 ### Bugfixes
 
-- `Git` plugin small bugfixes
-- Small fixes
+- `Git` plugin bugfixes.
+- Packages that failed with _Vector smash_ error should now show among errors.
+- Small fixes all around.
 
 ## 2016.11.5
 

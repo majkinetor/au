@@ -34,7 +34,10 @@ function md_table($result, $Columns, $MaxErrorLength=150) {
                         $r
                     }
                 },
-                'Pushed', 'RemoteVersion',
+                'Pushed',
+                @{ N='RemoteVersion'
+                   E={"[{0}]({1})" -f $_.RemoteVersion, $_.NuspecXml.package.metadata.projectUrl }
+                },
                 @{ N='NuspecVersion'
                    E={"[{0}]({1})" -f $_.NuspecVersion, $_.NuspecXml.package.metadata.packageSourceUrl }
                 },
