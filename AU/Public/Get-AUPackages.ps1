@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 22-Oct-2016.
+# Last Change: 12-Nov-2016.
 
 <#
 .SYNOPSIS
@@ -20,19 +20,24 @@
     Get all automatic packages that start with 'p' in the current directory.
 
 .EXAMPLE
-    $au_root = 'c:\packages'; lsau p*
+    $au_root = 'c:\packages'; lsau 'cpu-z*','p*','copyq'
 
-    Get all automatic packages that start with 'p' in the directory 'c:\packages'.
+    Get all automatic packages  in the directory 'c:\packages' that start with 'cpu-z' or 'p' and package which name is 'copyq'.
 #>
-function Get-AUPackages( [string] $Name ) {
+function Get-AUPackages( [string[]] $Name ) {
     $root = $global:au_root
-    if (!$root) { $root = '.' }
+    if (!$root) { $root = $pwd }
+
     ls $root\*\update.ps1 | % {
         $packageDir = gi (Split-Path $_)
+
+        if ($Name -and $Name.Length -gt 0) {
+            $m = $Name | ? { $packageDir.Name -like $_ }
+            if (!$m) { return }
+        }
+
         if ($packageDir.Name -like '_*') { return }
-        if ($Name) {
-            if ( $packageDir.Name -like "$Name" ) { $packageDir }
-        } else { $packageDir }
+        $packageDir
     }
 }
 
