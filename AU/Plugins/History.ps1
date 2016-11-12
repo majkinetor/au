@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 10-Nov-2016.
+# Last Change: 12-Nov-2016.
 
 <#
 .SYNOPSIS
@@ -20,7 +20,7 @@ param(
     $Github_UserRepo = 'chocolatey/chocolatey-coreteampackages',
 
     #File path where to save the markdown report
-    $Path = "UpdateHistory.md"
+    $Path = "Update-History.md"
 )
 
 Write-Host "Saving history to $Path"
