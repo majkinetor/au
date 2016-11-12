@@ -5,6 +5,9 @@ $UserMessage     = $Params.UserMessage
 $NoAppVeyor      = $Params.NoAppVeyor
 $IconSize        = if ($Params.IconSize) { $Params.IconSize } else { 32 }
 $NoIcons         = $Params.NoIcons
+$Title           = if ($Params.Title) { $Params.Title } else {  'Update-AUPackages' }
+
+#=======================================================================================
 
 $now             = $Info.startTime.ToUniversalTime().ToString('yyyy-MM-dd HH:mm')
 $au_version      = gmo au -ListAvailable | % Version | select -First 1 | % { "$_" }
@@ -15,7 +18,7 @@ $update_all_url  = if ($Github_UserRepo) {"https://github.com/$Github_UserRepo/b
 $icon_ok = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_ok.png'
 $icon_er = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_er.png'
 
-"# Update-AUPackages"
+"# $Title"
 
 #=== Header ===============================
 if (!$NoAppVeyor -and $Github_UserRepo) { "[![](https://ci.appveyor.com/api/projects/status/github/${Github_UserRepo}?svg=true)](https://ci.appveyor.com/project/$Github_UserRepo/build/$Env:APPVEYOR_BUILD_NUMBER)" }

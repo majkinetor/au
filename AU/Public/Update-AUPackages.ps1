@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 11-Nov-2016.
+# Last Change: 12-Nov-2016.
 
 <#
 .SYNOPSIS
@@ -100,7 +100,7 @@ function Update-AUPackages {
         foreach ($job in (Get-Job | ? state -ne 'Running')) {
             $p += 1
 
-            if ( 'Failed', 'Completed' -notcontains $job.State) { 
+            if ( 'Stopped', 'Failed', 'Completed' -notcontains $job.State) { 
                 Write-Host "Invalid job state for $($job.Name): " + $job.State
             }
             else {
@@ -110,10 +110,14 @@ function Update-AUPackages {
                 Receive-Job $job | set pkg
                 Remove-Job $job
 
-                if ($job.State -eq 'Failed') { continue }
-                if (!$pkg.Name) {
+                if ( !$pkg ) {
                     $pkg = [AUPackage]::new( (Get-AuPackages $($job.Name)) )
-                    $pkg.Error = 'Job returned no object, Vector smash ?'
+
+                    if ($job.State -eq 'Stopped') {
+                        $pkg.Error = "Job termintated due to the $($Options.UpdateTimeout)s UpdateTimeout"
+                    } else {
+                        $pkg.Error = 'Job returned no object, Vector smash ?'
+                    }
                 }
 
                 $message = $pkg.Name + ' '
@@ -137,11 +141,7 @@ function Update-AUPackages {
             sleep 1
             foreach ($job in $(Get-Job -State Running)) {
                $elapsed = ((get-date) - $job.PSBeginTime).TotalSeconds
-               if ($elapsed -lt $Options.UpdateTimeout) { continue }
-
-               Write-Warning "Terminating job $($job.Name) due to the $($Options.UpdateTimeout)s UpdateTimeout"
-               Remove-Job -Force $job
-               $p += 1
+               if ($elapsed -ge $Options.UpdateTimeout) { Stop-Job $job }
             }
             continue
         }

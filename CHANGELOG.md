@@ -5,17 +5,19 @@
 **NOTE**: Minimal PowerShell version required to run AU is now 5.0 instead of 4.0. This wont affect AppVeyor builds, but might affect local runs. Please update your local PowerShell version (`cinst powershell`) if you run it locally.
 
 - `Update-AUPackages`
-  - New parameters for markdown report - `IconSize` and `NoIcons`. Icons are now shown by default.
   - New plugin `History` that creates markdown report of package updates grouped by dates.
-  - Report plugin added link to package source and projectUrl
+  - Report plugin
+    - Added link to `packageSourceUrl` and `projectUrl`.
+    - New parameter `Title` to change report title.
+    - New parameters for markdown report - `IconSize` and `NoIcons`. Icons are now shown by default.
   - Plugins documentation updated.
-- Refactoring
+- Refactoring code to use PowerShell 5 classes, functions now return `[AUPackage]` object.
 
 ### Bugfixes
 
 - `Git` plugin bugfixes.
-- Packages that failed with _Vector smash_ error should now show among errors.
-- Small fixes all around.
+- Small fixes and tweaks all around.
+- Packages shouldn't drop from the results now no matter what happens with the `updateall` thread.
 
 ## 2016.11.5
 
