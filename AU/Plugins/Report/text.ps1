@@ -1,12 +1,16 @@
+$UserMessage = $Params.UserMessage
+$Title       = if ($Params.Title) { $Params.Title } else {  'Update-AUPackages' }
+
+#==============================================================================
+
 function title($txt) { "r`n{0}`r`n{1}`r`n" -f $txt,('-'*$txt.Length) }
 function indent($txt, $level=4) { $txt -split "`n" | % { ' '*$level + $_ } }
-
-$UserMessage = $Params.UserMessage
 
 $now         = $Info.startTime.ToUniversalTime().ToString('yyyy-MM-dd HH:mm')
 $au_version  = gmo au -ListAvailable | % Version | select -First 1 | % { "$_" }
 $package_no  = $Info.result.all.Length
 
+"{0,-15}{1}" -f 'Title:', $Title
 "{0,-15}{1}" -f 'Time:', $now
 "{0,-15}{1}" -f 'AU version:', $au_version
 "{0,-15}{1}" -f 'AU packages:', $package_no
