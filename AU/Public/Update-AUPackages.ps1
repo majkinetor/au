@@ -38,7 +38,7 @@ function Update-AUPackages {
     [CmdletBinding()]
     param(
         # Filter package names. Supports globs.
-        [string] $Name,
+        [string[]] $Name,
 
         <#
         Hashtable with options:
