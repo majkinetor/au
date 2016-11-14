@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 07-Nov-2016.
+# Last Change: 14-Nov-2016.
 
 <#
 .SYNOPSIS
@@ -92,32 +92,11 @@ function Update-Package {
         [string] $Result
     )
 
-
-    function check_url() {
+    function check_urls() {
         "URL check" | result
         $Latest.Keys | ? {$_ -like 'url*' } | % {
             $url = $Latest[ $_ ]
-            $res = $false
-            try
-            {
-                $response = request $url $Timeout
-                if ($response.ContentType -like '*text/html*') { $err="Latest $($package.Name) URL content type is text/html" }
-                else {
-                    $res = $true
-                    "  $url" | result
-                }
-            }
-            catch { $err = $_ }
-
-            if (!$res) { throw "Can't validate latest $($package.Name) URL (disable using `$NoCheckUrl`): '$url' `n$err" }
-        }
-    }
-
-    function check_version($Version = $global:Latest.Version) {
-        $re = '^(\d{1,16})\.(\d{1,16})\.*(\d{1,16})*\.*(\d{1,16})*(-[^.-]+)*$'
-        if ($Version -notmatch $re) { throw "Latest $($package.Name) version doesn't match the pattern '$re': '$Version'" }
-        for($i=1; $i -le 3; $i++) { 
-            if ([int32]::MaxValue -lt [int64]$Matches[$i]) { throw "$Latest $($package.Name) version component is too big: $($Matches[$i])" }
+            if ($res = check_url $url) { throw "${res}:$url" } else { "  $url" | result }
         }
     }
 
@@ -215,7 +194,7 @@ function Update-Package {
         if ($global:au_Version) {
             "Overriding version to: $global:au_Version" | result
             $global:Latest.Version = $package.RemoteVersion = $global:au_Version
-            check_version
+            if (!(is_version $Latest.Version)) { throw "Invalid version: $($Latest.Version)" }
             $global:au_Version = $null
             return
         }
@@ -316,7 +295,7 @@ function Update-Package {
 
     $global:Latest = @{PackageName = $package.Name}
     $global:Latest.NuspecVersion = $package.NuspecVersion
-    try { check_version $package.NuspecVersion } catch {
+    if (!(is_version $package.NuspecVersion)) {
         Write-Warning "Invalid nuspec file Version '$($package.NuspecVersion)' - using 0.0"
         $global:Latest.NuspecVersion = $package.NuspecVersion = '0.0'
     }
@@ -336,10 +315,10 @@ function Update-Package {
         throw "au_GetLatest failed`n$_"
     }
 
-    check_version
+    if (!(is_version $Latest.Version)) { throw "Invalid version: $($Latest.Version)" }
     $package.RemoteVersion = $Latest.Version
 
-    if (!$NoCheckUrl) { check_url }
+    if (!$NoCheckUrl) { check_urls }
 
     "nuspec version: " + $package.NuspecVersion | result
     "remote version: " + $package.RemoteVersion | result

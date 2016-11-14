@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 24-Sep-2016.
+# Last Change: 12-Nov-2016.
 
 param(
     $Info,
@@ -34,7 +34,7 @@ if ($Info.error_count.total -eq 0) {
 }
 else {
     $context = "with errors "
-    $msg.Subject    = "AU: $($info.error_count.total) $errors_word during update"
+    $msg.Subject = "AU: $($info.error_count.total) $errors_word during update"
     $msg.Body = @"
 <body><pre>
 $($Info.error_count.total) $errors_word during update.

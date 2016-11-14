@@ -143,19 +143,20 @@ Describe 'Update-Package' -Tag update {
                 $res.Updated | Should Be $true
 
                 get_latest -Version 1.3-alpha.1
-                { update } | Should Throw "version doesn't match the pattern"
+                { update } | Should Throw "Invalid version"
 
                 get_latest -Version 1.3a
-                { update } | Should Throw "version doesn't match the pattern"
+                { update } | Should Throw "Invalid version"
             }
 
             It 'throws if latest URL is non existent' {
-                { update -NoCheckUrl:$false } | Should Throw "Can't validate latest test_package URL"
+                { update -NoCheckUrl:$false } | Should Throw "URL syntax is invalid"
             }
 
             It 'throws if latest URL ContentType is text/html' {
                 Mock request { @{ ContentType = 'text/html' } }
-                { update -NoCheckUrl:$false } | Should Throw "Latest test_package URL content type is text/html"
+                Mock is_url { $true }
+                { update -NoCheckUrl:$false } | Should Throw "Bad content type"
             }
 
             It 'quits if updated package version already exist in Chocolatey community feed' {

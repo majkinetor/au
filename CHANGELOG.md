@@ -20,6 +20,11 @@
 - Small fixes and tweaks all around.
 - Packages shouldn't drop from the results now no matter what happens with the `updateall` thread.
 
+### CD
+
+Changes in [au-packages-template](https://github.com/majkinetor/au-packages-template):
+- Added new script `test_all.ps1` to force test all desired packages and randomly test package groups. See wiki page [setting up the force test](https://github.com/majkinetor/au/wiki/AppVeyor#setting-up-the-force-test-project-optional) for how to set this up on AppVeyor.
+
 ## 2016.11.5
 
 - `Update-Package`
