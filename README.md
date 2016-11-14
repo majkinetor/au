@@ -179,7 +179,7 @@ If the `ChecksumXX` hash key is present, the AU will change to checksum verifica
 
 ### Manual checksums
 
-Sometimes invoking `chocolateyInstall.ps1` during the automatic checksum could be problematic so you need to disable it using `ChecksuFor none` and get the checksum some other way. Function `Get-RemoteChecksum` can be used to simplify that:
+Sometimes invoking `chocolateyInstall.ps1` during the automatic checksum could be problematic so you need to disable it using update option `ChecksumFor none` and get the checksum some other way. Function `Get-RemoteChecksum` can be used to simplify that:
 
 ```powershell
     $url     = $download_page.links | ? href -match '\.exe$' | select -First 1 -expand href
