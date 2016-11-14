@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 27-Oct-2016.
+# Last Change: 14-Nov-2016.
 
 <#
 .SYNOPSIS
@@ -43,7 +43,7 @@ function Test-Package {
         [string] $Parameters
     )
 
-    if (!$Install -and !$Uninstall) { $Install = $Uninstall = $true }
+    if (!$Install -and !$Uninstall) { $Install = $true }
 
     if (!$Nu) { $dir = gi $pwd }
     else {

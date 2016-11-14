@@ -4,7 +4,8 @@
 
 **NOTE**: Minimal PowerShell version required to run AU is now 5.0 instead of 4.0. This wont affect AppVeyor builds, but might affect local runs. Please update your local PowerShell version (`cinst powershell`) if you run it locally.
 
-- `Get-AuPackages` now accepts array of globs, for example `lsau 'cpu-z*','p*','copyq'`
+- New function `Get-RemoteChecksum` that can be used instead of automatic checksum.
+- `Get-AuPackages` now accepts array of globs, for example `lsau 'cpu-z*','p*','copyq'`.
 - `Update-AUPackages`
   - New plugin `History` that creates markdown report of package updates grouped by dates.
   - Report plugin
