@@ -176,6 +176,22 @@ If the `ChecksumXX` hash key is present, the AU will change to checksum verifica
 
 **NOTE**: This feature works by monkey patching the `Get-ChocolateyWebFile` helper function and invoking the `chocolateyInstall.ps1` afterwards for the package in question. This means that it downloads the files using whatever method is specified in the package installation script.
 
+
+### Manual checksums
+
+Sometimes invoking `chocolateyInstall.ps1` during the automatic checksum could be problematic so you need to disable it using `ChecksuFor none` and get the checksum some other way. Function `Get-RemoteChecksum` can be used to simplify that:
+
+```powershell
+    $url = $download_page.links | ? href -match $re | select -First 1 -expand href
+    $version = $url -split '/' | select -Last 1 -Skip 1
+    $checksum = Get-RemoteChecksum $url32
+    @{
+        URL32     = $url32
+        Version   = $version
+        Checksum  = $checksum
+    }
+```
+
 ### Force update
 
 You can force the update even if no new version is found by using the parameter `Force` (or global variable `$au_Force`). This can be useful for testing the update and bug fixing, recalculating the checksum after the package was created and already pushed to Chocolatey or if URLs to installer changed without change in version.
