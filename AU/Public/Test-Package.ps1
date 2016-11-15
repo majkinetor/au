@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 14-Nov-2016.
+# Last Change: 15-Nov-2016.
 
 <#
 .SYNOPSIS
@@ -33,14 +33,17 @@ function Test-Package {
         # Test chocolateyUninstall.ps1 only.
         [switch] $Uninstall,
 
+        # Package parameters
+        [string] $Parameters
+
         # Path to chocolatey-test-environment: https://github.com/majkinetor/chocolatey-test-environment
         [string] $Vagrant = $Env:au_Vagrant,
 
         # Open new shell window
         [switch] $VagrantOpen,
 
-        # Package parameters
-        [string] $Parameters
+        # Do not remove existing packages from vagrant package directory
+        [switch] $VagrantNoClear
     )
 
     if (!$Install -and !$Uninstall) { $Install = $true }
@@ -78,8 +81,11 @@ function Test-Package {
     if ($Vagrant) {
         Write-Host "`nTesting package using vagrant"
 
-        Write-Host 'Removing existing vagrant packages'
-        rm $Vagrant\packages\*.nupkg -ea ig
+        if (!$VagrantNoClear)  {
+            Write-Host 'Removing existing vagrant packages'
+            rm $Vagrant\packages\*.nupkg -ea ignore
+            rm $Vagrant\packages\*.xml   -ea ignore
+        }
 
         cp $Nu $Vagrant\packages
         $options_file = "$package_name.$package_version.xml"
