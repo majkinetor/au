@@ -13,6 +13,7 @@
     - New parameter `Title` to change report title.
     - New parameters for markdown report - `IconSize` and `NoIcons`. Icons are now shown by default.
   - Plugins documentation updated.
+  - `Test-Package`: new parameter `VagrantNoClear` that will not delete existing packages from the vagrant package directory.
 - Refactoring code to use PowerShell 5 classes, functions now return `[AUPackage]` object.
 
 ### Bugfixes

@@ -34,7 +34,7 @@ function Test-Package {
         [switch] $Uninstall,
 
         # Package parameters
-        [string] $Parameters
+        [string] $Parameters,
 
         # Path to chocolatey-test-environment: https://github.com/majkinetor/chocolatey-test-environment
         [string] $Vagrant = $Env:au_Vagrant,
@@ -68,7 +68,9 @@ function Test-Package {
         $Nu = gi "$($Nu.DirectoryName)\*.nupkg" | sort -Property CreationTime -Descending | select -First 1
     } elseif ($Nu.Extension -ne '.nupkg') { throw "File is not nupkg or nuspec file" }
 
-    $package_name    = $Nu.Name -replace '(\.\d+)+\.nupkg$'
+    #At this point Nu is nupkg file
+
+    $package_name    = $Nu.Name -replace '(\.\d+)+(-[^-]+)?\.nupkg$'
     $package_version = ($Nu.BaseName -replace $package_name).Substring(1)
 
     Write-Host "`nPackage info"
