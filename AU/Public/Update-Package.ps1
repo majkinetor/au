@@ -311,7 +311,7 @@ function Update-Package {
 
         $res.Keys | % { $global:Latest.Remove($_) }
         $global:Latest += $res
-        if ($global:au_Force) { $Force = $force }
+        if ($global:au_Force) { $Force = $true }
     } catch {
         throw "au_GetLatest failed`n$_"
     }
