@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 14-Nov-2016.
+# Last Change: 24-Nov-2016.
 
 <#
 .SYNOPSIS
@@ -311,6 +311,7 @@ function Update-Package {
 
         $res.Keys | % { $global:Latest.Remove($_) }
         $global:Latest += $res
+        if ($global:au_Force) { $Force = $force }
     } catch {
         throw "au_GetLatest failed`n$_"
     }

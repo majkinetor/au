@@ -14,6 +14,8 @@
     - New parameters for markdown report - `IconSize` and `NoIcons`. Icons are now shown by default.
   - Plugins documentation updated.
   - `Test-Package`: new parameter `VagrantNoClear` that will not delete existing packages from the vagrant package directory.
+- `Update-Package`
+    - `au_GetLatest` can now force update by setting `$global:au_Force = $true`.
 - Refactoring code to use PowerShell 5 classes, functions now return `[AUPackage]` object.
 
 ### Bugfixes
