@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 12-Nov-2016.
+# Last Change: 01-Dec-2016.
 
 <#
 .SYNOPSIS
@@ -110,15 +110,19 @@ function Update-AUPackages {
                 Receive-Job $job | set pkg
                 Remove-Job $job
 
-                if ( !$pkg ) {
+                $ignored = $pkg -eq 'ignore'
+                if ( !$pkg -or $ignored ) {
                     $pkg = [AUPackage]::new( (Get-AuPackages $($job.Name)) )
 
-                    if ($job.State -eq 'Stopped') {
+                    if ($ignored) {
+                        $pkg.Result = "ignored`r`n`r`n" + (gc "$tmp_dir\$($pkg.Name)" -Raw -ea 0)
+                    } elseif ($job.State -eq 'Stopped') {
                         $pkg.Error = "Job termintated due to the $($Options.UpdateTimeout)s UpdateTimeout"
                     } else {
                         $pkg.Error = 'Job returned no object, Vector smash ?'
                     }
                 }
+
 
                 $message = $pkg.Name + ' '
                 $message += if ($pkg.Updated) { 'is updated to ' + $pkg.RemoteVersion } else { 'has no updates' }
@@ -172,11 +176,11 @@ function Update-AUPackages {
                 $pkg.Error = $_
             }
             if (!$pkg) { throw "'$using:package_name' update script returned nothing" }
+            if ($pkg -eq 'ignore') { return $pkg }
 
-
-            $pkg = $pkg[-1]
-            $type = ($pkg | gm).TypeName
-            if ($type -ne 'AUPackage') { throw "'$using:package_name' update script didn't return AUPackage but: $type" }
+            $pkg  = $pkg[-1]
+            $type = $pkg.GetType()
+            if ( "$type" -ne 'AUPackage') { throw "'$using:package_name' update script didn't return AUPackage but: $type" }
 
             if ($pkg.Updated -and $Options.Push) {
                 $pkg.Result += $r = Push-Package

@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 14-Nov-2016.
+# Last Change: 26-Nov-2016.
 
 <#
 .SYNOPSIS
@@ -11,6 +11,6 @@ function Get-RemoteChecksum( [string] $Url, $Algorithm='sha256' ) {
     Invoke-WebRequest $Url -OutFile $fn -UseBasicParsing
     $res = Get-FileHash $fn -Algorithm $Algorithm | % Hash
     rm $fn -ea ignore
-    return $res
+    return $res.ToLower()
 }
 
