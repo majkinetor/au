@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 01-Dec-2016.
+# Last Change: 02-Dec-2016.
 
 <#
 .SYNOPSIS
@@ -176,7 +176,7 @@ function Update-AUPackages {
                 $pkg.Error = $_
             }
             if (!$pkg) { throw "'$using:package_name' update script returned nothing" }
-            if ($pkg -eq 'ignore') { return $pkg }
+            if (($pkg -eq 'ignore') -or ($pkg[-1] -eq 'ignore')) { return 'ignore' }
 
             $pkg  = $pkg[-1]
             $type = $pkg.GetType()
