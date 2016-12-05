@@ -226,6 +226,8 @@ Points 2-4 do not apply if you set the explicit version using the variable `au_V
 - existing _fix versions_ are changed to contain the current date;
 - if _revision_ part is present in the package version and it is not in the _chocolatey fix notation_ form, AU will keep the existing version but notify about it;
 
+Force can be triggered also from the `au_GetLatest` function. This may be needed if remote version doesn't change but there was nevertheless change on the vendor site. See the [example](https://github.com/majkinetor/au-packages/blob/master/cpu-z.install/update.ps1#L18-L39) on how to update the package when remote version is unchanged but hashsum of the installer changes.
+
 ### Global variables
 
 To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up any **already unset** `update` parameter via global variable. The names of global variables are the same as the names of parameters with the prefix `au_`. As an example, the following code will change the update behavior so that URL is not checked for existence and MIME type and update is forced: 
