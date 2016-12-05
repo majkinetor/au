@@ -14,7 +14,7 @@
     - New parameters for markdown report - `IconSize` and `NoIcons`. Icons are now shown by default.
   - Plugins documentation updated.
   - `Test-Package`: new parameter `VagrantNoClear` that will not delete existing packages from the vagrant package directory.
-  - `update.ps1` script can now return keyword `'ignore'` to cause `udpateall` to not report it as an error in output.
+  - `update.ps1` script can now return keyword [ignore](https://github.com/majkinetor/au#ignoring-specific-errors) to cause `udpateall` to not report it as an error in output.
 - `Update-Package`
     - `au_GetLatest` can now force update by setting `$global:au_Force = $true`.
 - Refactoring code to use PowerShell 5 classes, functions now return `[AUPackage]` object.
