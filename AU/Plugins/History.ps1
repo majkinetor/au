@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 12-Nov-2016.
+# Last Change: 09-Dec-2016.
 
 <#
 .SYNOPSIS
@@ -50,7 +50,7 @@ foreach ($commit in $all_commits.Matches.Value) {
     $res.$date += $packages_md
 }
 
-$res = $res | select -First $Lines
+$res = $res.Keys | select -First $Lines | % { $r=@{} } { $r[$_] = $res[$_] } {$r}
 
 $history = @"
 # Update History
