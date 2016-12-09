@@ -50,7 +50,7 @@ foreach ($commit in $all_commits.Matches.Value) {
     $res.$date += $packages_md
 }
 
-$res = $res.Keys | select -First $Lines | % { $r=@{} } { $r[$_] = $res[$_] } {$r}
+$res = $res.Keys | select -First $Lines | % { $r=[ordered]@{} } { $r[$_] = $res[$_] } {$r}
 
 $history = @"
 # Update History
