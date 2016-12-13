@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 24-Nov-2016.
+# Last Change: 13-Dec-2016.
 
 <#
 .SYNOPSIS
@@ -255,8 +255,8 @@ function Update-Package {
     function is_updated() {
         $remote_l = $package.RemoteVersion -replace '-.+'
         $nuspec_l = $package.NuspecVersion -replace '-.+'
-        $remote_r = $package.RemoteVersion -replace '.+(?=(-.+)*)'
-        $nuspec_r = $package.NuspecVersion -replace '.+(?=(-.+)*)'
+        $remote_r = $package.RemoteVersion.Replace($remote_l,'')
+        $nuspec_r = $package.NuspecVersion.Replace($nuspec_l,'')
 
         if ([version]$remote_l -eq [version] $nuspec_l) {
             if (!$remote_r -and $nuspec_r) { return $true }
@@ -344,7 +344,7 @@ function Update-Package {
     'New version is available' | result
 
     $match_url = ($Latest.Keys | ? { $_ -match '^URL*' } | select -First 1 | % { $Latest[$_] } | split-Path -Leaf) -match '(?<=\.)[^.]+$'
-    if ($match_url) { $Latest.FileType = $Matches[0] }
+    if ($match_url -and !$Latest.FileType) { $Latest.FileType = $Matches[0] }
 
     if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' | result }
 

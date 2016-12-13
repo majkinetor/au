@@ -24,6 +24,7 @@
 - `Git` plugin bugfixes.
 - Small fixes and tweaks all around.
 - Packages shouldn't drop from the results now no matter what happens with the `updateall` thread.
+- `$Latest.FileType` is not overwritten when its set in the `au_GetLatest`.
 
 ### CD
 
