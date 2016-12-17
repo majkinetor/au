@@ -1,6 +1,6 @@
 # AU Project Changelog
 
-## Next
+## 2016.12.17
 
 **NOTE**: Minimal PowerShell version required to run AU is now 5.0 instead of 4.0. This wont affect AppVeyor builds, but might affect local runs. Please update your local PowerShell version (`cinst powershell`) if you run it locally.
 
