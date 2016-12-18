@@ -29,4 +29,9 @@ class AUPackage {
         $nu.Load($NuspecPath)
         return $nu
     }
+
+    SaveNuspec(){
+        $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($False)
+        [System.IO.File]::WriteAllText($this.NuspecPath, $this.NuspecXml.InnerXml, $Utf8NoBomEncoding)
+    }
 }
