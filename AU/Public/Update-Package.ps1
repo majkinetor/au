@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 13-Dec-2016.
+# Last Change: 19-Dec-2016.
 
 <#
 .SYNOPSIS
@@ -300,6 +300,7 @@ function Update-Package {
         $global:Latest.NuspecVersion = $package.NuspecVersion = '0.0'
     }
 
+    [System.Net.ServicePointManager]::SecurityProtocol = 'Ssl3,Tls,Tls11,Tls12' #https://github.com/chocolatey/chocolatey-coreteampackages/issues/366
     $module = $MyInvocation.MyCommand.ScriptBlock.Module
     "{0} - checking updates using {1} version {2}" -f $package.Name, $module.Name, $module.Version | result
     try {

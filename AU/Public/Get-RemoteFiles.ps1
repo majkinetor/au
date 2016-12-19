@@ -1,0 +1,76 @@
+# Author: Miodrag Milic <miodrag.milic@gmail.com>
+# Last Change: 19-Dec-2016.
+
+<#
+.SYNOPSIS
+   Get Latest URL32 and/or URL64 into tools directxory.
+
+.DESCRIPTION
+   This function will download the binaries pointed to by $Latest.URL32 and $Latest.URL34.
+   The function is used to embed binaries into the Chocolatey package.
+
+   The function will keep original remote file name but it will add suffix _x32 or _x64.
+   This is intentional because you can use those to match particular installer via wildcards,
+   e.g. `gi *_x32.exe`.
+
+#>
+function Get-Embedded {
+    param (
+        # Delete existing file having $Latest.FileType extension.
+        # Otherwise, when state of the package remains after the update, older installers
+        # will pile up and may get included in the updated package.
+        [switch] $Purge,
+
+        # Override remote file name, use this one as a base. Suffixes _x32/_x64 are added.
+        # Use this parameter if remote URL doesn't contain file name but generated hash.
+        [string] $FileNameBase,
+
+        # By default last URL part is used as a file name. Use this paramter to skip parts 
+        # if file name is specified earlier in the path.
+        [int]    $FileNameSkip=0
+    )
+
+    function name4url($url) {
+        if ($FileNameBase) { return $FileNameBase }
+        $res = $url -split '/' | select -Last 1 -Skip $FileNameSkip
+        $res -replace '\.[a-zA-Z]+$'
+    }
+
+    function ext() {
+        if ($Latest.FileType) { return $Latest.FileType }
+        $url = $Latest.Url32; if (!$url) { $url = $Latest.Url64 }
+        if ($url -match '(?<=\.)[^.]+$') { return $Matches[0] }
+    }
+
+    $ext = ext
+    if (!$ext) { throw 'Unknown file type' }
+
+    if ($Purge) {
+        Write-Host 'Purging' $ext
+        rm -Force "$PSScriptRoot\tools\*.$ext"
+    }
+
+    try {
+        $client = New-Object System.Net.WebClient
+
+        if ($Latest.Url32) {
+            $base_name = name4url $Latest.Url32
+            $file_name = "{0}_x32.{1}" -f $base_name, $ext
+            $file_path = "$PSScriptRoot\tools\$file_name"
+
+            Write-Host "Downloading to $file_name -" $Latest.Url32
+            $client.DownloadFile($Latest.URL32, $file_path)
+            $Latest.Checksum32 = Get-FileHash $file_path | % Hash
+        }
+
+        if ($Latest.Url64) {
+            $base_name = name4url $Latest.Url64
+            $file_name = "{0}_x64.{1}" -f $base_name, $ext
+            $file_path = "$PSScriptRoot\tools\$file_name"
+
+            Write-Host "Downloading to $file_name -" $Latest.Url64
+            $client.DownloadFile($Latest.URL64, $file_path)
+            $Latest.Checksum64 = Get-FileHash $file_path | % Hash
+        }
+    } finally { $client.Dispose() }
+}

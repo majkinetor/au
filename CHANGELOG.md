@@ -1,5 +1,16 @@
 # AU Project Changelog
 
+## NEXT
+
+- New function `Get-RemoteFiles`. See [documentation](https://github.com/majkinetor/au#embedding-binaries).
+- `Update-Package`
+  - Support newer TLS version support by setting the `SecurityProtocol` property of `ServicePointManager`.
+  - Added new function `Convert-ToEmbedded`.
+
+### Bugfixes
+
+- Fix encoding of nuspec (UTF-8 NO BOM) and ps1 (UTF-8 BOM) files.
+
 ## 2016.12.17
 
 **NOTE**: Minimal PowerShell version required to run AU is now 5.0 instead of 4.0. This wont affect AppVeyor builds, but might affect local runs. Please update your local PowerShell version (`cinst powershell`) if you run it locally.
