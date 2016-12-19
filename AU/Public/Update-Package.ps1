@@ -232,7 +232,7 @@ function Update-Package {
             $msg | result
 
             $package.NuspecXml.package.metadata.version = $package.RemoteVersion.ToString()
-            $package.NuspecXml.Save($package.NuspecPath)
+            $package.SaveNuspec()
         }
 
         $sr = au_SearchReplace
@@ -240,15 +240,14 @@ function Update-Package {
             $fileName = $_
             "  $fileName" | result
 
-            $fileContent = gc $fileName -Encoding UTF8
+            $fileContent = gc $fileName
             $sr[ $fileName ].GetEnumerator() | % {
                 ('    {0} = {1} ' -f $_.name, $_.value) | result
                 if (!($fileContent -match $_.name)) { throw "Search pattern not found: '$($_.name)'" }
                 $fileContent = $fileContent -replace $_.name, $_.value
             }
 
-            $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($False)
-            [System.IO.File]::WriteAllLines((gi $fileName).FullName, $fileContent, $Utf8NoBomEncoding)
+            $fileContent | Out-File -Encoding UTF8 $fileName
         }
     }
 
