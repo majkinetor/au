@@ -269,14 +269,10 @@ Embedded packages do not download software from the Internet but contain binarie
 The following example downloads files inside `au_BeforeUpdate` function which is called before the package files are updated with the latest data (function is not called if no update is available): 
 
 ```powershell
-...
-
 function au_BeforeUpdate() {
     #Download $Latest.URL32 / $Latest.URL64 in tools directory and remove any older installers.
     Get-RemoteFiles -Purge
 }
-
-...
 ```
 
 This function will also set the appropriate `$Latest.ChecksumXX`.
