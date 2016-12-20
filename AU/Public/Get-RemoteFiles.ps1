@@ -42,12 +42,13 @@ function Get-RemoteFiles {
         if ($url -match '(?<=\.)[^.]+$') { return $Matches[0] }
     }
 
+    $toolsPath = Resolve-Path tools
     $ext = ext
     if (!$ext) { throw 'Unknown file type' }
 
     if ($Purge) {
         Write-Host 'Purging' $ext
-        rm -Force "$PSScriptRoot\tools\*.$ext" -ea ignore
+        rm -Force "$toolsPath\*.$ext" -ea ignore
     }
 
     try {
@@ -56,21 +57,21 @@ function Get-RemoteFiles {
         if ($Latest.Url32) {
             $base_name = name4url $Latest.Url32
             $file_name = "{0}_x32.{1}" -f $base_name, $ext
-            $file_path = "$PSScriptRoot\tools\$file_name"
+            $file_path = "$toolsPath\$file_name"
 
             Write-Host "Downloading to $file_name -" $Latest.Url32
             $client.DownloadFile($Latest.URL32, $file_path)
-            $Latest.Checksum32 = Get-FileHash $file_path | % Hash
+            $global:Latest.Checksum32 = Get-FileHash $file_path | % Hash
         }
 
         if ($Latest.Url64) {
             $base_name = name4url $Latest.Url64
             $file_name = "{0}_x64.{1}" -f $base_name, $ext
-            $file_path = "$PSScriptRoot\tools\$file_name"
+            $file_path = "$toolsPath\$file_name"
 
             Write-Host "Downloading to $file_name -" $Latest.Url64
             $client.DownloadFile($Latest.URL64, $file_path)
-            $Latest.Checksum64 = Get-FileHash $file_path | % Hash
+            $global:Latest.Checksum64 = Get-FileHash $file_path | % Hash
         }
-    } finally { $client.Dispose() }
+    } catch{ throw $_ } finally { $client.Dispose() }
 }
