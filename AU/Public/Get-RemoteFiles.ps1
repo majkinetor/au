@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 19-Dec-2016.
+# Last Change: 20-Dec-2016.
 
 <#
 .SYNOPSIS
@@ -14,7 +14,7 @@
    e.g. `gi *_x32.exe`.
 
 #>
-function Get-Embedded {
+function Get-RemoteFiles {
     param (
         # Delete existing file having $Latest.FileType extension.
         # Otherwise, when state of the package remains after the update, older installers
