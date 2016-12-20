@@ -5,7 +5,6 @@
 - New function `Get-RemoteFiles`. See [documentation](https://github.com/majkinetor/au#embedding-binaries).
 - `Update-Package`
   - Support newer TLS version support by setting the `SecurityProtocol` property of `ServicePointManager`.
-  - Added new function `Convert-ToEmbedded`.
 
 ### Bugfixes
 
