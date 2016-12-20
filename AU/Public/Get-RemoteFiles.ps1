@@ -47,7 +47,7 @@ function Get-RemoteFiles {
 
     if ($Purge) {
         Write-Host 'Purging' $ext
-        rm -Force "$PSScriptRoot\tools\*.$ext"
+        rm -Force "$PSScriptRoot\tools\*.$ext" -ea ignore
     }
 
     try {
