@@ -27,9 +27,9 @@ pushd $PSScriptRoot\..
 
 if ($is_latest) { $Version = (git tag | % { [version]$_ } | sort -desc | select -first 1).ToString() }
 if ($is_branch) {
-    $branches = git branch -r | % { $_.Replace('origin/','').Trim() }
+    $branches = git branch -r -q | % { $_.Replace('origin/','').Trim() }
     if ($branches -notcontains $Version) { throw "AU branch '$Version' doesn't exist" }
-    if ($Version -ne 'master') { git fetch origin "${Version}:${Version}" }
+    if ($Version -ne 'master') { git fetch -q origin "${Version}:${Version}" }
 } else {
     $tags = git tag
     if ($tags -notcontains $Version ) { throw "AU version '$Version' doesn't exist"}
