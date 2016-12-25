@@ -264,6 +264,8 @@ This is best understood via example - take a look at the [cpu-z](https://github.
 
 ### Embedding binaries
 
+**NOTE**: Unpublished, only on master branch.
+
 Embedded packages do not download software from the Internet but contain binaries inside the package. This makes package way more stable as it doesn't depend on the network for installation. AU function `Get-RemoteFiles` can download files and save them in the package's `tools` directory. It does that by using the `$Latest.URL32` and/or `$Latest.URL64`. 
 
 The following example downloads files inside `au_BeforeUpdate` function which is called before the package files are updated with the latest data (function is not called if no update is available): 
