@@ -25,7 +25,7 @@ $params = @{
     Description       = 'Chocolatey Automatic Package Updater Module'
     HelpInfoURI       = 'https://github.com/majkinetor/au/blob/master/README.md'
     Tags              = 'chocolatey', 'update'
-    LicenseUri        = 'https://opensource.org/licenses/MIT'
+    LicenseUri        = 'https://www.gnu.org/licenses/gpl-2.0.txt'
     ProjectUri        = 'https://github.com/majkinetor/au'
     ReleaseNotes      = 'https://github.com/majkinetor/au/blob/master/CHANGELOG.md'
 

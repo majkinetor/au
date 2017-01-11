@@ -12,7 +12,7 @@
     <projectUrl>https://github.com/majkinetor/au</projectUrl>
     <tags>admin powershell module package chocolatey</tags>
     <copyright>Miodrag Milić</copyright>
-    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <licenseUrl>https://www.gnu.org/licenses/gpl-2.0.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <releaseNotes>https://github.com/majkinetor/au/blob/master/CHANGELOG.md</releaseNotes>
     <docsUrl>https://github.com/majkinetor/au/blob/master/README.md</docsUrl>
