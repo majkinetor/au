@@ -7,6 +7,7 @@
 - New function `Get-RemoteFiles`. See [documentation](https://github.com/majkinetor/au#embedding-binaries).
 - `Update-Package`
   - Support newer TLS version support by setting the `SecurityProtocol` property of `ServicePointManager`.
+- Posh 5 dependency removed for chocolatey package because it is not practical.
 
 ### Bugfixes
 
