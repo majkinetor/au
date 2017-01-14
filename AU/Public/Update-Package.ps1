@@ -240,14 +240,19 @@ function Update-Package {
             $fileName = $_
             "  $fileName" | result
 
-            $fileContent = gc $fileName
+            # If not specifying UTF8 encoding, then UTF8 without BOM encoded files
+            # is detected as ANSI
+            $fileContent = gc $fileName -Encoding UTF8
             $sr[ $fileName ].GetEnumerator() | % {
                 ('    {0} = {1} ' -f $_.name, $_.value) | result
                 if (!($fileContent -match $_.name)) { throw "Search pattern not found: '$($_.name)'" }
                 $fileContent = $fileContent -replace $_.name, $_.value
             }
 
-            $fileContent | Out-File -Encoding UTF8 $fileName
+            $useBomEncoding = if ($fileName.EndsWith('.ps1')) { $true } else { $false }
+            $encoding = New-Object System.Text.UTF8Encoding($useBomEncoding)
+            $output = $fileContent | Out-String
+            [System.IO.File]::WriteAllText((gi $fileName).FullName, $output, $encoding)
         }
     }
 
