@@ -1,5 +1,11 @@
 # AU Project Changelog
 
+## NEXT
+
+### Bugfixes
+
+- Fix ps1 files encoded in UTF8 without BOM being treated as ANSI. 
+
 ## 2017.1.14
 
 **NOTE**: License changed from MIT to GPL2.
