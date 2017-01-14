@@ -1,6 +1,6 @@
 # AU Project Changelog
 
-## NEXT
+## 2017.1.14
 
 **NOTE**: License changed from MIT to GPL2.
 
