@@ -62,6 +62,7 @@ function Get-RemoteFiles {
             Write-Host "Downloading to $file_name -" $Latest.Url32
             $client.DownloadFile($Latest.URL32, $file_path)
             $global:Latest.Checksum32 = Get-FileHash $file_path | % Hash
+            $global:Latest.FileName32 = $file_name
         }
 
         if ($Latest.Url64) {
@@ -72,6 +73,7 @@ function Get-RemoteFiles {
             Write-Host "Downloading to $file_name -" $Latest.Url64
             $client.DownloadFile($Latest.URL64, $file_path)
             $global:Latest.Checksum64 = Get-FileHash $file_path | % Hash
+            $global:Latest.FileName64 = $file_name
         }
     } catch{ throw $_ } finally { $client.Dispose() }
 }
