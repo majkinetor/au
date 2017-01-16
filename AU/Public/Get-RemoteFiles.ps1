@@ -27,7 +27,12 @@ function Get-RemoteFiles {
 
         # By default last URL part is used as a file name. Use this paramter to skip parts 
         # if file name is specified earlier in the path.
-        [int]    $FileNameSkip=0
+        [int]    $FileNameSkip=0,
+
+        # Sets the algorithm to use when calculating checksums
+        # This defaults to sha256
+        [ValidateSet('md5','sha1','sha256','sha384','sha512')]
+        [string] $Algorithm = 'sha256'
     )
 
     function name4url($url) {
@@ -61,7 +66,8 @@ function Get-RemoteFiles {
 
             Write-Host "Downloading to $file_name -" $Latest.Url32
             $client.DownloadFile($Latest.URL32, $file_path)
-            $global:Latest.Checksum32 = Get-FileHash $file_path | % Hash
+            $global:Latest.Checksum32 = Get-FileHash $file_path -Algorithm $Algorithm | % Hash
+            $global:Latest.ChecksumType32 = $Algorithm
             $global:Latest.FileName32 = $file_name
         }
 
@@ -72,7 +78,8 @@ function Get-RemoteFiles {
 
             Write-Host "Downloading to $file_name -" $Latest.Url64
             $client.DownloadFile($Latest.URL64, $file_path)
-            $global:Latest.Checksum64 = Get-FileHash $file_path | % Hash
+            $global:Latest.Checksum64 = Get-FileHash $file_path -Algorithm $Algorithm | % Hash
+            $global:Latest.ChecksumType32 = $Algorithm
             $global:Latest.FileName64 = $file_name
         }
     } catch{ throw $_ } finally { $client.Dispose() }
