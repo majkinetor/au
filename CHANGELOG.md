@@ -1,7 +1,9 @@
 # AU Project Changelog
 
 ## NEXT
-
+- `Update-Package`
+  - `Get-RemoteFiles` now also sets `ChecksumTypeXX` and `FileNameXX` and accepts `Algorithm` parameter. 
+  
 ### Bugfixes
 
 - Fix ps1 files encoded in UTF8 without BOM being treated as ANSI. 
