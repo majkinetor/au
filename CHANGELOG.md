@@ -7,6 +7,7 @@
 ### Bugfixes
 
 - Fix ps1 files encoded in UTF8 without BOM being treated as ANSI. 
+- Fix chocolatey.org package check using wrong package name when overridden in update.ps1.
 
 ## 2017.1.14
 
