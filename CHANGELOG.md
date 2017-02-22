@@ -3,6 +3,8 @@
 ## NEXT
 - `Update-Package`
   - `Get-RemoteFiles` now also sets `ChecksumTypeXX` and `FileNameXX` and accepts `Algorithm` parameter. 
+- `Get-RemoteFiles`
+  - `NoSuffix` switch to not add `_x32` and/or `_x64` suffix at the end of the file names.
   
 ### Bugfixes
 

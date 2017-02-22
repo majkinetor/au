@@ -1,5 +1,5 @@
 # Author: Miodrag Milic <miodrag.milic@gmail.com>
-# Last Change: 20-Dec-2016.
+# Last Change: 22-Feb-2017.
 
 <#
 .SYNOPSIS
@@ -21,11 +21,14 @@ function Get-RemoteFiles {
         # will pile up and may get included in the updated package.
         [switch] $Purge,
 
+        # Do not add arch suffix (_x32 or _64) at the end of the filename
+        [switch] $NoSuffix,
+
         # Override remote file name, use this one as a base. Suffixes _x32/_x64 are added.
         # Use this parameter if remote URL doesn't contain file name but generated hash.
         [string] $FileNameBase,
 
-        # By default last URL part is used as a file name. Use this paramter to skip parts 
+        # By default last URL part is used as a file name. Use this paramter to skip parts
         # if file name is specified earlier in the path.
         [int]    $FileNameSkip=0,
 
@@ -61,7 +64,7 @@ function Get-RemoteFiles {
 
         if ($Latest.Url32) {
             $base_name = name4url $Latest.Url32
-            $file_name = "{0}_x32.{1}" -f $base_name, $ext
+            $file_name = "{0}{2}.{1}" -f $base_name, $ext, $(if ($NoSuffix) { '' } else {'_x32'})
             $file_path = "$toolsPath\$file_name"
 
             Write-Host "Downloading to $file_name -" $Latest.Url32
@@ -73,7 +76,7 @@ function Get-RemoteFiles {
 
         if ($Latest.Url64) {
             $base_name = name4url $Latest.Url64
-            $file_name = "{0}_x64.{1}" -f $base_name, $ext
+            $file_name = "{0}{2}.{1}" -f $base_name, $ext, $(if ($NoSuffix) { '' } else {'_x64'})
             $file_path = "$toolsPath\$file_name"
 
             Write-Host "Downloading to $file_name -" $Latest.Url64
