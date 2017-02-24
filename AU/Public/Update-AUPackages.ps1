@@ -101,7 +101,7 @@ function Update-AUPackages {
             $p += 1
 
             if ( 'Stopped', 'Failed', 'Completed' -notcontains $job.State) { 
-                Write-Host "Invalid job state for $($job.Name): " + $job.State
+                Write-Host "Invalid job state for $($job.Name): " $job.State
             }
             else {
                 Write-Verbose ($job.State + ' ' + $job.Name)
