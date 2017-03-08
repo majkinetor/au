@@ -50,7 +50,9 @@ function Get-RemoteFiles {
         if ($url -match '(?<=\.)[^.]+$') { return $Matches[0] }
     }
 
+    mkdir tools -ea 0 | Out-Null
     $toolsPath = Resolve-Path tools
+    
     $ext = ext
     if (!$ext) { throw 'Unknown file type' }
 
