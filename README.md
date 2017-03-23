@@ -275,7 +275,9 @@ function au_BeforeUpdate() {
 }
 ```
 
-This function will also set the appropriate `$Latest.ChecksumXX`.
+This function will also set the appropriate `$Latest.ChecksumXX`. 
+
+**NOTE**: There is no need to use automatic checksum when embedding because `Get-RemoteFiles` will do it, so always use parameter `-ChecksumFor none`. 
 
 ## Updating all packages
 
