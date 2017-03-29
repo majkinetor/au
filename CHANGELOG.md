@@ -1,6 +1,6 @@
 # AU Project Changelog
 
-## NEXT
+## 2017.3.29
 
 - `Get-RemoteFiles`
   - `NoSuffix` switch to not add `_x32` and/or `_x64` suffix at the end of the file names.
