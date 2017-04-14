@@ -246,6 +246,7 @@ function get_info {
     $info = [PSCustomObject]@{
         result = [PSCustomObject]@{
             all     = $result
+            ignored = $result | ? { $_.Result -match '^ignored\b' }
             errors  = $errors
             ok      = $result | ? { !$_.Error }
             pushed  = $result | ? Pushed
