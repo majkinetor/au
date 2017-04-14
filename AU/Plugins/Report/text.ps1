@@ -42,6 +42,13 @@ if ($Info.error_count.total) {
     $Info.result.errors | % { $_.Name; ident $_.Error; "" }
 }
 
+
+if ($Info.result.ignored) {
+    title Ignored
+    $Info.result.ignored | ft | select 'Name', 'Updated', 'RemoteVersion', 'NuspecVersion' | ft | Out-String | set r
+    indent $r 2
+}
+
 $ok = $Info.result.ok | ? { !$_.Pushed }
 if ($ok) {
     title OK
