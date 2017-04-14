@@ -62,6 +62,11 @@ if ($Info.error_count.total) {
     }
 }
 
+if ($Info.result.ignored) {
+    md_title Ignored
+    md_table $Info.result.ignored -Columns $columns
+}
+
 if ($Info.result.ok) {
     md_title OK
     md_table $Info.result.ok -Columns $columns
