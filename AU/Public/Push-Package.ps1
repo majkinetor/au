@@ -17,8 +17,8 @@ function Push-Package() {
     $package = ls *.nupkg | sort -Property CreationTime -Descending | select -First 1
     if (!$package) { throw 'There is no nupkg file in the directory'}
     if ($api_key) {
-        cpush $package.Name --api-key $api_key --source https://package.chocolatey.org 
+        cpush $package.Name --api-key $api_key --source https://push.chocolatey.org 
     } else {
-        cpush $package.Name --source https://package.chocolatey.org 
+        cpush $package.Name --source https://push.chocolatey.org 
     }
 }
