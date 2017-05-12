@@ -43,7 +43,7 @@ git checkout -q master
 git pull -q origin master
 
 Write-Host "Adding updated packages to git repository: $( $packages | % Name)"
-$packages | % { git add -u $_.Name }
+$packages | % { git add -u $_.Path }
 git status
 
 Write-Host "Commiting"
