@@ -18,8 +18,8 @@ class AUPackage {
         $nuspecFile = gi "$Path\*.nuspec" -ea ignore
         if (!($nuspecFile)) { throw 'No nuspec file found in the package directory' }
 
-        $this.NuspecPath = $nuspecFile.FullName
-        $this.Name = Split-Path -Leaf $this.NuspecPath
+        $this.Name          = $nuspecFile.BaseName
+        $this.NuspecPath    = $nuspecFile.FullName
         $this.NuspecXml     = [AUPackage]::LoadNuspecFile( $this.NuspecPath )
         $this.NuspecVersion = $this.NuspecXml.package.metadata.version
     }
