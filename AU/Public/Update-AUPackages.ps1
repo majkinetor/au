@@ -173,7 +173,7 @@ function Update-AUPackages {
             try {
                 $pkg = ./update.ps1 6> $out
             } catch {
-                $pkg.Error = $_
+                if ($pkg) { $pkg.Error = $_ }
             }
             if (!$pkg) { throw "'$using:package_name' update script returned nothing" }
             if (($pkg -eq 'ignore') -or ($pkg[-1] -eq 'ignore')) { return 'ignore' }
