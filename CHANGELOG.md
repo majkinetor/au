@@ -1,5 +1,9 @@
 # AU Project Changelog
 
+## Next
+
+- Git plugin: package that changed `$Latest.PackageName` was not pushed when updated ([#66](https://github.com/majkinetor/au/issues/66)).
+
 ## 2017.3.29
 
 - `Get-RemoteFiles`
