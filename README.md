@@ -405,7 +405,7 @@ The package will get shown in the report as [ignored](https://gist.github.com/ge
 
 If some errors occur in multiple packages, you can make `updateall` **repeat and/or ignore** such packages globally without any changes to `update.ps1` scripts. To do so, provide repeat/ignore options to its`$Options` HashTable parameter as in the following example:
 
-```powershhell
+```powershell
 IgnoreOn = @(                                      #Error message parts to set the package ignore status
     'Timeout'
     'Access denied'
