@@ -389,9 +389,9 @@ To make a local scheduled task, use the following code in the directory where yo
 
 Its preferable to run the updater on [AppVeyor](https://github.com/majkinetor/au/wiki/AppVeyor).
 
-### Ignoring specific errors
+### Handling update errors
 
-When errors occur during the update, email will be sent to the owner and report will contain [errors](https://gist.github.com/gep13/bd2eaa76f2a9ab739ca0544c502dca6e/c71d4eb3f6de2848f41c1b92e221737d775f0b6f#errors) section. Some network errors are expectable and you may want to ignore them - package that failed will get updated in one of the subsequent runs anyway. To ignore an error, use try/catch block around update and return 'ignore' word from the `./update.ps1` script:
+When errors occur during the update, email will be sent to the owner and report will contain [errors](https://gist.github.com/gep13/bd2eaa76f2a9ab739ca0544c502dca6e/c71d4eb3f6de2848f41c1b92e221737d775f0b6f#errors) section. Some network errors are expectable and you may want to ignore them - package that failed will get updated in one of the subsequent runs anyway. To ignore an error, use try/catch block around update and return 'ignore' word from the `update.ps1` script:
 
     try {
         update
@@ -402,6 +402,22 @@ When errors occur during the update, email will be sent to the owner and report 
     
 
 The package will get shown in the report as [ignored](https://gist.github.com/gep13/bd2eaa76f2a9ab739ca0544c502dca6e/db5313020d882945d8fcc3a10f5176263bb837a6#quicktime) and no errors will be shown.
+
+If some errors occur in multiple packages, you can make `updateall` **repeat and/or ignore** such packages globally without any changes to `update.ps1` scripts. To do so, provide repeat/ignore options to its`$Options` HashTable parameter as in the following example:
+
+```powershhell
+IgnoreOn = @(                                      #Error message parts to set the package ignore status
+    'Timeout'
+    'Access denied'
+)                                  
+RepeatOn = @(                                      #Error message parts on which to repeat package updater
+    'Unable to create secure channel'
+    'Could not establish trust relationship'
+    'Unable to connect'
+)
+RepeatSleep   = 120                                #How much to sleep between repeats in seconds, by default 0
+RepeatCount   = 2                                  #How many times to repeat on errors, by default 1
+```
 
 ## Other functions
 
