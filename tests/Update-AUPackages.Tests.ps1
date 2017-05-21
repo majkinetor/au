@@ -75,6 +75,22 @@ Describe 'Update-AUPackages' -Tag updateall {
             #(ls $Env:APPDATA\Papercut\*).Count | Should Be 1
         #}
 
+        It 'should repeat and ignore on specific error' {
+            gc $global:au_Root\test_package_1\update.ps1 | set content
+            $content -replace 'update', "1|Out-File -Append $TestDrive\tmp_test; throw 'meh'; update" | set content
+            $content | sc $global:au_Root\test_package_1\update.ps1
+
+            $Options.RunInfo = @{ Path  = "$global:au_Root\update_info.xml" }
+            $Options.RepeatOn = @('meh')
+            $Options.IgnoreOn = @('meh')
+
+            updateall -Options $Options -NoPlugins:$false 6>$null
+
+            $info = Import-Clixml $Options.RunInfo.Path
+            $info.result.ignored.Name | Should be 'test_package_1'
+            (gc $TestDrive\tmp_test).Count | Should be 2
+        }
+
         It 'should execute Report plugin' {
             $Options.Report = @{
                 Type = 'markdown'
@@ -109,19 +125,19 @@ Describe 'Update-AUPackages' -Tag updateall {
         }
     }
 
-    # It 'should update package with checsum verification mode' {
+    It 'should update package with checsum verification mode' {
 
-    #     $choco_path = gcm choco.exe | % Source
-    #     $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | % Hash
-    #     gc $global:au_Root\test_package_1\update.ps1 | set content
-    #     $content -replace '@\{.+\}', "@{ Version = '1.3'; ChecksumType32 = 'sha256'; Checksum32 = '$choco_hash'}" | set content
-    #     $content -replace 'update', "update -ChecksumFor 32" | set content
-    #     $content | sc $global:au_Root\test_package_1\update.ps1
+        $choco_path = gcm choco.exe | % Source
+        $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | % Hash
+        gc $global:au_Root\test_package_1\update.ps1 | set content
+        $content -replace '@\{.+\}', "@{ Version = '1.3'; ChecksumType32 = 'sha256'; Checksum32 = '$choco_hash'}" | set content
+        $content -replace 'update', "update -ChecksumFor 32" | set content
+        $content | sc $global:au_Root\test_package_1\update.ps1
 
-    #     $res = updateall -Options $Options 6> $null
-    #     $res.Count | Should Be $pkg_no
-    #     $res[0].Updated | Should Be $true
-    # }
+        $res = updateall -Options $Options 6> $null
+        $res.Count | Should Be $pkg_no
+        $res[0].Updated | Should Be $true
+    }
 
     It 'should limit update time' {
         gc $global:au_Root\test_package_1\update.ps1 | set content
