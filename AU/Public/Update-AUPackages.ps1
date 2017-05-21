@@ -183,7 +183,7 @@ function Update-AUPackages {
                     if ($run_no -ne $run_max) {
                         foreach ($msg in $Options.RepeatOn) { 
                             if ($_.Exception -notlike "*${msg}*") { continue }
-                            Write-Warning "Repeating $using:package_name ($run_no): $msg"
+                            Write-Warning "Repeating $using:package_name ($run_no): $($_.Exception)"
                             if ($Options.RepeatSleep) { Write-Warning "Sleeping $($Options.RepeatSleep) seconds before repeating"; sleep $Options.RepeatSleep }
                             continue main
                         }
