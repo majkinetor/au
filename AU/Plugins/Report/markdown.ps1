@@ -64,7 +64,7 @@ if ($Info.error_count.total) {
 
 if ($Info.result.ignored) {
     md_title Ignored
-    md_table $Info.result.ignored -Columns 'Icon', 'Name', 'NuspecVersion', 'Error'
+    md_table $Info.result.ignored -Columns 'Icon', 'Updated', 'Name', 'NuspecVersion'
 }
 
 if ($Info.result.ok) {
