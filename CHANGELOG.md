@@ -2,7 +2,8 @@
 
 ## Next
 
-- `Update-AUPackages` - New options to handle update.ps1 errors: `IgnoreOn`, `RepeatOn`,`RepeatCount`,`RepeatSleep`. See [documentation](https://github.com/majkinetor/au#handling-update-errors). ([#76](https://github.com/majkinetor/au/issues/76))
+- `Update-AUPackages` 
+  - New options to handle update.ps1 errors: `IgnoreOn`, `RepeatOn`,`RepeatCount`,`RepeatSleep`. See [documentation](https://github.com/majkinetor/au#handling-update-errors). ([#76](https://github.com/majkinetor/au/issues/76))
 
 ### Bugfixes
 
