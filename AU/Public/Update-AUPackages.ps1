@@ -174,7 +174,6 @@ function Update-AUPackages {
             $run_max = if ($Options.RepeatOn) { if (!$Options.RepeatCount) { 2 } else { $Options.RepeatCount+1 } } else {1}
 
             :main while ($run_no -lt $run_max) {
-                Write-Host 'Running' $run_no
                 $run_no++
                 $pkg = $null #test double report when it fails
                 try {
@@ -184,7 +183,7 @@ function Update-AUPackages {
                     if ($run_no -ne $run_max) {
                         foreach ($msg in $Options.RepeatOn) { 
                             if ($_.Exception -notlike "*${msg}*") { continue }
-                            Write-Warning "Repeating updater ($run_no): $msg"
+                            Write-Warning "Repeating $using:package_name ($run_no): $msg"
                             if ($Options.RepeatSleep) { Write-Warning "Sleeping $($Options.RepeatSleep) seconds before repeating"; sleep $Options.RepeatSleep }
                             continue main
                         }
