@@ -2,6 +2,8 @@
 
 ## Next
 
+- `Update-AUPackages` - New options to repeat updater on specific errors: `RepeatOn`,`RepeatCount`,`RepeatSleep` ([#76](https://github.com/majkinetor/au/issues/76))
+
 ### Bugfixes
 
 - Git plugin: package that changed `$Latest.PackageName` was not pushed when updated ([#66](https://github.com/majkinetor/au/issues/66)).

@@ -168,13 +168,29 @@ function Update-AUPackages {
                 $s = [Scriptblock]::Create( $Options.BeforeEach )
                 . $s $using:package_name $Options
             }
+            
+            $run_no = 0
+            $run_max = $Options.RepeatCount
+            $run_max = if ($Options.RepeatOn) { if (!$Options.RepeatCount) { 2 } else { $Options.RepeatCount+1 } } else {1}
 
-            $pkg = $null #test double report when it fails
-            try {
-                $pkg = ./update.ps1 6> $out
-            } catch {
-                if ($pkg) { $pkg.Error = $_ }
-            }
+            :main while ($run_no -lt $run_max) {
+                Write-Host 'Running' $run_no
+                $run_no++
+                $pkg = $null #test double report when it fails
+                try {
+                    $pkg = ./update.ps1 6> $out
+                } catch {
+                    if ($run_no -ne $run_max) {
+                        foreach ($msg in $Options.RepeatOn) { 
+                            if ($_.Exception -notlike "*${msg}*") { continue }
+                            Write-Warning "Repeating updater ($run_no): $msg"
+                            if ($Options.RepeatSleep) { Write-Warning "Sleeping $($Options.RepeatSleep) seconds before repeating"; sleep $Options.RepeatSleep }
+                            continue main
+                        }
+                    }
+                    if ($pkg) { $pkg.Error = $_ }
+                }
+            } 
             if (!$pkg) { throw "'$using:package_name' update script returned nothing" }
             if (($pkg -eq 'ignore') -or ($pkg[-1] -eq 'ignore')) { return 'ignore' }
 
