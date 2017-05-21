@@ -188,10 +188,16 @@ function Update-AUPackages {
                             continue main
                         }
                     }
+                    foreach ($msg in $Options.IgnoreOn) { 
+                        if ($_.Exception -notlike "*${msg}*") { continue }
+                        Write-Warning "Ignoring ${using:package_name}: $($_.Exception)"
+                        return 'ignore' 
+                    }
                     if ($pkg) { $pkg.Error = $_ }
                 }
             } 
             if (!$pkg) { throw "'$using:package_name' update script returned nothing" }
+
             if (($pkg -eq 'ignore') -or ($pkg[-1] -eq 'ignore')) { return 'ignore' }
 
             $pkg  = $pkg[-1]
