@@ -179,6 +179,7 @@ function Update-AUPackages {
                 $pkg = $null #test double report when it fails
                 try {
                     $pkg = ./update.ps1 6> $out
+                    break main
                 } catch {
                     if ($run_no -ne $run_max) {
                         foreach ($msg in $Options.RepeatOn) { 
