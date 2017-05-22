@@ -420,7 +420,9 @@ RepeatCount   = 2                                  #How many times to repeat on 
 
 **Notes**
 - The repeat wont work if the package has its own ignore routine for the same error, because the package wont return an error in that case.
+- If the same error is both in `RepeatOn` and `IgnoreOn` list, the package will first be repeated and if the error persists, it will be ignored.
 - The last line returned by the package prior to the word 'ignore' is used as `IgnoreMessage` for that package and shown in reports.
+
 
 ## Other functions
 
