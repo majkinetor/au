@@ -299,7 +299,7 @@ PS C:\au-packages\copyq> .\update.ps1 -Whatif
 WARNING: WhatIf passed - package files will not be changed
 copyq - checking updates using au version 2017.5.21.172014
 ...
-WARNING: Package saved to: C:\Users\majkeintor\AppData\Local\Temp\au\copyq\_output
+WARNING: Package saved to: C:\Users\majkinetor\AppData\Local\Temp\au\copyq\_output
 ```
 
 The [au-packages-template](https://github.com/majkinetor/au-packages-template/) contains the [whatif](https://github.com/majkinetor/au-packages-template/blob/master/_scripts/whatif.ps1) script that you can use use in your AU updaters. Take a look at [example package](https://github.com/majkinetor/au-packages/blob/master/copyq/update.ps1).
