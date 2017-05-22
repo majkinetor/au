@@ -282,8 +282,6 @@ This function will also set the appropriate `$Latest.ChecksumXX`.
 
 If you don't like the fact that AU changes the package inline, or just want to preview changes you can use `$WhatIf` parameter or `$au_WhatIf` global variable:
 
-Then, calling the update with `./update.ps1 -Whatif` will not change the package, and ommitting this parameter will work the same as before:
-
 ```powershell
 PS C:\au-packages\copyq> $au_Force = $au_WhatIf = $true; .\update.ps1
 
