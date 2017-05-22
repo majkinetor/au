@@ -418,7 +418,9 @@ RepeatSleep   = 120                                #How much to sleep between re
 RepeatCount   = 2                                  #How many times to repeat on errors, by default 1
 ```
 
-**Note**: The repeat wont work if the package has its own ignore routine for the same error, because the package wont return an error in that case.
+**Notes**
+- The repeat wont work if the package has its own ignore routine for the same error, because the package wont return an error in that case.
+- The last line reterned by the package prior to the word 'ignore' is used as `IgnoreMessage` for that package and shown in reports.
 
 ## Other functions
 
