@@ -283,7 +283,7 @@ This function will also set the appropriate `$Latest.ChecksumXX`.
 If you don't like the fact that AU changes the package inline, you can quickly adapt it so it doesn't write to package files but saves any changes to separate folder. To do so provide a switch parameter to `update.ps1` named `$whatif` and surround call to `update` with `backup` and `restore` functions like this:
 
 ```powershell
-    param(switch$WhatIf)
+    param( [switch] $WhatIf )
     ...
 
     backup
