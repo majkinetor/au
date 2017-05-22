@@ -295,6 +295,8 @@ Then, calling the update with `./update.ps1 -Whatif` will not change the package
 
 The [au-packages-template](https://github.com/majkinetor/au-packages-template/) contains the [whatif](https://github.com/majkinetor/au-packages-template/blob/master/_scripts/whatif.ps1) script that you can use use in your AU updaters. Take a look at [example package](https://github.com/majkinetor/au-packages/blob/master/copyq/update.ps1).
 
+**NOTE**: The inline editing as is intentional design chocice so that AU can use latest package data, such as latest version, checksum etc. User scripts and AU plugins can also use latest package data.
+
 ## Updating all packages
 
 You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each in a separate thread. If it detects that a package is updated it will optionally try to push it to the Chocolatey repository and may also run configured plugins.
