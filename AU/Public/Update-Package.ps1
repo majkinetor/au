@@ -89,7 +89,10 @@ function Update-Package {
         [switch] $NoHostOutput,
 
         #Output variable.
-        [string] $Result
+        [string] $Result,
+
+        #Backup and restore package 
+        [switch] $WhatIf
     )
 
     function check_urls() {
@@ -294,6 +297,8 @@ function Update-Package {
         }
     }
 
+    if ($WhatIf) {  Write-Warning "WhatIf passed - package files will not be changed" }
+
     $package = [AUPackage]::new( $pwd )
     if ($Result) { sv -Scope Global -Name $Result -Value $package }
 
@@ -353,12 +358,20 @@ function Update-Package {
 
     if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' | result }
 
-    if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate' | result; au_BeforeUpdate | result }
-    update_files
-    if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate | result }
-
-    choco pack --limit-output | result
-    if ($LastExitCode -ne 0) { throw "Choco pack failed with exit code $LastExitCode" }
+    if ($WhatIf) { $package.Backup() }
+    try {
+        if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate' | result; au_BeforeUpdate | result }
+        update_files
+        if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate | result }
+        
+        choco pack --limit-output | result
+        if ($LastExitCode -ne 0) { throw "Choco pack failed with exit code $LastExitCode" }
+    } finally {
+        if ($WhatIf) {
+            $save_dir = $package.SaveAndRestore() 
+            Write-Warning "Package restored and updates saved to: $save_dir"
+        }
+    }
 
     'Package updated' | result
     $package.Updated = $true

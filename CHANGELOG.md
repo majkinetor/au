@@ -5,7 +5,10 @@
 - `Update-AUPackages` 
   - New options to handle update.ps1 errors: `IgnoreOn`, `RepeatOn`,`RepeatCount`,`RepeatSleep`. See [documentation](https://github.com/majkinetor/au#handling-update-errors). ([#76](https://github.com/majkinetor/au/issues/76))
   - New AUPackage proprties: `Ignored` (boolean) and `IgnoreMessage`.
-  - Report plugin: `IgnoreMessage` is added in the ignore section
+  - Report plugin: `IgnoreMessage` is added in the ignore section.
+  - Added `WhatIf` option that will trigger WhatIf on all packages.
+- `Update-AuPackage`
+  - Added parameter `WhatIf` that will save and restore the package. See [documentation](https://github.com/majkinetor/au#whatif). ([#30](https://github.com/majkinetor/au/issues/30))
 
 ### Bugfixes
 

@@ -26,6 +26,7 @@ Describe 'Update-Package' -Tag update {
         $global:au_NoCheckUrl          = $true
         $global:au_NoCheckChocoVersion = $true
         $global:au_ChecksumFor         = 'none'
+        $global:au_WhatIf              = $false
 
         rv -Scope global Latest -ea ignore
         'BeforeUpdate', 'AfterUpdate' | % { rm "Function:/au_$_" -ea ignore }
@@ -36,6 +37,17 @@ Describe 'Update-Package' -Tag update {
     InModuleScope AU {
 
         Context 'Updating' {
+             It 'can backup and restore using WhatIf' {
+                get_latest -Version 1.2.3
+                $global:au_Force = $true; $global:au_Version = '1.0'
+                $global:au_WhatIf = $true
+                $res = update -ChecksumFor 32 6> $null
+
+                $res.Updated  | Should Be $true
+                $res.RemoteVersion | Should Be '1.0'
+                (nuspec_file).package.metadata.version | Should Be 1.2.3
+            }
+
             It 'can let user override the version' {
                 get_latest -Version 1.2.3
                 $global:au_Force = $true; $global:au_Version = '1.0'

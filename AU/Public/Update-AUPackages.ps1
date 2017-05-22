@@ -47,6 +47,7 @@ function Update-AUPackages {
           UpdateTimeout     - Timeout for background job in seconds, by default 1200 (20 minutes).
           Force             - Force package update even if no new version is found.
           Push              - Set to true to push updated packages to Chocolatey community repository.
+          WhatIf            - Set to true to set WhatIf option for all packages.
           PluginPath        - Additional path to look for user plugins. If not set only module integrated plugins will work
 
           Plugin            - Any HashTable key will be treated as plugin with the same name as the option name.
@@ -56,6 +57,10 @@ function Update-AUPackages {
                               To list default AU plugins run:
 
                                     ls "$(Split-Path (gmo au -list).Path)\Plugins\*.ps1"
+          IgnoreOn          - Array of strings, error messages that packages will get ignored on
+          RepeatOn          - Array of strings, error messages that package updaters will run again on
+          RepeatCount       - Number of repeated runs to do when given error occurs, by default 1
+          RepeatSleep       - How long to sleep between repeast, by default 0
 
           BeforeEach        - User ScriptBlock that will be called before each package and accepts 2 arguments: Name & Options.
                               To pass additional arguments, specify them as Options key/values.
@@ -164,6 +169,7 @@ function Update-AUPackages {
 
             $global:au_Timeout = $Options.Timeout
             $global:au_Force   = $Options.Force
+            $global:au_WhatIf  = $Options.WhatIf
             $global:au_Result  = 'pkg'
 
             if ($Options.BeforeEach) {
