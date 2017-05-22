@@ -278,6 +278,23 @@ This function will also set the appropriate `$Latest.ChecksumXX`.
 
 **NOTE**: There is no need to use automatic checksum when embedding because `Get-RemoteFiles` will do it, so always use parameter `-ChecksumFor none`. 
 
+## WhatIf
+
+If you don't like the fact that AU changes the package inline, you can quickly adapt it so it doesn't write to package files but saves any changes to separate folder. To do so provide a switch parameter to `update.ps1` named `$whatif` and surround call to `update` with `backup` and `restore` functions like this:
+
+```powershell
+    param(switch$WhatIf)
+    ...
+
+    backup
+    update -ChecksumFor none
+    restore
+```
+
+Then, calling the update with `./update.ps1 -Whatif` will not change the package, and ommitting this parameter will work the same as before.
+
+The [au-packages-template](https://github.com/majkinetor/au-packages-template/) contains the [whatif](https://github.com/majkinetor/au-packages-template/blob/master/_scripts/whatif.ps1) script that you can use use in your AU updaters. Take a look at [example package](https://github.com/majkinetor/au-packages/blob/master/copyq/update.ps1).
+
 ## Updating all packages
 
 You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each in a separate thread. If it detects that a package is updated it will optionally try to push it to the Chocolatey repository and may also run configured plugins.
