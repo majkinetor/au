@@ -290,6 +290,7 @@ function get_info {
         minutes   = ((Get-Date) - $startTime).TotalMinutes.ToString('#.##')
         pushed    = $result | ? Pushed  | measure | % count
         updated   = $result | ? Updated | measure | % count
+        ignored   = $result | ? Ignored | measure | % count
         stats     = ''
         options   = $Options
         plugin_results = @{}
@@ -308,7 +309,7 @@ function get_info {
 
 function get-stats {
     "Finished {0} packages after {1} minutes.  " -f $info.packages.length, $info.minutes
-    "{0} updated and {1} pushed.  " -f $info.updated, $info.pushed
+    "{0} updated, {1} pushed, {2} ignored  " -f $info.updated, $info.pushed, $info.ignored
     "{0} errors - {1} update, {2} push.  " -f $info.error_count.total, $info.error_count.update, $info.error_count.push
 }
 
