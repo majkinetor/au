@@ -288,11 +288,13 @@ PS C:\au-packages\copyq> $au_Force = $au_WhatIf = $true; .\update.ps1
 WARNING: WhatIf passed - package files will not be changed
 copyq - checking updates using au version 2017.5.21.172014
 ...
-Successfully created package 'C:\\au-packages\copyq\copyq.3.0.1.20170523.nupkg'
+Successfully created package 'C:\au-packages\copyq\copyq.3.0.1.20170523.nupkg'
 WARNING: Package restored and updates saved to: C:\Users\majkinetor\AppData\Local\Temp\au\copyq\_output
 ```
 
-**NOTE**: The inline editing is intentional design chocice so that AU, its plugins and user scripts can use latest package data, such as latest version, checksum etc.
+**NOTES**: 
+- The inline editing is intentional design chocice so that AU, its plugins and user scripts can use latest package data, such as latest version, checksum etc.
+- WhatIf can be used when updating all packages.
 
 ## Updating all packages
 
