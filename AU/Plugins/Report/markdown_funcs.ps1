@@ -29,7 +29,7 @@ function md_table($result, $Columns, $MaxErrorLength=150) {
                 },
                 @{ N='Updated'
                    E={
-                        $r  = "[{0}](#{1})" -f $_.Updated, $_.Name.ToLower()
+                        $r  = "[{0}](#{1})" -f $_.Updated, $_.Name.Replace('.','').ToLower()
                         $r += if ($_.Updated) { ' &#x1F538;' }
                         $r
                     }
