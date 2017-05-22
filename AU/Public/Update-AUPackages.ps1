@@ -115,7 +115,9 @@ function Update-AUPackages {
                     $pkg = [AUPackage]::new( (Get-AuPackages $($job.Name)) )
 
                     if ($ignored) {
-                        $pkg.Result = "ignored`r`n`r`n" + (gc "$tmp_dir\$($pkg.Name)" -Raw -ea 0)
+                        $pkg.Result = @('ignored', '') + (gc "$tmp_dir\$($pkg.Name)" -ea 0)
+                        $pkg.Ignored = $true
+                        $pkg.IgnoreMessage = $pkg.Result[-1]
                     } elseif ($job.State -eq 'Stopped') {
                         $pkg.Error = "Job termintated due to the $($Options.UpdateTimeout)s UpdateTimeout"
                     } else {
@@ -190,10 +192,11 @@ function Update-AUPackages {
                     }
                     foreach ($msg in $Options.IgnoreOn) { 
                         if ($_.Exception -notlike "*${msg}*") { continue }
-                        Write-Warning "Ignoring ${using:package_name}: $($_.Exception)"
-                        return 'ignore' 
+                        "AU ignored on: $($_.Exception)" | Out-File -Append $out
+                        $pkg = 'ignore'
+                        break main
                     }
-                    if ($pkg) { $pkg.Error = $_ }
+                    if ($pkg -is [AUPackage] ) { $pkg.Error = $_ }
                 }
             } 
             if (!$pkg) { throw "'$using:package_name' update script returned nothing" }
@@ -236,7 +239,7 @@ function Update-AUPackages {
 function run_plugins() {
     if ($NoPlugins) { return }
 
-    rm -Force -Recurse $tmp_dir\plugins -ea Ignore
+    rm -Force -Recurse $tmp_dir\plugins -ea ig
     mkdir -Force $tmp_dir\plugins | Out-Null
     foreach ($key in $Options.Keys) {
         $params = $Options.$key
@@ -253,7 +256,7 @@ function run_plugins() {
         try {
             Write-Host "`nRunning $key"
             & $plugin_path $Info @params *>&1 | tee $tmp_dir\plugins\$key | Write-Host
-            $info.plugin_results.$key += gc $tmp_dir\plugins\$key -ea ignore
+            $info.plugin_results.$key += gc $tmp_dir\plugins\$key -ea ig
         } catch {
             $err_lines = $_.ToString() -split "`n"
             Write-Host "  ERROR: " $(foreach ($line in $err_lines) { "`n" + ' '*4 + $line })
@@ -268,7 +271,7 @@ function get_info {
     $info = [PSCustomObject]@{
         result = [PSCustomObject]@{
             all     = $result
-            ignored = $result | ? { $_.Result -match '^ignored\b' }
+            ignored = $result | ? Ignored
             errors  = $errors
             ok      = $result | ? { !$_.Error }
             pushed  = $result | ? Pushed

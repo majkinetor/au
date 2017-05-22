@@ -9,6 +9,8 @@ class AUPackage {
     [string]   $Error
     [string]   $NuspecPath
     [xml]      $NuspecXml
+    [bool]     $Ignored
+    [string]   $IgnoreMessage
 
     AUPackage([string] $Path ){
         if ([String]::IsNullOrWhiteSpace( $Path )) { throw 'Package path can not be empty' }

@@ -75,20 +75,33 @@ Describe 'Update-AUPackages' -Tag updateall {
             #(ls $Env:APPDATA\Papercut\*).Count | Should Be 1
         #}
 
-        It 'should repeat and ignore on specific error' {
+
+        It 'should ignore the package that returns "ignore"' {
             gc $global:au_Root\test_package_1\update.ps1 | set content
-            $content -replace 'update', "1|Out-File -Append $TestDrive\tmp_test; throw 'meh'; update" | set content
+            $content -replace 'update', "Write-Host 'test ignore'; 'ignore'" | set content
             $content | sc $global:au_Root\test_package_1\update.ps1
 
-            $Options.RunInfo = @{ Path  = "$global:au_Root\update_info.xml" }
-            $Options.RepeatOn = @('meh')
-            $Options.IgnoreOn = @('meh')
+            $res = updateall -Options $Options -NoPlugins:$false 6>$null
 
-            updateall -Options $Options -NoPlugins:$false 6>$null
+            $res[0].Ignored | Should Be $true
+            $res[0].IgnoreMessage | Should Be 'test ignore'
+        }
 
-            $info = Import-Clixml $Options.RunInfo.Path
-            $info.result.ignored.Name | Should be 'test_package_1'
-            (gc $TestDrive\tmp_test).Count | Should be 2
+        It 'should repeat and ignore on specific error' {
+            gc $global:au_Root\test_package_1\update.ps1 | set content
+            $content -replace 'update', "1|Out-File -Append $TestDrive\tmp_test; throw 'test ignore'; update" | set content
+            $content | sc $global:au_Root\test_package_1\update.ps1
+
+            $Options.RepeatOn = @('test ignore')
+            $Options.RepeatCount = 2
+            $Options.IgnoreOn = @('test ignore')
+
+            $res = updateall -Options $Options -NoPlugins:$false 6>$null
+
+            $res[0].Ignored | Should Be $true
+            $res[0].IgnoreMessage | Should BeLike 'AU ignored on*test ignore'
+
+            (gc $TestDrive\tmp_test).Count | Should be 3
         }
 
         It 'should execute Report plugin' {
