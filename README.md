@@ -261,7 +261,6 @@ Metapackages can reuse an AU updater of its dependency by the following way:
 
 This is best understood via example - take a look at the [cpu-z](https://github.com/majkinetor/au-packages/blob/master/cpu-z/update.ps1) AU updater which uses the updater from the [cpu-z.install](https://github.com/majkinetor/au-packages/blob/master/cpu-z.install/update.ps1) package on which it depends. It overrides the `au_SearchReplace` function and the `update` call but keeps the `au_GetLatest`.
 
-
 ### Embedding binaries
 
 Embedded packages do not download software from the Internet but contain binaries inside the package. This makes package way more stable as it doesn't depend on the network for installation. AU function `Get-RemoteFiles` can download files and save them in the package's `tools` directory. It does that by using the `$Latest.URL32` and/or `$Latest.URL64`. 
@@ -418,6 +417,8 @@ RepeatOn = @(                                      #Error message parts on which
 RepeatSleep   = 120                                #How much to sleep between repeats in seconds, by default 0
 RepeatCount   = 2                                  #How many times to repeat on errors, by default 1
 ```
+
+**Note**: The repeat wont work if the package has its own ignore routine for the same error, because the package wont return an error in that case.
 
 ## Other functions
 
