@@ -295,6 +295,7 @@ WARNING: Package restored and updates saved to: C:\Users\majkinetor\AppData\Loca
 **NOTES**: 
 - The inline editing is intentional design chocice so that AU, its plugins and user scripts can use latest package data, such as latest version, checksum etc.
 - WhatIf can be used when updating all packages.
+- Since WhatIf saves the original package before the update and restores it after the update, interruption at specific time can cause package files to be left unrestored. In that case you can manually restore the package from `TEMP\au\<package_name>\_backup` directory. This is not very likelly however in general because restore happens very fast after the update.
 
 ## Updating all packages
 
