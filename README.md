@@ -278,7 +278,7 @@ This function will also set the appropriate `$Latest.ChecksumXX`.
 
 **NOTE**: There is no need to use automatic checksum when embedding because `Get-RemoteFiles` will do it, so always use parameter `-ChecksumFor none`. 
 
-## WhatIf
+### WhatIf
 
 If you don't like the fact that AU changes the package inline, you can quickly adapt it so it doesn't write to package files but saves any changes to separate folder. To do so provide a switch parameter to `update.ps1` named `$whatif` and surround call to `update` with `backup` and `restore` functions like this:
 
@@ -287,8 +287,8 @@ If you don't like the fact that AU changes the package inline, you can quickly a
     ...
 
     backup
-    update -ChecksumFor none
-    restore
+    try { update -ChecksumFor none } finally { restore }
+
 ```
 
 Then, calling the update with `./update.ps1 -Whatif` will not change the package, and ommitting this parameter will work the same as before:
