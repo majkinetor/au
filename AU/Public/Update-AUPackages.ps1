@@ -196,7 +196,7 @@ function Update-AUPackages {
                         $pkg = 'ignore'
                         break main
                     }
-                    if ($pkg -is [AUPackage] ) { $pkg.Error = $_ }
+                    if ($pkg) { $pkg.Error = $_ }
                 }
             } 
             if (!$pkg) { throw "'$using:package_name' update script returned nothing" }
