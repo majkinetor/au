@@ -49,7 +49,9 @@ function md_table($result, $Columns, $MaxErrorLength=150) {
                             "[{0}](#{1})" -f $err, $_.Name.ToLower()
                         }
                     }
-                }
+                }, 
+                'Ignored',
+                'IgnoreMessage'
 
         $res += ((1..$Columns.Length | % { $col = $Columns[$_-1]; '|' + $o.$col }) -join '') + "|`r`n"
     }

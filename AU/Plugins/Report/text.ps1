@@ -45,7 +45,7 @@ if ($Info.error_count.total) {
 
 if ($Info.result.ignored) {
     title Ignored
-    $Info.result.ignored | ft | select 'Name', 'NuspecVersion', 'Error' | ft | Out-String | set r
+    $Info.result.ignored | ft | select 'Name', 'NuspecVersion', 'IgnoreMessage' | ft | Out-String | set r
     indent $r 2
 }
 
