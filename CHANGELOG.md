@@ -9,6 +9,7 @@
   - Added `WhatIf` option that will trigger WhatIf on all packages.
 - `Update-AuPackage`
   - Added parameter `WhatIf` that will save and restore the package. See [documentation](https://github.com/majkinetor/au#whatif). ([#30](https://github.com/majkinetor/au/issues/30))
+  - `au_GetLatest` can now return `ignore` to make package ignored in the `updateall` context.
 
 ### Bugfixes
 

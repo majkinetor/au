@@ -420,6 +420,8 @@ When errors occur during the update, email will be sent to the owner and report 
 
 The package will get shown in the report as [ignored](https://gist.github.com/gep13/bd2eaa76f2a9ab739ca0544c502dca6e/db5313020d882945d8fcc3a10f5176263bb837a6#quicktime) and no errors will be shown.
 
+`au_GetLatest` can also return 'ignore' word instead of `$Latest` HashTable to force the package to be ignored in the `updateall` context.
+
 If some errors occur in multiple packages, you can make `updateall` **repeat and/or ignore** such packages globally without any changes to `update.ps1` scripts. To do so, provide repeat/ignore options to its`$Options` HashTable parameter as in the following example:
 
 ```powershell

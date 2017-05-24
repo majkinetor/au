@@ -316,6 +316,8 @@ function Update-Package {
         $res = au_GetLatest | select -Last 1
         if ($res -eq $null) { throw 'au_GetLatest returned nothing' }
 
+        if ($res -eq 'ignore') { return $res }
+
         $res_type = $res.GetType()
         if ($res_type -ne [HashTable]) { throw "au_GetLatest doesn't return a HashTable result but $res_type" }
 
