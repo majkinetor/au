@@ -394,7 +394,7 @@ To temporary exclude the AU package from `updateall` procedure add `_` prefix to
 
 You can also execute a custom script via ScriptBlock specified via `BeforeEach` and `AfterEach` options. They will receive 2 parameters - package name and Options HashTable which you can use to pass any other parameter.
 
-For more information take a look at the wiki section about [plugins](https://github.com/majkinetor/au/wiki/Plugins).
+For more information take a look at the plugins documentation (https://github.com/majkinetor/au/tree/master/Plugins.md).
 
 ### Make a script
 
