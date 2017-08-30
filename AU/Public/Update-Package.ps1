@@ -341,7 +341,7 @@ function Update-Package {
             $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $global:Latest.PackageName, $package.RemoteVersion
             try {
                 request $choco_url $Timeout | out-null
-                "New version is available but it already exists in the Chocolatey community feed (disable using `$NoCheckChocoVersion`):`n  $choco_url" | result
+                "New version is available but it already exists in the Chocolatey community feed (disable using `$au_NoCheckChocoVersion or -NoCheckChocoVersion switch):`n  $choco_url" | result
                 return $package
             } catch { }
         }
