@@ -1,5 +1,9 @@
 # AU Project Changelog
 
+## Next
+
+- Added new function `Set-DescriptionFromReadme`.
+
 ## 2017.8.30
 
 - `Update-AUPackages` 
