@@ -45,4 +45,6 @@ $v = ./build.ps1   #create a new version
 
 Before publishing, edit the `NEXT` header in the `CHANGELOG.md` file to set the release notes. The publish script will take content of the second level header named after version as the release notes. The publishing will fail if release notes are not found. If that happens, don't forget to edit the file **and commit/push it to repository** in order for next tag to include it.
 
+Chocolatey package description is automatically taken from the README.md section "## Features".
+
 Publishing procedure depends on number of environment variables. Rename `vars_default.ps1` to `vars.ps1` and set variables there to get them included.
