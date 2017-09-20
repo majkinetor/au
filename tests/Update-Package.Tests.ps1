@@ -58,7 +58,7 @@ Describe 'Update-Package' -Tag update {
             }
 
             It 'can backup and restore using WhatIf' {
-                get_latest
+                get_latest -Version 1.2.3
                 $global:au_Force = $true; $global:au_Version = '1.0'
                 $global:au_WhatIf = $true
                 $res = update -ChecksumFor 32 6> $null
