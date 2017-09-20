@@ -2,7 +2,7 @@
 
 ## Next
 
-- Added new function `Set-DescriptionFromReadme`.
+- Added new function `Set-DescriptionFromReadme` that is called automatically when README.md is present in the package folder ([#85](https://github.com/majkinetor/au/issues/85)).
 
 ## 2017.8.30
 

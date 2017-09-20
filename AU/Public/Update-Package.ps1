@@ -91,8 +91,11 @@ function Update-Package {
         #Output variable.
         [string] $Result,
 
-        #Backup and restore package 
-        [switch] $WhatIf
+        #Backup and restore package.
+        [switch] $WhatIf, 
+
+        #Disable automatic update of nuspec description from README.md files with first 2 lines skipped.
+        [switch] $NoReadme
     )
 
     function check_urls() {
@@ -362,9 +365,10 @@ function Update-Package {
 
     if ($WhatIf) { $package.Backup() }
     try {
-        if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate' | result; au_BeforeUpdate | result }
+        if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate' | result; au_BeforeUpdate $package | result }
         update_files
-        if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate | result }
+        if (!$NoReadme -and (Test-Path "$($package.Path)\README.md")) { Set-DescriptionFromReadme $package -SkipFirst 2 | result  } 
+        if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate $package | result }
         
         choco pack --limit-output | result
         if ($LastExitCode -ne 0) { throw "Choco pack failed with exit code $LastExitCode" }
