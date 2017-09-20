@@ -27,6 +27,7 @@ Describe 'Update-Package' -Tag update {
         $global:au_NoCheckChocoVersion = $true
         $global:au_ChecksumFor         = 'none'
         $global:au_WhatIf              = $false
+        $global:au_NoReadme            = $false
 
         rv -Scope global Latest -ea ignore
         'BeforeUpdate', 'AfterUpdate' | % { rm "Function:/au_$_" -ea ignore }
@@ -37,8 +38,27 @@ Describe 'Update-Package' -Tag update {
     InModuleScope AU {
 
         Context 'Updating' {
-             It 'can backup and restore using WhatIf' {
-                get_latest -Version 1.2.3
+
+            It 'can set description from README.md' {
+                $readme = 'dummy readme & test'
+                '','', $readme | Out-File $TestDrive\test_package\README.md
+                $res = update
+
+                $res.Result -match 'Setting package description from README.md' | Should Be $true
+                (nuspec_file).package.metadata.description.InnerText.Trim() | Should Be $readme
+            }
+
+            It 'deesnt set description from README.md with NoReadme parameter' {
+                $readme = 'dummy readme & test'
+                '','', $readme | Out-File $TestDrive\test_package\README.md
+                $res = update -NoReadme
+
+                $res.Result -match 'Setting package description from README.md' | Should BeNullOrEmpty
+                (nuspec_file).package.metadata.description | Should Be 'This is a test package for Pester'
+            }
+
+            It 'can backup and restore using WhatIf' {
+                get_latest
                 $global:au_Force = $true; $global:au_Version = '1.0'
                 $global:au_WhatIf = $true
                 $res = update -ChecksumFor 32 6> $null
