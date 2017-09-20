@@ -21,13 +21,16 @@ function Set-DescriptionFromReadme{
       [int] $SkipLast=0
     )
 
-    'Setting README.md to Nuspec description tag'
+    'Setting package description from README.md'
 
     $description = gc README.md -Encoding UTF8
     $endIdx = $description.Length - $SkipLast
     $description = $description | select -Index ($SkipFirst..$endIdx) | Out-String
-    $description = "<![CDATA[" + $description + "]]>"
 
-    $Package.NuspecXml.package.metadata.description = $description
+    $cdata = $Package.NuspecXml.CreateCDataSection($description)
+    $xml_Description = $Package.NuspecXml.GetElementsByTagName('description')[0]
+    $xml_Description.RemoveAll()
+    $xml_Description.AppendChild($cdata)
+
     $Package.SaveNuspec()
 }
