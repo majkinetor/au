@@ -2,7 +2,7 @@
 
 ## Next
 
-- `au_BeforeUpdate` and `au_BeforeUpdate` now provide parameter `Package` of type `[AUPackage]` which you can use to modify Nuspec data.
+- `au_BeforeUpdate` and `au_AfterUpdate` now provide parameter `Package` of type `[AUPackage]` which you can use to modify Nuspec data.
 - Added new function `Set-DescriptionFromReadme` that is called automatically when README.md is present in the package folder ([#85](https://github.com/majkinetor/au/issues/85)). See [documentation](https://github.com/majkinetor/au/tree/automatic_readme#automatic-package-description-from-readmemd).
 
 ## 2017.8.30
