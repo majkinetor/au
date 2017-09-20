@@ -14,12 +14,13 @@ To see AU in action see [video tutorial](https://www.youtube.com/watch?v=m2XpV2L
 - Use only PowerShell to create automatic update script for given package.
 - Automatically downloads installers and provides/verifies checksums for x32 and x64 versions.
 - Verifies URLs, nuspec versions, remote repository existence etc.
-- Keep nuspec descriptions in README.md files.
-- Can use global variables to change functionality.
-- Sugar functions for Chocolatey package maintainers.
+- Automatically sets the Nuspec descriptions from a README.md files.
 - Update single package or any subset of previously created AU packages with a single command.
 - Multithread support when updating multiple packages.
 - Plugin system when updating everything, with few integrated plugins to send email notifications, save results to gist and push updated packages to git repository.
+- Use of global variables to change functionality.
+- Sugar functions for Chocolatey package maintainers.
+- Extraordinary performance - hundreeds of packages can be checked and updated in several minutes.
 
 
 ## Installation
@@ -137,6 +138,18 @@ Package updated
 ```
 
 This is best understood via the example - take a look at the real life package [installer script](https://github.com/majkinetor/au-packages/blob/master/dngrep/tools/chocolateyInstall.ps1) and its [AU updater](https://github.com/majkinetor/au-packages/blob/master/dngrep/update.ps1).
+
+### Automatic package description from README.md
+
+If a package directory contains the `README.md` file, its content will be automatically set as description of the package with first 2 lines omitted - you can put on those lines custom content that will not be visible in the package description. 
+
+To disable this option use `$NoReadme` with the `Update-Package` function. You can still call it manually from within `au_AfterUpdate`, which you may want to do in order to pass custom parameters to it:
+
+```powershell
+function global:au_AfterUpdate ($Package)  {
+     Set-DescriptionFromReadme $Package -SkipLast 2 -SkipFirst 5
+}
+```
 
 ### Checks
 
