@@ -15,11 +15,12 @@ To see AU in action see [video tutorial](https://www.youtube.com/watch?v=m2XpV2L
 - Automatically downloads installers and provides/verifies checksums for x32 and x64 versions.
 - Verifies URLs, nuspec versions, remote repository existence etc.
 - Automatically sets the Nuspec descriptions from a README.md files.
-- Can use global variables to change functionality.
-- Sugar functions for Chocolatey package maintainers.
 - Update single package or any subset of previously created AU packages with a single command.
 - Multithread support when updating multiple packages.
 - Plugin system when updating everything, with few integrated plugins to send email notifications, save results to gist and push updated packages to git repository.
+- Use of global variables to change functionality.
+- Sugar functions for Chocolatey package maintainers.
+- Extraordinary performance - hundreeds of packages can be checked and updated in several minutes.
 
 
 ## Installation
