@@ -20,7 +20,7 @@ To see AU in action see [video tutorial](https://www.youtube.com/watch?v=m2XpV2L
 - Plugin system when updating everything, with few integrated plugins to send email notifications, save results to gist and push updated packages to git repository.
 - Use of global variables to change functionality.
 - Sugar functions for Chocolatey package maintainers.
-- Extraordinary performance - hundreeds of packages can be checked and updated in several minutes.
+- Great performance - hundreeds of packages can be checked and updated in several minutes.
 
 
 ## Installation
