@@ -143,7 +143,7 @@ This is best understood via the example - take a look at the real life package [
 
 If a package directory contains the `README.md` file, its content will be automatically set as description of the package with first 2 lines omitted - you can put on those lines custom content that will not be visible in the package description. 
 
-To disable this option use `$NoReadme` with the `Update-Package` function. You can still call it manually from within `au_AfterUpdate`, which you may want to do in order to pass custom parameters to it:
+To disable this option use `-NoReadme` switch with the `Update-Package` function. You can still call it manually from within `au_AfterUpdate`, which you may want to do in order to pass custom parameters to it:
 
 ```powershell
 function global:au_AfterUpdate ($Package)  {
