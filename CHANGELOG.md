@@ -2,12 +2,12 @@
 
 ## Next
 
-- Added new function `Set-DescriptionFromReadme` that is called automatically when README.md is present in the package folder ([#85](https://github.com/majkinetor/au/issues/85)).
+- Added new function `Set-DescriptionFromReadme` that is called automatically when README.md is present in the package folder ([#85](https://github.com/majkinetor/au/issues/85)). See [documentation](https://github.com/majkinetor/au/tree/automatic_readme#automatic-package-description-from-readmemd).
 
 ## 2017.8.30
 
 - `Update-AUPackages` 
-  - New options to handle update.ps1 errors: `IgnoreOn`, `RepeatOn`,`RepeatCount`,`RepeatSleep`. See [documentation](https://github.com/majkinetor/au#handling-update-errors). ([#76](https://github.com/majkinetor/au/issues/76))
+  - New options to handle update.ps1 errors: `IgnoreOn`, `RepeatOn`,`RepeatCount`,`RepeatSleep`. See [documentation](https://github.com/majkinetor/au#handling-update-errors). ([#76](https://github.com/majkinetor/au/issues/76)).
   - New option `WhatIf` option that will trigger WhatIf on all packages.
   - New AUPackage properties: `Ignored` (boolean) and `IgnoreMessage`.
   - Report plugin: `IgnoreMessage` is added in the ignore section.
