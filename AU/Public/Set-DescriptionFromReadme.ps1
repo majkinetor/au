@@ -30,7 +30,7 @@ function Set-DescriptionFromReadme{
     $cdata = $Package.NuspecXml.CreateCDataSection($description)
     $xml_Description = $Package.NuspecXml.GetElementsByTagName('description')[0]
     $xml_Description.RemoveAll()
-    $xml_Description.AppendChild($cdata)
+    $xml_Description.AppendChild($cdata) | Out-Null
 
     $Package.SaveNuspec()
 }
