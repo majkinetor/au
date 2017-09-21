@@ -155,7 +155,7 @@ function global:au_AfterUpdate ($Package)  {
 To extract descriptions from existing packages into README.md files the following script can be used:
 
 ```powershell
-ls | ? PSIsContainer | ? { !(Test-Path $_\README.md) | % {
+ls | ? PSIsContainer | ? { !(Test-Path $_\README.md) } | % {
   [xml] $package = gc $_\*.nuspec
   $meta = $package.package.metadata
   $readme = ('# <img src="{1}" width="48" height="48"/> [{0}](https://chocolatey.org/packages/{0})' -f $meta.id, $meta.iconUrl), ''
