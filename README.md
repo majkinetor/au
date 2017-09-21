@@ -159,7 +159,7 @@ To extract descriptions from existing packages into README.md files the followin
 
 ls | ? PSIsContainer | ? { !(Test-Path $_\Readme.md) } | % {
     $package = New-Object AUPackage (Resolve-Path $_)
-    $readme = @('# <img src="" width="48" height="48"/> [{0}](https://chocolatey.org/packages/{0})' -f $package.Name, '')
+    $readme = @('# <img src="{1}" width="48" height="48"/> [{0}](https://chocolatey.org/packages/{0})' -f $package.Name, $package.iconUrl, '')
     $readme += $package.NuspecXml.package.metadata.description -split "`n" | % { $_.Trim() }
     $readme -join "`n" | Out-File $_\README.md
 }
