@@ -17,6 +17,7 @@ To see AU in action see [video tutorial](https://www.youtube.com/watch?v=m2XpV2L
 - Automatically sets the Nuspec descriptions from a README.md files.
 - Update single package or any subset of previously created AU packages with a single command.
 - Multithread support when updating multiple packages.
+- Repeat or ignore specific failures when updating multiple packages. 
 - Plugin system when updating everything, with few integrated plugins to send email notifications, save results to gist and push updated packages to git repository.
 - Use of global variables to change functionality.
 - Sugar functions for Chocolatey package maintainers.
