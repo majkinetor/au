@@ -152,6 +152,19 @@ function global:au_AfterUpdate ($Package)  {
 }
 ```
 
+To extract descriptions from existing packages into README.md files the following script can be used:
+
+```powershell
+. $Env:ProgramFiles\WindowsPowerShell\Modules\AU\Private\AUPackage.ps1
+
+ls | ? PSIsContainer | ? { !(Test-Path $_\Readme.md) } | % {
+    $package = New-Object AUPackage (Resolve-Path $_)
+    $readme = @('# <img src="" width="48" height="48"/> [{0}](https://chocolatey.org/packages/{0})' -f $package.Name, '')
+    $readme += $package.NuspecXml.package.metadata.description -split "`n" | % { $_.Trim() }
+    $readme -join "`n" | Out-File $_\README.md
+}
+```
+
 ### Checks
 
 The `update` function does the following checks:
