@@ -45,16 +45,16 @@ class AUPackage {
 
     static [pscustomobject] LoadStreams( $StreamsPath ) {
         if (!(Test-Path $StreamsPath)) { return $null }
-        $res = Get-Content $StreamsPath | ConvertFrom-Json
-        return $res
+        return Get-Content $StreamsPath | ConvertFrom-Json
     }
 
     UpdateStreams( [hashtable] $streams ){
-        $streams.Keys | % {
+        if (!$this.Streams) { Write-Host '<empty>'; $this.Streams = [pscustomobject] @{} }
+        $streams.Keys | sort { ConvertTo-AUVersion $_ } -Descending | % {
             $stream = $_.ToString()
             $version = $streams[$_].Version.ToString()
-            if($this.Streams | Get-Member $stream) {
-                $this.Streams.$stream = $version
+            if ($this.Streams | Get-Member $stream) {
+                if ($this.Streams.$stream -ne 'ignore') { $this.Streams.$stream = $version }
             } else {
                 $this.Streams | Add-Member $stream $version
             }
