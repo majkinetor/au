@@ -38,7 +38,7 @@ class AUVersion : System.IComparable {
         if ($strict) {
             return "^$versionPattern(?:-(?<prerelease>$identifierPattern))?(?:\+(?<buildMetadata>$identifierPattern))?`$"
         } else {
-            return "^v?\s*$versionPattern(?:-?(?<prerelease>$identifierPattern))?(?:\+(?<buildMetadata>$identifierPattern))?\s*`$"
+            return "$versionPattern(?:-?(?<prerelease>$identifierPattern))?(?:\+(?<buildMetadata>$identifierPattern))?"
         }
     }
 
@@ -67,4 +67,8 @@ class AUVersion : System.IComparable {
         if ($fieldCount -eq -1) { return $this.Version.ToString() }
         return $this.Version.ToString($fieldCount)
     }
+}
+
+function ConvertTo-AUVersion($Version) {
+    return [AUVersion] $Version
 }

@@ -404,10 +404,19 @@ function Update-Package {
 
         $streams.Keys | ? { !$Include -or $_ -in $Include } | sort { [AUVersion]$_ } | % {
             $stream = $streams[$_]
-            if ($stream -isnot [HashTable]) { throw "au_GetLatest's $_ stream doesn't return a HashTable result but $($stream.GetType())" }
 
             '' | result
             "*** Stream: $_ ***" | result
+
+            if ($stream -eq $null) { throw "au_GetLatest's $_ stream returned nothing" }
+            if ($stream -eq 'ignore') { return }
+            if ($stream -isnot [HashTable]) { throw "au_GetLatest's $_ stream doesn't return a HashTable result but $($stream.GetType())" }
+
+            if ($package.Streams.$_ -eq 'ignore') {
+                'Ignored' | result
+                return
+            }
+
             set_latest $stream $package.Streams.$_
             process_stream
         }
