@@ -59,7 +59,7 @@ class AUPackage {
                 $this.Streams | Add-Member $stream $version
             }
         }
-        $this.Streams | ConvertTo-Json -Compress | Set-Content $this.StreamsPath -Encoding UTF8
+        $this.Streams | ConvertTo-Json | Set-Content $this.StreamsPath -Encoding UTF8
     }
 
     Backup()  { 
