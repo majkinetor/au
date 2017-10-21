@@ -279,8 +279,9 @@ function Update-Package {
         if (($rev -ne -1) -and !$revdate) { return }
 
         $build = if ($v.Build -eq -1) {0} else {$v.Build}
-        $package.RemoteVersion = '{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d
-        $Latest.Version = [AUVersion] $package.RemoteVersion
+        $v = [version] ('{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d)
+        $package.RemoteVersion = [AUVersion]::new($v, $Latest.NuspecVersion.Prerelease, $Latest.NuspecVersion.BuildMetadata)
+        $Latest.Version = $package.RemoteVersion
     }
 
     function set_latest( [HashTable]$latest, [string] $version ) {
