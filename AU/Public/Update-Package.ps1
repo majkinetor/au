@@ -87,6 +87,7 @@ function Update-Package {
         $Include,
 
         #Force package update even if no new version is found.
+        #For multi streams packages, most recent stream is checked by default when Force is specified.
         [switch] $Force,
 
         #Do not show any Write-Host output.
@@ -390,6 +391,8 @@ function Update-Package {
         if ($Include) {
             if ($Include -isnot [string] -and $Include -isnot [Array]) { throw "`$Include must be either a String or an Array but is $($Include.GetType())" }
             if ($Include -is [string]) { [Array] $Include = $Include -split ',' | foreach { ,$_.Trim() } }
+        } elseif ($Force) {
+            $Include = @($res.Streams.Keys | sort { [AUVersion]$_ } -Descending | select -First 1)
         }
         if ($Force -and (!$Include -or $Include.Length -ne 1)) { throw 'A single stream must be included when forcing package update' }
 
