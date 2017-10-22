@@ -34,7 +34,10 @@ class AUVersion : System.IComparable {
 
     hidden static [string] GetPattern([bool] $strict) {
         $versionPattern = '(?<version>\d+(?:\.\d+){0,3})'
-        $identifierPattern = "[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*"
+        # for now, chocolatey does only support SemVer v1 (no dot separated identifiers in pre-release):
+        $identifierPattern = "[0-9A-Za-z-]+"
+        # here is the SemVer v2 equivalent:
+        #$identifierPattern = "[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*"
         if ($strict) {
             return "^$versionPattern(?:-(?<prerelease>$identifierPattern))?(?:\+(?<buildMetadata>$identifierPattern))?`$"
         } else {

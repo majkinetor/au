@@ -254,7 +254,7 @@ Describe 'Update-Package' -Tag update {
 
                 update *> $null
 
-                $global:Latest.NuspecVersion | Should Be 0.0
+                $global:Latest.NuspecVersion | Should Be '0.0'
             }
         }
 
