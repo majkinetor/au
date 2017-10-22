@@ -45,16 +45,26 @@ class AUVersion : System.IComparable {
     [int] CompareTo($obj) {
         if ($obj -eq $null) { return 1 }
         if ($obj -isnot [AUVersion]) { throw "AUVersion expected: $($obj.GetType())" }
-        if ($obj.Version -ne $this.Version) { return $this.Version.CompareTo($obj.Version) }
-        if ($obj.Prerelease -and $this.Prerelease) { return $this.Prerelease.CompareTo($obj.Prerelease) }
-        if (!$obj.Prerelease -and !$this.Prerelease) { return 0 }
-        if ($obj.Prerelease) { return 1 }
-        return -1
+        $t = $this.GetParts()
+        $o = $obj.GetParts()
+        for ($i = 0; $i -lt $t.Length -and $i -lt $o.Length; $i++) {
+            if ($t[$i].GetType() -ne $o[$i].GetType()) {
+                $t[$i] = [string] $t[$i]
+                $o[$i] = [string] $o[$i]
+            }
+            if ($t[$i] -gt $o[$i]) { return 1 }
+            if ($t[$i] -lt $o[$i]) { return -1 }
+        }
+        if ($t.Length -eq 1 -and $o.Length -gt 1) { return 1 }
+        if ($o.Length -eq 1 -and $t.Length -gt 1) { return -1 }
+        if ($t.Length -gt $o.Length) { return 1 }
+        if ($t.Length -lt $o.Length) { return -1 }
+        return 0
     }
 
-    [bool] Equals($obj) { return $obj -is [AUVersion] -and $obj -and $this.ToString().Equals($obj.ToString()) }
+    [bool] Equals($obj) { return $this.CompareTo($obj) -eq 0 }
 
-    [int] GetHashCode() { return $this.ToString().GetHashCode() }
+    [int] GetHashCode() { return $this.GetParts().GetHashCode() }
 
     [string] ToString() {
         $result = $this.Version.ToString()
@@ -66,6 +76,20 @@ class AUVersion : System.IComparable {
     [string] ToString([int] $fieldCount) {
         if ($fieldCount -eq -1) { return $this.Version.ToString() }
         return $this.Version.ToString($fieldCount)
+    }
+
+    hidden [object[]] GetParts() {
+        $result = @($this.Version)
+        if ($this.Prerelease) {
+            $this.Prerelease -split '\.' | % {
+                if ($_ -match '[0-9]+') {
+                    $result += [int] $_
+                } else {
+                    $result += $_
+                }
+            }
+        }
+        return $result
     }
 }
 

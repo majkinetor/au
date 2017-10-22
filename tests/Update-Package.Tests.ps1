@@ -48,7 +48,7 @@ Describe 'Update-Package' -Tag update {
                 (nuspec_file).package.metadata.description.InnerText.Trim() | Should Be $readme
             }
 
-            It 'deesnt set description from README.md with NoReadme parameter' {
+            It 'does not set description from README.md with NoReadme parameter' {
                 $readme = 'dummy readme & test'
                 '','', $readme | Out-File $TestDrive\test_package\README.md
                 $res = update -NoReadme
