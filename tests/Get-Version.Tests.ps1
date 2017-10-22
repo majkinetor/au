@@ -11,16 +11,24 @@ Describe 'Get-Version' -Tag getversion {
     }
 
     It 'should convert a strict version' {
-        $expected = '1.2.3.4-beta.1+xyz.001'
+        $expectedVersionStart = '1.2'
+        $expectedVersion = "$expectedVersionStart.3.4"
+        # for now, chocolatey does only support SemVer v1 (no dot separated identifiers in pre-release):
+        $expectedPrerelease = 'beta1'
+        $expectedBuildMetadata = 'xyz001'
+        # here is the SemVer v2 equivalent:
+        #$expectedPrerelease = 'beta.1'
+        #$expectedBuildMetadata = 'xyz.001'
+        $expected = "$expectedVersion-$expectedPrerelease+$expectedBuildMetadata"
         $res = ConvertTo-AUVersion $expected
 
         $res | Should Not BeNullOrEmpty
-        $res.Version | Should Be ([version] '1.2.3.4')
-        $res.Prerelease | Should BeExactly 'beta.1'
-        $res.BuildMetadata | Should BeExactly 'xyz.001'
+        $res.Version | Should Be ([version] $expectedVersion)
+        $res.Prerelease | Should BeExactly $expectedPrerelease
+        $res.BuildMetadata | Should BeExactly $expectedBuildMetadata
         $res.ToString() | Should BeExactly $expected
-        $res.ToString(2) | Should BeExactly '1.2'
-        $res.ToString(-1) | Should BeExactly '1.2.3.4'
+        $res.ToString(2) | Should BeExactly $expectedVersionStart
+        $res.ToString(-1) | Should BeExactly $expectedVersion
     }
 
     It 'should not convert a non-strict version' {
@@ -44,15 +52,16 @@ Describe 'Get-Version' -Tag getversion {
         @{A = '2.1.0'           ; B = '2.1.1'           ; ExpectedResult = -1}
         @{A = '1.0.0-alpha'     ; B = '1.0.0-alpha'     ; ExpectedResult = 0}
         @{A = '1.0.0-alpha'     ; B = '1.0.0'           ; ExpectedResult = -1}
-        @{A = '1.0.0-alpha.1'   ; B = '1.0.0-alpha.1'   ; ExpectedResult = 0}
-        @{A = '1.0.0-alpha.1'   ; B = '1.0.0-alpha.01'   ; ExpectedResult = 0}
-        @{A = '1.0.0-alpha'     ; B = '1.0.0-alpha.1'   ; ExpectedResult = -1}
-        @{A = '1.0.0-alpha.1'   ; B = '1.0.0-alpha.beta'; ExpectedResult = -1}
-        @{A = '1.0.0-alpha.beta'; B = '1.0.0-beta'      ; ExpectedResult = -1}
-        @{A = '1.0.0-beta'      ; B = '1.0.0-beta.2'    ; ExpectedResult = -1}
-        @{A = '1.0.0-beta.2'    ; B = '1.0.0-beta.11'   ; ExpectedResult = -1}
-        @{A = '1.0.0-beta.11'   ; B = '1.0.0-rc.1'      ; ExpectedResult = -1}
-        @{A = '1.0.0-rc.1'      ; B = '1.0.0'           ; ExpectedResult = -1}
+        # for now, chocolatey does not support SemVer v2 (no dot separated identifiers in pre-release):
+        #@{A = '1.0.0-alpha.1'   ; B = '1.0.0-alpha.1'   ; ExpectedResult = 0}
+        #@{A = '1.0.0-alpha.1'   ; B = '1.0.0-alpha.01'   ; ExpectedResult = 0}
+        #@{A = '1.0.0-alpha'     ; B = '1.0.0-alpha.1'   ; ExpectedResult = -1}
+        #@{A = '1.0.0-alpha.1'   ; B = '1.0.0-alpha.beta'; ExpectedResult = -1}
+        #@{A = '1.0.0-alpha.beta'; B = '1.0.0-beta'      ; ExpectedResult = -1}
+        #@{A = '1.0.0-beta'      ; B = '1.0.0-beta.2'    ; ExpectedResult = -1}
+        #@{A = '1.0.0-beta.2'    ; B = '1.0.0-beta.11'   ; ExpectedResult = -1}
+        #@{A = '1.0.0-beta.11'   ; B = '1.0.0-rc.1'      ; ExpectedResult = -1}
+        #@{A = '1.0.0-rc.1'      ; B = '1.0.0'           ; ExpectedResult = -1}
         @{A = '1.0.0'           ; B = '1.0.0+1'         ; ExpectedResult = 0}
         @{A = '1.0.0+1'         ; B = '1.0.0+2'         ; ExpectedResult = 0}
         @{A = '1.0.0-alpha'     ; B = '1.0.0-alpha+1'   ; ExpectedResult = 0}
