@@ -4,23 +4,25 @@ import-module $PSScriptRoot\..\AU
 Describe 'Update-AUPackages' -Tag updateall {
     $saved_pwd = $pwd
 
-    function global:nuspec_file() { [xml](gc $PSScriptRoot/test_package/test_package.nuspec) }
-    $pkg_no = 3
+    $pkg_no = 5
 
     BeforeEach {
+        $stream_no = 0
         $global:au_Root      = "TestDrive:\packages"
         $global:au_NoPlugins = $true
 
         rm -Recurse $global:au_root -ea ignore
         foreach ( $i in 1..$pkg_no ) {
-            $name = "test_package_$i"
+            $base = if ($i -le 3) {$stream_no++; 'test_package'} else {$stream_no += 3; 'test_package_with_streams'}
+            $name = "${base}_$i"
             $path = "$au_root\$name"
 
-            cp -Recurse -Force $PSScriptRoot\test_package $path
-            $nu = nuspec_file
+            cp -Recurse -Force "$PSScriptRoot\$base" $path
+            $nu = [xml](gc "$PSScriptRoot\$base\$base.nuspec")
             $nu.package.metadata.id = $name
             rm "$au_root\$name\*.nuspec"
             $nu.OuterXml | sc "$path\$name.nuspec"
+            if (Test-Path "$path\$base.json") { mv "$path\$base.json" "$path\$name.json" }
 
             $module_path = Resolve-Path $PSScriptRoot\..\AU
             "import-module '$module_path' -Force", (gc $path\update.ps1 -ea ignore) | sc $path\update.ps1
@@ -138,7 +140,7 @@ Describe 'Update-AUPackages' -Tag updateall {
         }
     }
 
-    It 'should update package with checsum verification mode' {
+    It 'should update package with checksum verification mode' {
 
         $choco_path = gcm choco.exe | % Source
         $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | % Hash
@@ -178,7 +180,7 @@ Describe 'Update-AUPackages' -Tag updateall {
 
         lsau | measure | % Count | Should Be $pkg_no
         $res.Count | Should Be $pkg_no
-        ($res.Result -match 'No new version found').Count | Should Be $pkg_no
+        ($res.Result -match 'No new version found').Count | Should Be $stream_no
         ($res | ? Updated).Count | Should Be 0
     }
 
