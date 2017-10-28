@@ -1,11 +1,12 @@
 remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU
 
-Describe 'Update-AUPackages' -Tag updateall {
+Describe 'Update-AUPackages' -Tag updateallstreams {
     $saved_pwd = $pwd
 
-    function global:nuspec_file() { [xml](gc $PSScriptRoot/test_package/test_package.nuspec) }
-    $pkg_no = 3
+    function global:nuspec_file() { [xml](gc $PSScriptRoot/test_package_with_streams/test_package_with_streams.nuspec) }
+    $pkg_no = 2
+    $streams_no = $pkg_no * 3
 
     BeforeEach {
         $global:au_Root      = "TestDrive:\packages"
@@ -13,14 +14,15 @@ Describe 'Update-AUPackages' -Tag updateall {
 
         rm -Recurse $global:au_root -ea ignore
         foreach ( $i in 1..$pkg_no ) {
-            $name = "test_package_$i"
+            $name = "test_package_with_streams_$i"
             $path = "$au_root\$name"
 
-            cp -Recurse -Force $PSScriptRoot\test_package $path
+            cp -Recurse -Force $PSScriptRoot\test_package_with_streams $path
             $nu = nuspec_file
             $nu.package.metadata.id = $name
-            rm "$au_root\$name\*.nuspec"
+            rm "$path\*.nuspec"
             $nu.OuterXml | sc "$path\$name.nuspec"
+            mv "$path\test_package_with_streams.json" "$path\$name.json"
 
             $module_path = Resolve-Path $PSScriptRoot\..\AU
             "import-module '$module_path' -Force", (gc $path\update.ps1 -ea ignore) | sc $path\update.ps1
@@ -30,56 +32,11 @@ Describe 'Update-AUPackages' -Tag updateall {
     }
 
     Context 'Plugins' {
-        # Commented tests are invoked manually
-
-        #It 'should execute Gist plugin' {
-            #$Options.Report = @{
-                #Type = 'text'
-                #Path = "$au_root\report.txt"
-            #}
-            #$Options.RunInfo = @{
-                #Path = "$au_root\runinfo.xml"
-            #}
-            #$Options.Gist = @{
-                #Path = "$au_root\*.*"
-            #}
-
-            #$res = updateall -NoPlugins:$false -Options $Options
-        #}
-
-        #It 'should execute Mail plugin' {
-            #$Options.Report = @{
-                #Type = 'text'
-                #Path = "$global:au_Root\report.txt"
-            #}
-
-            #$Options.Mail = @{
-                #To          = 'test@localhost'
-                #Server      = 'localhost'
-                #UserName    = 'test_user'
-                #Password    = 'test_pass'
-                #Port        = 25
-                #EnableSsl   = $true
-                #Attachment  =  ("$global:au_Root\report.txt" -replace 'TestDrive:', $TestDrive)
-                #SendAlways  = $true
-            #}
-
-            #if (!(ps papercut -ea ignore)) {
-                #if (gcm papercut.exe -ea ignore) { start papercut.exe; sleep 5 }
-                #else { Write-Warning 'Papercut is not installed - skipping test'; return }
-            #}
-            #rm $Env:APPDATA\Papercut\* -ea ignore
-            #$res = updateall -NoPlugins:$false -Options $Options 6> $null
-
-            #sleep 5
-            #(ls $Env:APPDATA\Papercut\*).Count | Should Be 1
-        #}
-
 
         It 'should ignore the package that returns "ignore"' {
-            gc $global:au_Root\test_package_1\update.ps1 | set content
+            gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
             $content -replace 'update', "Write-Host 'test ignore'; 'ignore'" | set content
-            $content | sc $global:au_Root\test_package_1\update.ps1
+            $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
 
             $res = updateall -Options $Options -NoPlugins:$false 6>$null
 
@@ -88,9 +45,9 @@ Describe 'Update-AUPackages' -Tag updateall {
         }
 
         It 'should repeat and ignore on specific error' {
-            gc $global:au_Root\test_package_1\update.ps1 | set content
+            gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
             $content -replace 'update', "1|Out-File -Append $TestDrive\tmp_test; throw 'test ignore'; update" | set content
-            $content | sc $global:au_Root\test_package_1\update.ps1
+            $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
 
             $Options.RepeatOn = @('test ignore')
             $Options.RepeatCount = 2
@@ -111,12 +68,12 @@ Describe 'Update-AUPackages' -Tag updateall {
                 Params = @{ Github_UserRepo = 'majkinetor/chocolatey' }
             }
 
-            $res = updateall -NoPlugins:$false -Options $Options  6> $null
+            updateall -NoPlugins:$false -Options $Options  6> $null
 
             Test-Path $Options.Report.Path | Should Be $true
 
             $report = gc $Options.Report.Path 
-            ($report -match "test_package_[1-3]").Count | Should Be 9
+            ($report -match "test_package_with_streams_[1-$pkg_no]").Count | Should Be (3 * $pkg_no)
         }
 
         It 'should execute RunInfo plugin' {
@@ -142,10 +99,10 @@ Describe 'Update-AUPackages' -Tag updateall {
 
         $choco_path = gcm choco.exe | % Source
         $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | % Hash
-        gc $global:au_Root\test_package_1\update.ps1 | set content
+        gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
         $content -replace '@\{.+\}', "@{ Version = '1.3'; ChecksumType32 = 'sha256'; Checksum32 = '$choco_hash'}" | set content
         $content -replace 'update', "update -ChecksumFor 32" | set content
-        $content | sc $global:au_Root\test_package_1\update.ps1
+        $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
 
         $res = updateall -Options $Options 6> $null
         $res.Count | Should Be $pkg_no
@@ -153,9 +110,9 @@ Describe 'Update-AUPackages' -Tag updateall {
     }
 
     It 'should limit update time' {
-        gc $global:au_Root\test_package_1\update.ps1 | set content
+        gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
         $content -replace 'update', "sleep 10; update" | set content
-        $content | sc $global:au_Root\test_package_1\update.ps1
+        $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
         $Options.UpdateTimeout = 5
 
         $res = updateall -Options $Options 3>$null 6> $null
@@ -178,7 +135,7 @@ Describe 'Update-AUPackages' -Tag updateall {
 
         lsau | measure | % Count | Should Be $pkg_no
         $res.Count | Should Be $pkg_no
-        ($res.Result -match 'No new version found').Count | Should Be $pkg_no
+        ($res.Result -match 'No new version found').Count | Should Be $streams_no
         ($res | ? Updated).Count | Should Be 0
     }
 
