@@ -1,7 +1,7 @@
 remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU
 
-Describe 'Update-AUPackages' -Tag updateallstreams {
+Describe 'Update-AUPackages using streams' -Tag updateallstreams {
     $saved_pwd = $pwd
 
     function global:nuspec_file() { [xml](gc $PSScriptRoot/test_package_with_streams/test_package_with_streams.nuspec) }
