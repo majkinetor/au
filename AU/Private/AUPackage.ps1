@@ -48,16 +48,14 @@ class AUPackage {
         return Get-Content $StreamsPath | ConvertFrom-Json
     }
 
-    UpdateStreams( [hashtable] $streams ){
-        if (!$this.Streams) { Write-Host '<empty>'; $this.Streams = [pscustomobject] @{} }
-        $streams.Keys | sort { ConvertTo-AUVersion $_ } -Descending | % {
-            $stream = $_.ToString()
-            $version = $streams[$_].Version.ToString()
-            if ($this.Streams | Get-Member $stream) {
-                if ($this.Streams.$stream -ne 'ignore') { $this.Streams.$stream = $version }
-            } else {
-                $this.Streams | Add-Member $stream $version
-            }
+    UpdateStream( $stream, $version ){
+        if (!$this.Streams) { $this.Streams = [pscustomobject] @{} }
+        $s = $stream.ToString()
+        $v = $version.ToString()
+        if ($this.Streams | Get-Member $s) {
+            if ($this.Streams.$s -ne 'ignore') { $this.Streams.$s = $v }
+        } else {
+            $this.Streams | Add-Member $s $v
         }
         $this.Streams | ConvertTo-Json | Set-Content $this.StreamsPath -Encoding UTF8
     }

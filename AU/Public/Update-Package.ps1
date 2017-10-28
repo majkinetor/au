@@ -284,9 +284,10 @@ function Update-Package {
         $Latest.Version = $package.RemoteVersion
     }
 
-    function set_latest( [HashTable]$latest, [string] $version ) {
+    function set_latest( [HashTable]$latest, [string] $version, $stream ) {
         if (!$latest.PackageName) { $latest.PackageName = $package.Name }
         if (!$latest.NuspecVersion) { $latest.NuspecVersion = $version }
+        if ($stream -and !$latest.Stream) { $latest.Stream = $stream }
         $package.NuspecVersion = $latest.NuspecVersion
         $global:Latest = $latest
     }
@@ -314,6 +315,9 @@ function Update-Package {
 
             $package.NuspecXml.package.metadata.version = $package.RemoteVersion.ToString()
             $package.SaveNuspec()
+            if ($global:Latest.Stream) {
+                $package.UpdateStream($global:Latest.Stream, $package.RemoteVersion)
+            }
         }
 
         $sr = au_SearchReplace
@@ -386,11 +390,15 @@ function Update-Package {
         throw "au_GetLatest failed`n$_"
     }
 
-    if ($res.Streams) {
+    if ($res.ContainsKey('Streams')) {
+        if (!$res.Streams) { throw "au_GetLatest's streams returned nothing" }
         if ($res.Streams -isnot [HashTable]) { throw "au_GetLatest's streams don't return a HashTable result but $($res.Streams.GetType())" }
 
         if ($Include) {
-            if ($Include -isnot [string] -and $Include -isnot [Array]) { throw "`$Include must be either a String or an Array but is $($Include.GetType())" }
+            if ($Include -isnot [string] -and $Include -isnot [double] -and $Include -isnot [Array]) {
+                throw "`$Include must be either a String, a Double or an Array but is $($Include.GetType())"
+            }
+            if ($Include -is [double]) { $Include = $Include -as [string] }
             if ($Include -is [string]) { [Array] $Include = $Include -split ',' | foreach { ,$_.Trim() } }
         } elseif ($Force) {
             $Include = @($res.Streams.Keys | sort { [AUVersion]$_ } -Descending | select -First 1)
@@ -421,11 +429,9 @@ function Update-Package {
                 return
             }
 
-            set_latest $stream $package.Streams.$_
+            set_latest $stream $package.Streams.$_ $_
             process_stream
         }
-
-        $package.UpdateStreams($streams)
     } else {
         '' | result
         set_latest $res $package.NuspecVersion
