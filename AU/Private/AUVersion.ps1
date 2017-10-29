@@ -10,6 +10,14 @@ class AUVersion : System.IComparable {
         $this.BuildMetadata = $buildMetadata
     }
 
+    AUVersion($input) {
+        if (!$input) { throw 'Input cannot be null.' }
+        $v = [AUVersion]::Parse($input -as [string])
+        $this.Version = $v.Version
+        $this.Prerelease = $v.Prerelease
+        $this.BuildMetadata = $v.BuildMetadata
+    }
+
     static [AUVersion] Parse([string] $input) { return [AUVersion]::Parse($input, $true) }
 
     static [AUVersion] Parse([string] $input, [bool] $strict) {
