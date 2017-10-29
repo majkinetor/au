@@ -24,9 +24,9 @@ To set up plugin to create gist under your user name you need to give it your gi
 
 ## [GitReleases](https://github.com/majkinetor/au/blob/master/AU/Plugins/GitReleases.ps1)
 
-**Prevent tags from being built**
+**Creates Github release for updated packages**.
 
-It is recommended to add the following line `skip_tags: true` in the `appveyor.yml` file to prevent tags from being built. While it may not be necessary, this is used to prevent packages from being submitted again when `[AU]` or `[PUSH]` is being used in the commit header message.
+* It is recommended to add the following line `skip_tags: true` in the `appveyor.yml` file to prevent tags from being built. While it may not be necessary, this is used to prevent packages from being submitted again when `[AU]` or `[PUSH]` is being used in the commit header message.
 
 ## [History](https://github.com/majkinetor/au/blob/master/AU/Plugins/History.ps1)
 

@@ -1,6 +1,10 @@
 # Author: Kim Nordmo <kim.nordmo@gmail.com>
 # Last Change: 29-Oct-2017.
 
+<#
+.SYNOPSIS
+    Creates Github release for updated packages
+#>
 param(
     $Info,
 
