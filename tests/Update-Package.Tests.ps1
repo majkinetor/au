@@ -277,6 +277,33 @@ Describe 'Update-Package' -Tag update {
                 function global:au_GetLatest { throw 'test' }
                 { update } | Should Throw "test"
             }
+
+            It 'checks values in $Latest when entering au_GetLatest' {
+                function global:au_GetLatest {
+                    $Latest.Count       | Should Be 1
+                    $Latest.PackageName | Should Be 'test_package'
+                    @{ Version = '1.2' }
+                }
+                update
+            }
+
+            It 'supports returning custom values' {
+                function global:au_GetLatest { @{ Version = '1.2'; NewValue = 1 } }
+                update
+                $global:Latest.NewValue | Should Be 1
+            }
+
+            It 'supports adding values to $global:Latest' {
+                function global:au_GetLatest { $global:Latest += @{ NewValue = 1 }; @{ Version = '1.2' } }
+                update
+                $global:Latest.NewValue | Should Be 1
+            }
+
+            It 'supports adding values to $Latest' {
+                function global:au_GetLatest { $Latest.NewValue = 1; @{ Version = '1.2' } }
+                update
+                $global:Latest.NewValue | Should Be 1
+            }
         }
 
         Context 'Before and after update' {
