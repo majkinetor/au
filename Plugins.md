@@ -22,6 +22,12 @@ To set up plugin to create gist under your user name you need to give it your gi
 * To use it locally, just ensure `git push` doesn't require credentials and dont set any environment variables. 
 * To use on build server such as [[AppVeyor]], specify `$Env:username` and `$Env:password`. If you host git repository on Github its preferable to use personal access token. You can use the same token as with gist as long as _**public repo**_ scope is activated.
 
+## [GitReleases](https://github.com/majkinetor/au/blob/master/AU/Plugins/GitReleases.ps1)
+
+**Prevent tags from being built**
+
+It is recommended to add the following line `skip_tags: true` in the `appveyor.yml` file to prevent tags from being built. While it may not be necessary, this is used to prevent packages from being submitted again when `[AU]` or `[PUSH]` is being used in the commit header message.
+
 ## [History](https://github.com/majkinetor/au/blob/master/AU/Plugins/History.ps1)
 
 **Create update history as markdown report using git log**. 
