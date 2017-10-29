@@ -12,6 +12,9 @@ class AUPackage {
     [bool]     $Ignored
     [string]   $IgnoreMessage
 
+    [string]         $StreamsPath
+    [pscustomobject] $Streams
+
     AUPackage([string] $Path ){
         if ([String]::IsNullOrWhiteSpace( $Path )) { throw 'Package path can not be empty' }
 
@@ -23,6 +26,9 @@ class AUPackage {
 
         $this.NuspecXml     = [AUPackage]::LoadNuspecFile( $this.NuspecPath )
         $this.NuspecVersion = $this.NuspecXml.package.metadata.version
+
+        $this.StreamsPath = '{0}\{1}.json' -f $this.Path, $this.Name
+        $this.Streams     = [AUPackage]::LoadStreams( $this.StreamsPath )
     }
 
     static [xml] LoadNuspecFile( $NuspecPath ) {
@@ -35,6 +41,23 @@ class AUPackage {
     SaveNuspec(){
         $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($False)
         [System.IO.File]::WriteAllText($this.NuspecPath, $this.NuspecXml.InnerXml, $Utf8NoBomEncoding)
+    }
+
+    static [pscustomobject] LoadStreams( $StreamsPath ) {
+        if (!(Test-Path $StreamsPath)) { return $null }
+        return Get-Content $StreamsPath | ConvertFrom-Json
+    }
+
+    UpdateStream( $stream, $version ){
+        if (!$this.Streams) { $this.Streams = [pscustomobject] @{} }
+        $s = $stream.ToString()
+        $v = $version.ToString()
+        if ($this.Streams | Get-Member $s) {
+            if ($this.Streams.$s -ne 'ignore') { $this.Streams.$s = $v }
+        } else {
+            $this.Streams | Add-Member $s $v
+        }
+        $this.Streams | ConvertTo-Json | Set-Content $this.StreamsPath -Encoding UTF8
     }
 
     Backup()  { 
