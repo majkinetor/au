@@ -406,7 +406,7 @@ function Update-Package {
             if ($Include -is [double]) { $Include = $Include -as [string] }
             if ($Include -is [string]) { [Array] $Include = $Include -split ',' | foreach { ,$_.Trim() } }
         } elseif ($Force) {
-            $Include = @($res.Streams.Keys | sort { [AUVersion]$_ } -Descending | select -First 1)
+            $Include = @($res.Streams.Keys | sort { [AUVersion] $_ } -Descending | select -First 1)
         }
         if ($Force -and (!$Include -or $Include.Length -ne 1)) { throw 'A single stream must be included when forcing package update' }
 
@@ -419,7 +419,7 @@ function Update-Package {
             $streams = $res.Streams
         }
 
-        $streams.Keys | ? { !$Include -or $_ -in $Include } | sort { [AUVersion]$_ } | % {
+        $streams.Keys | ? { !$Include -or $_ -in $Include } | sort { [AUVersion] $_ } | % {
             $stream = $streams[$_]
 
             '' | result

@@ -304,6 +304,21 @@ Describe 'Update-Package' -Tag update {
                 update
                 $global:Latest.NewValue | Should Be 1
             }
+
+            It 'supports returning [string] as Version' {
+                function global:au_GetLatest { @{ Version = '1.2' } }
+                { update } | Should Not Throw
+            }
+
+            It 'supports returning [version] as Version' {
+                function global:au_GetLatest { @{ Version = [version] '1.2' } }
+                { update } | Should Not Throw
+            }
+
+            It 'supports returning [group] as Version' {
+                function global:au_GetLatest { @{ Version = [regex]::Match('1.2', '^(.+)$').Groups[1] } }
+                { update } | Should Not Throw
+            }
         }
 
         Context 'Before and after update' {
