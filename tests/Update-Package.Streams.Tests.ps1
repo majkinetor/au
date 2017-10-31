@@ -73,6 +73,21 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 (nuspec_file).package.metadata.description.InnerText.Trim()     | Should Be $readme
             }
 
+            It 'can set stream specific descriptions from README.md' {
+                get_latest -Version 1.4.0
+
+                $readme = 'dummy readme & test: '
+                function au_BeforeUpdate { param([AUPackage] $package)
+                    '','', ($readme + $package.RemoteVersion) | Out-File $TestDrive\test_package_with_streams\README.md
+                }
+                function au_AfterUpdate { param([AUPackage] $package)
+                    $package.NuspecXml.package.metadata.description.InnerText.Trim() | Should Be ($readme + $package.RemoteVersion)
+                }
+
+                $res = update
+                $res.Result -match 'Setting package description from README.md' | Should Be $true
+            }
+
             It 'does not set description from README.md with NoReadme parameter' {
                 $readme = 'dummy readme & test'
                 '','', $readme | Out-File $TestDrive\test_package_with_streams\README.md
