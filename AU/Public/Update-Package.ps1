@@ -125,7 +125,7 @@ function Update-Package {
             mkdir -Force $pkg_path | Out-Null
 
             $Env:ChocolateyPackageName         = "chocolatey\$($package.Name)"
-            $Env:ChocolateyPackageVersion      = $global:Latest.Version
+            $Env:ChocolateyPackageVersion      = $global:Latest.Version.ToString()
             $Env:ChocolateyAllowEmptyChecksums = 'true'
             foreach ($a in $arch) {
                 $Env:chocolateyForceX86 = if ($a -eq '32') { 'true' } else { '' }
@@ -207,16 +207,13 @@ function Update-Package {
         if (!(is_version $Latest.Version)) { throw "Invalid version: $($Latest.Version)" }
         $package.RemoteVersion = $Latest.Version
 
-        $Latest.NuspecVersion = [AUVersion] $Latest.NuspecVersion
-        $Latest.Version = [AUVersion] $Latest.Version
-
         if (!$NoCheckUrl) { check_urls }
 
         "nuspec version: " + $package.NuspecVersion | result
         "remote version: " + $package.RemoteVersion | result
 
         $script:is_forced = $false
-        if ($Latest.Version -gt $Latest.NuspecVersion) {
+        if ([AUVersion] $Latest.Version -gt [AUVersion] $Latest.NuspecVersion) {
             if (!($NoCheckChocoVersion -or $Force)) {
                 $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $global:Latest.PackageName, $package.RemoteVersion
                 try {
@@ -266,25 +263,26 @@ function Update-Package {
             "Overriding version to: $global:au_Version" | result
             $package.RemoteVersion = $global:au_Version
             if (!(is_version $global:au_Version)) { throw "Invalid version: $global:au_Version" }
-            $global:Latest.Version = [AUVersion] $package.RemoteVersion
+            $global:Latest.Version = $package.RemoteVersion
             $global:au_Version = $null
             return
         }
 
         $date_format = 'yyyyMMdd'
         $d = (get-date).ToString($date_format)
-        $v = $Latest.NuspecVersion.Version
+        $nuspecVersion = [AUVersion] $Latest.NuspecVersion
+        $v = $nuspecVersion.Version
         $rev = $v.Revision.ToString()
         try { $revdate = [DateTime]::ParseExact($rev, $date_format,[System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None) } catch {}
         if (($rev -ne -1) -and !$revdate) { return }
 
         $build = if ($v.Build -eq -1) {0} else {$v.Build}
         $v = [version] ('{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d)
-        $package.RemoteVersion = [AUVersion]::new($v, $Latest.NuspecVersion.Prerelease, $Latest.NuspecVersion.BuildMetadata)
-        $Latest.Version = $package.RemoteVersion
+        $package.RemoteVersion = [AUVersion]::new($v, $nuspecVersion.Prerelease, $nuspecVersion.BuildMetadata).ToString()
+        $Latest.Version = $package.RemoteVersion -as $Latest.Version.GetType()
     }
 
-    function set_latest( [HashTable]$latest, [string] $version, $stream ) {
+    function set_latest( [HashTable] $latest, [string] $version, $stream ) {
         if (!$latest.NuspecVersion) { $latest.NuspecVersion = $version }
         if ($stream -and !$latest.Stream) { $latest.Stream = $stream }
         $package.NuspecVersion = $latest.NuspecVersion
