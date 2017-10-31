@@ -311,6 +311,25 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 update -Include 1.2
                 $global:Latest.test | Should BeNullOrEmpty
             }
+
+            It 'does not change type of $Latest.Version when calling au_BeforeUpdate and au_AfterUpdate' {
+                $return_value = @{
+                    '1.4' = @{ Version = ConvertTo-AUVersion '1.4-beta1' }
+                    '1.2' = @{ Version = '1.2.4' }
+                    '1.3' = @{ Version = [version] '1.3.1' }
+                }
+                function global:au_GetLatest { @{ Streams = $return_value } }
+                function checkLatest {
+                    $return_latest = $return_value[$global:Latest.Stream]
+                    $return_latest.Keys | % {
+                        $global:Latest[$_] | Should BeOfType $return_latest[$_].GetType()
+                        $global:Latest[$_] | Should BeExactly $return_latest[$_]
+                    }
+                }
+                function au_BeforeUpdate { checkLatest }
+                function au_BeforeUpdate { checkLatest }
+                update
+            }
         }
     }
 
