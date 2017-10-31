@@ -85,7 +85,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 }
 
                 $res = update
-                $res.Result -match 'Setting package description from README.md' | Should Be $true
+                $res.Result -match 'Setting package description from README.md' | Should Not BeNullOrEmpty
             }
 
             It 'does not set description from README.md with NoReadme parameter' {
