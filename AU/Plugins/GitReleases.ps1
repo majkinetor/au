@@ -137,6 +137,10 @@ $uploadHeaders = $headers.Clone()
 $uploadHeaders['Content-Type'] = 'application/zip'
 
 $packagesToRelease | % {
+    # Because we grab all streams previously, we need to ignore
+    # cases when a stream haven't been updated (no nupkg file created)
+    if (!$_.NuFile) { return }
+
     if ($releaseType -eq 'package') {
         $releaseName = $releaseHeader -replace '<PackageName>', $_.Name -replace '<RemoteVersion>', $_.RemoteVersion -replace '<NuspecVersion>', $_.NuspecVersion -replace '<date>', $date
         if ($_.NuspecVersion) {
