@@ -207,6 +207,12 @@ function Update-Package {
         if (!(is_version $Latest.Version)) { throw "Invalid version: $($Latest.Version)" }
         $package.RemoteVersion = $Latest.Version
 
+        # For set_fix_version to work propertly, $Latest.Version's type must be assignable from string.
+        # If not, then cast its value to string.
+        if (!('1.0' -as $Latest.Version.GetType())) {
+            $Latest.Version = [string] $Latest.Version
+        }
+
         if (!$NoCheckUrl) { check_urls }
 
         "nuspec version: " + $package.NuspecVersion | result
