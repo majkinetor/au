@@ -305,19 +305,22 @@ Describe 'Update-Package' -Tag update {
                 $global:Latest.NewValue | Should Be 1
             }
 
-            It 'supports returning [string] as Version' {
-                function global:au_GetLatest { @{ Version = '1.2' } }
+            $testCases = @(
+                @{ Version = '1.2'; Type = [string] }
+                @{ Version = [AUVersion] '1.2'; Type = [AUVersion] }
+                @{ Version = [version] '1.2'; Type = [version] }
+                @{ Version = [regex]::Match('1.2', '^(.+)$').Groups[1]; Type = [string] }
+            )
+
+            It 'supports various Version types' -TestCases $testCases { param($Version)
+                function global:au_GetLatest { @{ Version = $Version } }
                 { update } | Should Not Throw
             }
 
-            It 'supports returning [version] as Version' {
-                function global:au_GetLatest { @{ Version = [version] '1.2' } }
-                { update } | Should Not Throw
-            }
-
-            It 'supports returning [group] as Version' {
-                function global:au_GetLatest { @{ Version = [regex]::Match('1.2', '^(.+)$').Groups[1] } }
-                { update } | Should Not Throw
+            It 'supports various Version types when forcing update' -TestCases $testCases { param($Version, $Type)
+                function global:au_GetLatest { @{ Version = $Version } }
+                function global:au_BeforeUpdate { $Latest.Version | Should BeOfType $Type }
+                { update -Force } | Should Not Throw
             }
         }
 
