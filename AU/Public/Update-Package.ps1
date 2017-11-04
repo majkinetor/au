@@ -284,7 +284,7 @@ function Update-Package {
 
         $build = if ($v.Build -eq -1) {0} else {$v.Build}
         $v = [version] ('{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d)
-        $package.RemoteVersion = [AUVersion]::new($v, $nuspecVersion.Prerelease, $nuspecVersion.BuildMetadata).ToString()
+        $package.RemoteVersion = $nuspecVersion.WithVersion($v).ToString()
         $Latest.Version = $package.RemoteVersion -as $Latest.Version.GetType()
     }
 
