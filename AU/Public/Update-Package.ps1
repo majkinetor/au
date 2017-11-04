@@ -423,6 +423,9 @@ function Update-Package {
             $streams = $res.Streams
         }
 
+        $res.Keys | ? { $_ -ne 'Streams' } | % { $global:au_Latest.Remove($_) }
+        $global:au_Latest += $res
+
         $streams.Keys | ? { !$Include -or $_ -in $Include } | sort { [AUVersion] $_ } | % {
             $stream = $streams[$_]
 
