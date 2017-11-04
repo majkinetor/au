@@ -401,33 +401,40 @@ function Update-Package {
 
     if ($res.ContainsKey('Streams')) {
         if (!$res.Streams) { throw "au_GetLatest's streams returned nothing" }
-        if ($res.Streams -isnot [HashTable]) { throw "au_GetLatest's streams don't return a HashTable result but $($res.Streams.GetType())" }
+        if ($res.Streams -isnot [System.Collections.Specialized.OrderedDictionary] -and $res.Streams -isnot [HashTable]) {
+            throw "au_GetLatest doesn't return an OrderedDictionary or HashTable result for streams but $($res.Streams.GetType())"
+        }
+
+        # Streams are expected to be sorted starting with the most recent one
+        $streams = @($res.Streams.Keys)
+        # In case of HashTable (i.e. not sorted), let's sort streams alphabetically descending
+        if ($res.Streams -is [HashTable]) { $streams = $streams | sort -Descending }
 
         if ($Include) {
             if ($Include -isnot [string] -and $Include -isnot [double] -and $Include -isnot [Array]) {
                 throw "`$Include must be either a String, a Double or an Array but is $($Include.GetType())"
             }
             if ($Include -is [double]) { $Include = $Include -as [string] }
-            if ($Include -is [string]) { [Array] $Include = $Include -split ',' | foreach { ,$_.Trim() } }
+            if ($Include -is [string]) { 
+                # Forcing type in order to handle case when only one version is included
+                [Array] $Include = $Include -split ',' | % { $_.Trim() }
+            }
         } elseif ($Force) {
-            $Include = @($res.Streams.Keys | sort { [AUVersion] $_ } -Descending | select -First 1)
+            # When forcing update, a single stream is expected
+            # By default, we take the first one (i.e. the most recent one)
+            $Include = @($streams | select -First 1)
         }
         if ($Force -and (!$Include -or $Include.Length -ne 1)) { throw 'A single stream must be included when forcing package update' }
 
-        if ($Include) {
-            $streams = @{}
-            $res.Streams.Keys | ? { $_ -in $Include } | % {
-                $streams.Add($_, $res.Streams[$_])
-            }
-        } else {
-            $streams = $res.Streams
-        }
+        if ($Include) { $streams = $streams | ? { $_ -in $Include } }
+        # Let's reverse the order in order to process streams starting with the oldest one
+        [Array]::Reverse($streams)
 
         $res.Keys | ? { $_ -ne 'Streams' } | % { $global:au_Latest.Remove($_) }
         $global:au_Latest += $res
 
-        $streams.Keys | ? { !$Include -or $_ -in $Include } | sort { [AUVersion] $_ } | % {
-            $stream = $streams[$_]
+        $streams | % {
+            $stream = $res.Streams[$_]
 
             '' | result
             "*** Stream: $_ ***" | result

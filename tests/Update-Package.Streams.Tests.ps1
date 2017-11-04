@@ -7,8 +7,8 @@ Describe 'Update-Package using streams' -Tag updatestreams {
     function global:get_latest([string] $Version, [string] $URL32, [string] $Checksum32) {
         $streams = @{
             '1.4' = @{ Version = '1.4-beta1'; URL32 = 'test.1.4-beta1' }
-            '1.2' = @{ Version = '1.2.4'; URL32 = 'test.1.2.4' }
             '1.3' = @{ Version = '1.3.1'; URL32 = 'test.1.3.1' }
+            '1.2' = @{ Version = '1.2.4'; URL32 = 'test.1.2.4' }
         }
         if ($Version) {
             $stream = (ConvertTo-AUVersion $Version).ToString(2)
@@ -20,8 +20,8 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             if ($Checksum32) { $s += @{ Checksum32 = $Checksum32 } }
             $streams.Add($stream, $s)
         }
-        $command = "function global:au_GetLatest { @{ Fake = 1; Streams = @{`n"
-        foreach ($item in $streams.Keys) {
+        $command = "function global:au_GetLatest { @{ Fake = 1; Streams = [ordered] @{`n"
+        foreach ($item in ($streams.Keys| sort { ConvertTo-AUVersion $_ } -Descending)) {
             $command += "'$item' = @{Version = '$($streams.$item.Version)'; URL32 = '$($streams.$item.URL32)'"
             if ($streams.$item.Checksum32) { $command += "; Checksum32 = '$($streams.$item.Checksum32)'" }
             $command += "}`n"
@@ -283,10 +283,10 @@ Describe 'Update-Package using streams' -Tag updatestreams {
 
         Context 'au_GetLatest' {
 
-            It "throws if au_GetLatest doesn't return HashTable" {
+            It "throws if au_GetLatest doesn't return OrderedDictionary or HashTable for streams" {
                 $return_value = @(1)
                 function global:au_GetLatest { @{ Streams = $return_value } }
-                { update } | Should Throw "don't return a HashTable"
+                { update } | Should Throw "doesn't return an OrderedDictionary or HashTable"
                 $return_value = @()
                 { update } | Should Throw "returned nothing"
             }
@@ -295,6 +295,23 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 get_latest -Version 1.4.0
                 function au_BeforeUpdate { $global:Latest.Fake | Should Be 1 }
                 update
+            }
+
+            It 'supports alphabetical streams' {
+                $return_value = @{
+                    dev    = @{ Version = '1.4.0' }
+                    beta   = @{ Version = '1.3.1' }
+                    stable = @{ Version = '1.2.4' }
+                }
+                function global:au_GetLatest { @{ Streams = $return_value } }
+
+                $res = update
+
+                $res.Updated       | Should Be $true
+                $res.Result[-1]    | Should Be 'Package updated'
+                (json_file).stable | Should Be 1.2.4
+                (json_file).beta   | Should Be 1.3.1
+                (json_file).dev    | Should Be 1.4.0
             }
         }
 
