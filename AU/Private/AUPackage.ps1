@@ -14,6 +14,7 @@ class AUPackage {
 
     [string]         $StreamsPath
     [pscustomobject] $Streams
+    [hashtable]      $StreamsDetails
 
     AUPackage([string] $Path ){
         if ([String]::IsNullOrWhiteSpace( $Path )) { throw 'Package path can not be empty' }
@@ -29,6 +30,16 @@ class AUPackage {
 
         $this.StreamsPath = '{0}\{1}.json' -f $this.Path, $this.Name
         $this.Streams     = [AUPackage]::LoadStreams( $this.StreamsPath )
+    }
+
+    [PSCustomObject] GetStreamDetails() {
+        return [PSCustomObject] @{
+            Path          = $this.Path
+            Name          = $this.Name
+            Updated       = $this.Updated
+            RemoteVersion = $this.RemoteVersion
+            NuspecVersion = $this.NuspecVersion
+        }
     }
 
     static [xml] LoadNuspecFile( $NuspecPath ) {
@@ -77,4 +88,19 @@ class AUPackage {
         return "$d\_output"
     }
 
+    AUPackage( [hashtable] $obj ) {
+        if (!$obj) { throw 'Obj can not be empty' }
+        $obj.Keys | % {
+            $this.$_ = $obj[$_]
+        }
+    }
+
+    [hashtable] Serialize() {
+        $res = @{}
+        $this | Get-Member -Type Properties | % {
+            $property = $_.Name
+            $res.Add($property, $this.$property)
+        }
+        return $res
+    }
 }

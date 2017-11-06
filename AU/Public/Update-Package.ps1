@@ -200,6 +200,8 @@ function Update-Package {
     }
 
     function process_stream() {
+        $package.Updated = $false
+
         if (!(is_version $package.NuspecVersion)) {
             Write-Warning "Invalid nuspec file Version '$($package.NuspecVersion)' - using 0.0"
             $global:Latest.NuspecVersion = $package.NuspecVersion = '0.0'
@@ -433,6 +435,7 @@ function Update-Package {
         $res.Keys | ? { $_ -ne 'Streams' } | % { $global:au_Latest.Remove($_) }
         $global:au_Latest += $res
 
+        $package.StreamsDetails = @{}
         $streams | % {
             $stream = $res.Streams[$_]
 
@@ -450,7 +453,10 @@ function Update-Package {
 
             set_latest $stream $package.Streams.$_ $_
             process_stream
+
+            $package.StreamsDetails.Add($_, $package.GetStreamDetails())
         }
+        $package.StreamsDetails.Values | ? { $_.updated } | % { $package.Updated = $true }
     } else {
         '' | result
         set_latest $res $package.NuspecVersion

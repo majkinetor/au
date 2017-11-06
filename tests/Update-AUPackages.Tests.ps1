@@ -136,6 +136,68 @@ Describe 'Update-AUPackages' -Tag updateall {
             $info.plugin_results.RunInfo -match 'Test.MyPassword' | Should Be $true
             $info.Options.Test.MyPassword | Should Be '*****' 
         }
+
+        It 'should execute GitReleases plugin when there are no updates' {
+            $Options.GitReleases = @{
+                ApiToken    = 'apiToken'
+                ReleaseType = 'package'
+                Force       = $true
+            }
+
+            Mock Invoke-RestMethod {} -ModuleName AU
+
+            updateall -NoPlugins:$false -Options $Options 6> $null
+
+            Assert-MockCalled Invoke-RestMethod -Exactly 0 -ModuleName AU
+        }
+
+        It 'should execute GitReleases plugin per package when there are updates' {
+            gc $global:au_Root\test_package_1\update.ps1 | set content
+            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | set content
+            $content | sc $global:au_Root\test_package_1\update.ps1
+            
+            $Options.GitReleases = @{
+                ApiToken    = 'apiToken'
+                ReleaseType = 'package'
+                Force       = $true
+            }
+
+            Mock Invoke-RestMethod {
+                return @{
+                    tag_name = 'test_package_1-1.3'
+                    assets = @(
+                        @{
+                            url = 'https://api.github.com/test_package_1.1.3.nupkg'
+                            name = 'test_package_1.1.3.nupkg'
+                        }
+                    )
+                }
+            } -ModuleName AU
+
+            updateall -NoPlugins:$false -Options $Options 6> $null
+
+            Assert-MockCalled Invoke-RestMethod -Exactly 3 -ModuleName AU
+        }
+
+        It 'should execute GitReleases plugin per date when there are updates' {
+            gc $global:au_Root\test_package_1\update.ps1 | set content
+            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | set content
+            $content | sc $global:au_Root\test_package_1\update.ps1
+            
+            $Options.GitReleases = @{
+                ApiToken    = 'apiToken'
+                ReleaseType = 'date'
+                Force       = $true
+            }
+
+            Mock Get-Date { return '2017-11-05' } -ParameterFilter { $UFormat -eq '{0:yyyy-MM-dd}' } -ModuleName AU
+            Mock Invoke-RestMethod { return @{ tag_name = '2017-11-05' } } -ModuleName AU
+
+            updateall -NoPlugins:$false -Options $Options 6> $null
+
+            Assert-MockCalled Get-Date -Exactly 1 -ModuleName AU
+            Assert-MockCalled Invoke-RestMethod -Exactly 2 -ModuleName AU
+        }
     }
 
     It 'should update package with checksum verification mode' {

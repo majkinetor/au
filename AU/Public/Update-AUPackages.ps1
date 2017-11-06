@@ -129,6 +129,8 @@ function Update-AUPackages {
                     } else {
                         $pkg.Error = 'Job returned no object, Vector smash ?'
                     }
+                } else {
+                    $pkg = [AUPackage]::new($pkg)
                 }
 
 
@@ -228,7 +230,7 @@ function Update-AUPackages {
                 . $s $using:package_name $Options
             }
 
-            $pkg
+            $pkg.Serialize()
         } | Out-Null
     }
     $result = $result | sort Name
