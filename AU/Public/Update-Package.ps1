@@ -393,10 +393,8 @@ function Update-Package {
         $res_type = $res.GetType()
         if ($res_type -ne [HashTable]) { throw "au_GetLatest doesn't return a HashTable result but $res_type" }
 
-        if ($global:au_Force) {
-            $Force = $true
-            if ($global:au_IncludeStream) { $IncludeStream = $global:au_IncludeStream }
-        }
+        if ($global:au_Force) { $Force = $true }
+        if ($global:au_IncludeStream) { $IncludeStream = $global:au_IncludeStream }
     } catch {
         throw "au_GetLatest failed`n$_"
     }
@@ -428,7 +426,7 @@ function Update-Package {
         }
         if ($Force -and (!$IncludeStream -or $IncludeStream.Length -ne 1)) { throw 'A single stream must be included when forcing package update' }
 
-        if ($IncludeStream) { $streams = $streams | ? { $_ -in $IncludeStream } }
+        if ($IncludeStream) { $streams = @($streams | ? { $_ -in $IncludeStream }) }
         # Let's reverse the order in order to process streams starting with the oldest one
         [Array]::Reverse($streams)
 
