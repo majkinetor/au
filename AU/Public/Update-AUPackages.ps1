@@ -131,7 +131,7 @@ function Update-AUPackages {
                 }
 
 
-                $message = $pkg.Name + ' '
+                $message = "[$($p)/$($aup.length)] " + $pkg.Name + ' '
                 $message += if ($pkg.Updated) { 'is updated to ' + $pkg.RemoteVersion } else { 'has no updates' }
                 if ($pkg.Updated -and $Options.Push) {
                     $message += if (!$pkg.Pushed) { ' but push failed!' } else { ' and pushed'}
