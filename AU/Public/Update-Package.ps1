@@ -433,6 +433,7 @@ function Update-Package {
         $res.Keys | ? { $_ -ne 'Streams' } | % { $global:au_Latest.Remove($_) }
         $global:au_Latest += $res
 
+        $allStreams = [ordered] @{}
         $streams | % {
             $stream = $res.Streams[$_]
 
@@ -451,9 +452,15 @@ function Update-Package {
             set_latest $stream $package.Streams.$_.NuspecVersion $_
             process_stream
 
-            $package.Streams.$_ += $package.GetStreamDetails()
+            if ($package.Streams.$_) {
+                $allStreams.$_ = $package.Streams.$_
+            } else {
+                $allStreams.$_ = @{ NuspecVersion = $package.NuspecVersion }
+            }
+            $allStreams.$_ += $package.GetStreamDetails()
         }
         $package.Updated = $false
+        $package.Streams = $allStreams
         $package.Streams.Values | ? { $_.Updated } | % { $package.Updated = $true }
     } else {
         '' | result
