@@ -53,6 +53,8 @@ class AUVersion : System.IComparable {
         }
     }
 
+    [AUVersion] WithVersion([version] $version) { return [AUVersion]::new($version, $this.Prerelease, $this.BuildMetadata) }
+
     [int] CompareTo($obj) {
         if ($obj -eq $null) { return 1 }
         if ($obj -isnot [AUVersion]) { throw "AUVersion expected: $($obj.GetType())" }

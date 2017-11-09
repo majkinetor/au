@@ -7,8 +7,8 @@ Describe 'Update-Package using streams' -Tag updatestreams {
     function global:get_latest([string] $Version, [string] $URL32, [string] $Checksum32) {
         $streams = @{
             '1.4' = @{ Version = '1.4-beta1'; URL32 = 'test.1.4-beta1' }
-            '1.2' = @{ Version = '1.2.4'; URL32 = 'test.1.2.4' }
             '1.3' = @{ Version = '1.3.1'; URL32 = 'test.1.3.1' }
+            '1.2' = @{ Version = '1.2.4'; URL32 = 'test.1.2.4' }
         }
         if ($Version) {
             $stream = (ConvertTo-AUVersion $Version).ToString(2)
@@ -20,8 +20,8 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             if ($Checksum32) { $s += @{ Checksum32 = $Checksum32 } }
             $streams.Add($stream, $s)
         }
-        $command = "function global:au_GetLatest { @{ Streams = @{`n"
-        foreach ($item in $streams.Keys) {
+        $command = "function global:au_GetLatest { @{ Fake = 1; Streams = [ordered] @{`n"
+        foreach ($item in ($streams.Keys| sort { ConvertTo-AUVersion $_ } -Descending)) {
             $command += "'$item' = @{Version = '$($streams.$item.Version)'; URL32 = '$($streams.$item.URL32)'"
             if ($streams.$item.Checksum32) { $command += "; Checksum32 = '$($streams.$item.Checksum32)'" }
             $command += "}`n"
@@ -46,7 +46,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
 
         $global:au_Timeout             = 100
         $global:au_Force               = $false
-        $global:au_Include             = ''
+        $global:au_IncludeStream       = ''
         $global:au_NoHostOutput        = $true
         $global:au_NoCheckUrl          = $true
         $global:au_NoCheckChocoVersion = $true
@@ -129,7 +129,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             It 'can let user override the version of a specific stream' {
                 get_latest -Version 1.2.3
                 $global:au_Force = $true
-                $global:au_Include = '1.2'
+                $global:au_IncludeStream = '1.2'
                 $global:au_Version = '1.0'
 
                 $res = update -ChecksumFor 32 6> $null
@@ -152,7 +152,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             }
 
             It 'automatically calculates the checksum' {
-                update -ChecksumFor 32 -Include 1.2 6> $null
+                update -ChecksumFor 32 -IncludeStream 1.2 6> $null
 
                 $global:Latest.Checksum32     | Should Not BeNullOrEmpty
                 $global:Latest.ChecksumType32 | Should Be 'sha256'
@@ -164,6 +164,9 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 $res = update
 
                 $res.Updated      | Should Be $true
+                $res.Streams.'1.2'.RemoteVersion       | Should Be 1.2.4
+                $res.Streams.'1.3'.RemoteVersion       | Should Be 1.3.1
+                $res.Streams.'1.4'.RemoteVersion       | Should Be 1.4-beta1
                 $res.Result[-1]   | Should Be 'Package updated'
                 (nuspec_file).package.metadata.version | Should Be 1.2.4
                 (json_file).'1.2' | Should Be 1.2.4
@@ -177,6 +180,9 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 $res = update
 
                 $res.Updated      | Should Be $true
+                $res.Streams.'1.2'.RemoteVersion | Should Be 1.2.4
+                $res.Streams.'1.3'.RemoteVersion | Should Be 1.3.1
+                $res.Streams.'1.4'.RemoteVersion | Should Be 1.4.0
                 $res.Result[-1]   | Should Be 'Package updated'
                 (json_file).'1.2' | Should Be 1.2.4
                 (json_file).'1.3' | Should Be 1.3.1
@@ -189,6 +195,9 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 $res = update
 
                 $res.Updated      | Should Be $false
+                $res.Streams.'1.2'.RemoteVersion       | Should Be 1.2.3
+                $res.Streams.'1.3'.RemoteVersion       | Should Be 1.3.1
+                $res.Streams.'1.4'.RemoteVersion       | Should Be 1.4-beta1
                 (nuspec_file).package.metadata.version | Should Be 1.2.3
                 (json_file).'1.2' | Should Be 1.2.3
                 (json_file).'1.3' | Should Be 1.3.1
@@ -197,13 +206,13 @@ Describe 'Update-Package using streams' -Tag updatestreams {
 
             It "throws an error when forcing update whithout specifying a stream" {
                 get_latest -Version 1.2.3
-                { update -Force -Include 1.2,1.4 } | Should Throw 'A single stream must be included when forcing package update'
+                { update -Force -IncludeStream 1.2,1.4 } | Should Throw 'A single stream must be included when forcing package update'
             }
 
             It "updates the package when forced using choco fix notation" {
                 get_latest -Version 1.2.3
 
-                $res = update -Force -Include 1.2
+                $res = update -Force -IncludeStream 1.2
 
                 $d = (get-date).ToString('yyyyMMdd')
                 $res.Updated      | Should Be $true
@@ -216,9 +225,10 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             }
 
             It "does not use choco fix notation if the package remote version is higher" {
-                $res = update -Force -Include 1.2
+                $res = update -Force -IncludeStream 1.2
 
                 $res.Updated      | Should Be $true
+                $res.Streams.'1.2'.RemoteVersion       | Should Be 1.2.4
                 (nuspec_file).package.metadata.version | Should Be 1.2.4
                 (json_file).'1.2' | Should Be 1.2.4
                 (json_file).'1.3' | Should Be 1.3.1
@@ -229,7 +239,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 function global:au_SearchReplace {
                     @{
                         'test_package_with_streams.nuspec' = @{
-                            '(<releaseNotes>)(.*)(</releaseNotes>)' = "`$1test.$($Latest.Version)`$3"
+                            '(<releaseNotes>)(.*)(</releaseNotes>)' = "`$1test_package_with_streams.$($Latest.Version)`$3"
                         }
                     }
                 }
@@ -237,7 +247,8 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 update
 
                 $nu = (nuspec_file).package.metadata
-                $nu.releaseNotes | Should Be 'test.1.2.4'
+                $nu.releaseNotes | Should Be 'test_package_with_streams.1.2.4'
+                $nu.id           | Should Be 'test_package_with_streams'
                 $nu.version      | Should Be 1.2.4
             }
         }
@@ -259,7 +270,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 $streams.'1.2' = '{{PackageVersion}}'
                 $streams | ConvertTo-Json | Set-Content "$TestDrive\test_package_with_streams\test_package_with_streams.json" -Encoding UTF8
 
-                update -Include 1.2 *> $null
+                update -IncludeStream 1.2 *> $null
 
                 $global:Latest.NuspecVersion | Should Be '0.0'
             }
@@ -283,32 +294,55 @@ Describe 'Update-Package using streams' -Tag updatestreams {
 
         Context 'au_GetLatest' {
 
-            It "throws if au_GetLatest doesn't return HashTable" {
+            It "throws if au_GetLatest doesn't return OrderedDictionary or HashTable for streams" {
                 $return_value = @(1)
                 function global:au_GetLatest { @{ Streams = $return_value } }
-                { update } | Should Throw "don't return a HashTable"
+                { update } | Should Throw "doesn't return an OrderedDictionary or HashTable"
                 $return_value = @()
                 { update } | Should Throw "returned nothing"
+            }
+
+            It "supports properties defined outside streams" {
+                get_latest -Version 1.4.0
+                function au_BeforeUpdate { $global:Latest.Fake | Should Be 1 }
+                update
+            }
+
+            It 'supports alphabetical streams' {
+                $return_value = @{
+                    dev    = @{ Version = '1.4.0' }
+                    beta   = @{ Version = '1.3.1' }
+                    stable = @{ Version = '1.2.4' }
+                }
+                function global:au_GetLatest { @{ Streams = $return_value } }
+
+                $res = update
+
+                $res.Updated       | Should Be $true
+                $res.Result[-1]    | Should Be 'Package updated'
+                (json_file).stable | Should Be 1.2.4
+                (json_file).beta   | Should Be 1.3.1
+                (json_file).dev    | Should Be 1.4.0
             }
         }
 
         Context 'Before and after update' {
             It 'calls au_BeforeUpdate if package is updated' {
                 function au_BeforeUpdate { $global:Latest.test = 1 }
-                update -Include 1.2
+                update -IncludeStream 1.2
                 $global:Latest.test | Should Be 1
             }
 
             It 'calls au_AfterUpdate if package is updated' {
                 function au_AfterUpdate { $global:Latest.test = 1 }
-                update -Include 1.2
+                update -IncludeStream 1.2
                 $global:Latest.test | Should Be 1
             }
 
             It 'doesnt call au_BeforeUpdate if package is not updated' {
                 get_latest -Version 1.2.3
                 function au_BeforeUpdate { $global:Latest.test = 1 }
-                update -Include 1.2
+                update -IncludeStream 1.2
                 $global:Latest.test | Should BeNullOrEmpty
             }
 

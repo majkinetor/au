@@ -21,9 +21,6 @@ param(
     # The text that should be used in the description of the release.
     [string]$releaseDescription = $null,
 
-    # The text that should be used in the description when a release is created for a stream (by default it uses the latest commit message).
-    [string]$streamReleaseDescription = '',
-
     # The formatting to use when replacing <date> in release header/description and on date based releases.
     [string]$dateFormat = '{0:yyyy-MM-dd}',
 
@@ -70,14 +67,12 @@ $packagesToRelease = New-Object 'System.Collections.Generic.List[hashtable]'
 
 $packages | % {
     if ($_.Streams) {
-        $pkg = $_
-        $data = ConvertFrom-Json ($pkg.Streams -replace '@', '' -replace '\s*=\s*', '":"' -replace '{\s*', '{"' -replace '\s*}', '"}' -replace '\s*;\s*', '","')
-        ($data | Get-Member -MemberType NoteProperty).Name | % {
-            $value = $data.$_
+        $_.Streams.Values | ? { $_.Updated } | % {
             $packagesToRelease.Add(@{
-                    Name          = $pkg.Name
-                    RemoteVersion = $value
-                    NuFile        = Resolve-Path ("$($pkg.Path)/*.$($value).nupkg")
+                    Name          = $_.Name
+                    NuspecVersion = $_.NuspecVersion
+                    RemoteVersion = $_.RemoteVersion
+                    NuFile        = Resolve-Path ("$($_.Path)/$($_.Name).$($_.RemoteVersion).nupkg")
                 })
         }
     }
@@ -143,13 +138,7 @@ $packagesToRelease | % {
 
     if ($releaseType -eq 'package') {
         $releaseName = $releaseHeader -replace '<PackageName>', $_.Name -replace '<RemoteVersion>', $_.RemoteVersion -replace '<NuspecVersion>', $_.NuspecVersion -replace '<date>', $date
-        if ($_.NuspecVersion) {
-            $packageDesc = $releaseDescription
-        }
-        else {
-            $packageDesc = $streamReleaseDescription
-        }
-        $packageDesc = $packageDesc -replace '<PackageName>', $_.Name -replace '<RemoteVersion>', $_.RemoteVersion -replace '<NuspecVersion>', $_.NuspecVersion -replace '<date>', $date
+        $packageDesc = $releaseDescription -replace '<PackageName>', $_.Name -replace '<RemoteVersion>', $_.RemoteVersion -replace '<NuspecVersion>', $_.NuspecVersion -replace '<date>', $date
 
         $release = GetOrCreateRelease `
             -tagName "$($_.Name)-$($_.RemoteVersion)" `

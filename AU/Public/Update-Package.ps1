@@ -84,7 +84,7 @@ function Update-Package {
 
         #Streams to process, either a string or an array. If ommitted, all streams are processed.
         #Single stream required when Force is specified.
-        $Include,
+        $IncludeStream,
 
         #Force package update even if no new version is found.
         #For multi streams packages, most recent stream is checked by default when Force is specified.
@@ -200,6 +200,8 @@ function Update-Package {
     }
 
     function process_stream() {
+        $package.Updated = $false
+
         if (!(is_version $package.NuspecVersion)) {
             Write-Warning "Invalid nuspec file Version '$($package.NuspecVersion)' - using 0.0"
             $global:Latest.NuspecVersion = $package.NuspecVersion = '0.0'
@@ -284,7 +286,7 @@ function Update-Package {
 
         $build = if ($v.Build -eq -1) {0} else {$v.Build}
         $v = [version] ('{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d)
-        $package.RemoteVersion = [AUVersion]::new($v, $nuspecVersion.Prerelease, $nuspecVersion.BuildMetadata).ToString()
+        $package.RemoteVersion = $nuspecVersion.WithVersion($v).ToString()
         $Latest.Version = $package.RemoteVersion -as $Latest.Version.GetType()
     }
 
@@ -391,40 +393,48 @@ function Update-Package {
         $res_type = $res.GetType()
         if ($res_type -ne [HashTable]) { throw "au_GetLatest doesn't return a HashTable result but $res_type" }
 
-        if ($global:au_Force) {
-            $Force = $true
-            if ($global:au_Include) { $Include = $global:au_Include }
-        }
+        if ($global:au_Force) { $Force = $true }
+        if ($global:au_IncludeStream) { $IncludeStream = $global:au_IncludeStream }
     } catch {
         throw "au_GetLatest failed`n$_"
     }
 
     if ($res.ContainsKey('Streams')) {
         if (!$res.Streams) { throw "au_GetLatest's streams returned nothing" }
-        if ($res.Streams -isnot [HashTable]) { throw "au_GetLatest's streams don't return a HashTable result but $($res.Streams.GetType())" }
+        if ($res.Streams -isnot [System.Collections.Specialized.OrderedDictionary] -and $res.Streams -isnot [HashTable]) {
+            throw "au_GetLatest doesn't return an OrderedDictionary or HashTable result for streams but $($res.Streams.GetType())"
+        }
 
-        if ($Include) {
-            if ($Include -isnot [string] -and $Include -isnot [double] -and $Include -isnot [Array]) {
-                throw "`$Include must be either a String, a Double or an Array but is $($Include.GetType())"
+        # Streams are expected to be sorted starting with the most recent one
+        $streams = @($res.Streams.Keys)
+        # In case of HashTable (i.e. not sorted), let's sort streams alphabetically descending
+        if ($res.Streams -is [HashTable]) { $streams = $streams | sort -Descending }
+
+        if ($IncludeStream) {
+            if ($IncludeStream -isnot [string] -and $IncludeStream -isnot [double] -and $IncludeStream -isnot [Array]) {
+                throw "`$IncludeStream must be either a String, a Double or an Array but is $($IncludeStream.GetType())"
             }
-            if ($Include -is [double]) { $Include = $Include -as [string] }
-            if ($Include -is [string]) { [Array] $Include = $Include -split ',' | foreach { ,$_.Trim() } }
+            if ($IncludeStream -is [double]) { $IncludeStream = $IncludeStream -as [string] }
+            if ($IncludeStream -is [string]) { 
+                # Forcing type in order to handle case when only one version is included
+                [Array] $IncludeStream = $IncludeStream -split ',' | % { $_.Trim() }
+            }
         } elseif ($Force) {
-            $Include = @($res.Streams.Keys | sort { [AUVersion] $_ } -Descending | select -First 1)
+            # When forcing update, a single stream is expected
+            # By default, we take the first one (i.e. the most recent one)
+            $IncludeStream = @($streams | select -First 1)
         }
-        if ($Force -and (!$Include -or $Include.Length -ne 1)) { throw 'A single stream must be included when forcing package update' }
+        if ($Force -and (!$IncludeStream -or $IncludeStream.Length -ne 1)) { throw 'A single stream must be included when forcing package update' }
 
-        if ($Include) {
-            $streams = @{}
-            $res.Streams.Keys | ? { $_ -in $Include } | % {
-                $streams.Add($_, $res.Streams[$_])
-            }
-        } else {
-            $streams = $res.Streams
-        }
+        if ($IncludeStream) { $streams = @($streams | ? { $_ -in $IncludeStream }) }
+        # Let's reverse the order in order to process streams starting with the oldest one
+        [Array]::Reverse($streams)
 
-        $streams.Keys | ? { !$Include -or $_ -in $Include } | sort { [AUVersion] $_ } | % {
-            $stream = $streams[$_]
+        $res.Keys | ? { $_ -ne 'Streams' } | % { $global:au_Latest.Remove($_) }
+        $global:au_Latest += $res
+
+        $streams | % {
+            $stream = $res.Streams[$_]
 
             '' | result
             "*** Stream: $_ ***" | result
@@ -433,14 +443,18 @@ function Update-Package {
             if ($stream -eq 'ignore') { return }
             if ($stream -isnot [HashTable]) { throw "au_GetLatest's $_ stream doesn't return a HashTable result but $($stream.GetType())" }
 
-            if ($package.Streams.$_ -eq 'ignore') {
+            if ($package.Streams.$_.NuspecVersion -eq 'ignore') {
                 'Ignored' | result
                 return
             }
 
-            set_latest $stream $package.Streams.$_ $_
+            set_latest $stream $package.Streams.$_.NuspecVersion $_
             process_stream
+
+            $package.Streams.$_ += $package.GetStreamDetails()
         }
+        $package.Updated = $false
+        $package.Streams.Values | ? { $_.Updated } | % { $package.Updated = $true }
     } else {
         '' | result
         set_latest $res $package.NuspecVersion
