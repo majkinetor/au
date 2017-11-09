@@ -137,18 +137,18 @@ Describe 'Update-AUPackages' -Tag updateall {
             $info.Options.Test.MyPassword | Should Be '*****' 
         }
 
-        It 'should execute GitReleases plugin when there are no updates' {
+        It 'should not execute GitReleases plugin when there are no updates' {
             $Options.GitReleases = @{
                 ApiToken    = 'apiToken'
                 ReleaseType = 'package'
                 Force       = $true
             }
 
-            Mock Invoke-RestMethod {} -ModuleName AU
+            Mock -ModuleName AU Invoke-RestMethod {}
 
             updateall -NoPlugins:$false -Options $Options 6> $null
 
-            Assert-MockCalled Invoke-RestMethod -Exactly 0 -ModuleName AU
+            Assert-MockCalled -ModuleName AU Invoke-RestMethod -Exactly 0 -Scope It
         }
 
         It 'should execute GitReleases plugin per package when there are updates' {
@@ -162,7 +162,7 @@ Describe 'Update-AUPackages' -Tag updateall {
                 Force       = $true
             }
 
-            Mock Invoke-RestMethod {
+            Mock -ModuleName AU Invoke-RestMethod {
                 return @{
                     tag_name = 'test_package_1-1.3'
                     assets = @(
@@ -172,11 +172,11 @@ Describe 'Update-AUPackages' -Tag updateall {
                         }
                     )
                 }
-            } -ModuleName AU
+            }
 
             updateall -NoPlugins:$false -Options $Options 6> $null
 
-            Assert-MockCalled Invoke-RestMethod -Exactly 3 -ModuleName AU
+            Assert-MockCalled -ModuleName AU Invoke-RestMethod -Exactly 3 -Scope It
         }
 
         It 'should execute GitReleases plugin per date when there are updates' {
@@ -190,13 +190,13 @@ Describe 'Update-AUPackages' -Tag updateall {
                 Force       = $true
             }
 
-            Mock Get-Date { return '2017-11-05' } -ParameterFilter { $UFormat -eq '{0:yyyy-MM-dd}' } -ModuleName AU
-            Mock Invoke-RestMethod { return @{ tag_name = '2017-11-05' } } -ModuleName AU
+            Mock -ModuleName AU Get-Date { return '2017-11-05' } -ParameterFilter { $UFormat -eq '{0:yyyy-MM-dd}' }
+            Mock -ModuleName AU Invoke-RestMethod { return @{ tag_name = '2017-11-05' } }
 
             updateall -NoPlugins:$false -Options $Options 6> $null
 
-            Assert-MockCalled Get-Date -Exactly 1 -ModuleName AU
-            Assert-MockCalled Invoke-RestMethod -Exactly 2 -ModuleName AU
+            Assert-MockCalled -ModuleName AU Get-Date -Exactly 1 -Scope It
+            Assert-MockCalled -ModuleName AU Invoke-RestMethod -Exactly 2 -Scope It
         }
     }
 

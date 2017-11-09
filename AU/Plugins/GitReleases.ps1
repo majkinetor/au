@@ -67,7 +67,7 @@ $packagesToRelease = New-Object 'System.Collections.Generic.List[hashtable]'
 
 $packages | % {
     if ($_.Streams) {
-        $_.StreamsDetails.Values | ? { $_.Updated } | % {
+        $_.Streams.Values | ? { $_.Updated } | % {
             $packagesToRelease.Add(@{
                     Name          = $_.Name
                     NuspecVersion = $_.NuspecVersion

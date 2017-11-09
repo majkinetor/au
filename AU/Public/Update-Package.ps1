@@ -435,7 +435,6 @@ function Update-Package {
         $res.Keys | ? { $_ -ne 'Streams' } | % { $global:au_Latest.Remove($_) }
         $global:au_Latest += $res
 
-        $package.StreamsDetails = @{}
         $streams | % {
             $stream = $res.Streams[$_]
 
@@ -446,17 +445,18 @@ function Update-Package {
             if ($stream -eq 'ignore') { return }
             if ($stream -isnot [HashTable]) { throw "au_GetLatest's $_ stream doesn't return a HashTable result but $($stream.GetType())" }
 
-            if ($package.Streams.$_ -eq 'ignore') {
+            if ($package.Streams.$_.NuspecVersion -eq 'ignore') {
                 'Ignored' | result
                 return
             }
 
-            set_latest $stream $package.Streams.$_ $_
+            set_latest $stream $package.Streams.$_.NuspecVersion $_
             process_stream
 
-            $package.StreamsDetails.Add($_, $package.GetStreamDetails())
+            $package.Streams.$_ += $package.GetStreamDetails()
         }
-        $package.StreamsDetails.Values | ? { $_.updated } | % { $package.Updated = $true }
+        $package.Updated = $false
+        $package.Streams.Values | ? { $_.Updated } | % { $package.Updated = $true }
     } else {
         '' | result
         set_latest $res $package.NuspecVersion

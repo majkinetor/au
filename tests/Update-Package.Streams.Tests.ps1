@@ -164,6 +164,9 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 $res = update
 
                 $res.Updated      | Should Be $true
+                $res.Streams.'1.2'.RemoteVersion       | Should Be 1.2.4
+                $res.Streams.'1.3'.RemoteVersion       | Should Be 1.3.1
+                $res.Streams.'1.4'.RemoteVersion       | Should Be 1.4-beta1
                 $res.Result[-1]   | Should Be 'Package updated'
                 (nuspec_file).package.metadata.version | Should Be 1.2.4
                 (json_file).'1.2' | Should Be 1.2.4
@@ -177,6 +180,9 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 $res = update
 
                 $res.Updated      | Should Be $true
+                $res.Streams.'1.2'.RemoteVersion | Should Be 1.2.4
+                $res.Streams.'1.3'.RemoteVersion | Should Be 1.3.1
+                $res.Streams.'1.4'.RemoteVersion | Should Be 1.4.0
                 $res.Result[-1]   | Should Be 'Package updated'
                 (json_file).'1.2' | Should Be 1.2.4
                 (json_file).'1.3' | Should Be 1.3.1
@@ -189,6 +195,9 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 $res = update
 
                 $res.Updated      | Should Be $false
+                $res.Streams.'1.2'.RemoteVersion       | Should Be 1.2.3
+                $res.Streams.'1.3'.RemoteVersion       | Should Be 1.3.1
+                $res.Streams.'1.4'.RemoteVersion       | Should Be 1.4-beta1
                 (nuspec_file).package.metadata.version | Should Be 1.2.3
                 (json_file).'1.2' | Should Be 1.2.3
                 (json_file).'1.3' | Should Be 1.3.1
@@ -219,6 +228,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 $res = update -Force -Include 1.2
 
                 $res.Updated      | Should Be $true
+                $res.Streams.'1.2'.RemoteVersion       | Should Be 1.2.4
                 (nuspec_file).package.metadata.version | Should Be 1.2.4
                 (json_file).'1.2' | Should Be 1.2.4
                 (json_file).'1.3' | Should Be 1.3.1
@@ -229,7 +239,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 function global:au_SearchReplace {
                     @{
                         'test_package_with_streams.nuspec' = @{
-                            '(<releaseNotes>)(.*)(</releaseNotes>)' = "`$1test.$($Latest.Version)`$3"
+                            '(<releaseNotes>)(.*)(</releaseNotes>)' = "`$1test_package_with_streams.$($Latest.Version)`$3"
                         }
                     }
                 }
@@ -237,7 +247,8 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 update
 
                 $nu = (nuspec_file).package.metadata
-                $nu.releaseNotes | Should Be 'test.1.2.4'
+                $nu.releaseNotes | Should Be 'test_package_with_streams.1.2.4'
+                $nu.id           | Should Be 'test_package_with_streams'
                 $nu.version      | Should Be 1.2.4
             }
         }

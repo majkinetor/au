@@ -2,16 +2,7 @@ remove-module AU -ea ignore
 import-module $PSScriptRoot\..\AU
 
 Describe 'Get-Version' -Tag getversion {
-    $saved_pwd = $pwd
-
-    BeforeEach {
-        cd TestDrive:\
-        rm -Recurse -Force TestDrive:\test_package -ea ignore
-        cp -Recurse -Force $PSScriptRoot\test_package TestDrive:\test_package
-    }
-
     InModuleScope AU {
-
         It 'should convert a strict version' {
             $expectedVersionStart = '1.2'
             $expectedVersion = "$expectedVersionStart.3.4"
@@ -116,8 +107,5 @@ Describe 'Get-Version' -Tag getversion {
             $version = [AUVersion] $Value
             $version | Should Not BeNullOrEmpty
         }
-
     }
-
-    cd $saved_pwd
 }
