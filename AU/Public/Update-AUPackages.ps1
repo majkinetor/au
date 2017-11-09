@@ -130,7 +130,7 @@ function Update-AUPackages {
                     }
                 }
 
-
+                $jobseconds = ($job.PSEndTime.TimeOfDay - $job.PSBeginTime.TimeOfDay).TotalSeconds
                 $message = "[$($p)/$($aup.length)] " + $pkg.Name + ' '
                 $message += if ($pkg.Updated) { 'is updated to ' + $pkg.RemoteVersion } else { 'has no updates' }
                 if ($pkg.Updated -and $Options.Push) {
@@ -140,6 +140,7 @@ function Update-AUPackages {
                     $message = "$($pkg.Name) ERROR: "
                     $message += $pkg.Error.ToString() -split "`n" | % { "`n" + ' '*5 + $_ }
                 }
+                $message+= " ({0:N2}s)" -f $jobseconds
                 Write-Host '  ' $message
 
                 $result += $pkg
