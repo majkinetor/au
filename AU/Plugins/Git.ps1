@@ -13,7 +13,10 @@ param(
     [string] $Password,
 
     #Force git commit when package is updated but not pushed.
-    [switch] $Force
+    [switch] $Force,
+
+    [ValidateSet('single', 'atomic', 'atomictag')]
+    [string]$commitStrategy='single'
 )
 
 [array]$packages = if ($Force) { $Info.result.updated } else { $Info.result.pushed }
@@ -42,16 +45,39 @@ Write-Host "Executing git pull"
 git checkout -q master
 git pull -q origin master
 
-Write-Host "Adding updated packages to git repository: $( $packages | % Name)"
-$packages | % { git add -u $_.Path }
-git status
 
-Write-Host "Commiting"
-$message = "AU: $($packages.Length) updated - $($packages | % Name)"
-$gist_url = $Info.plugin_results.Gist -split '\n' | select -Last 1
-git commit -m "$message`n[skip ci] $gist_url" --allow-empty
+if  ($commitStrategy -like 'atomic*') {
+    $packages | % {
+        Write-Host "Adding update package to git repository: $($_.Name)"
+        git add -u $_.Path
+        git status
 
+        Write-Host "Commiting $($_.Name)"
+        $message = "AU: $($_.Name) upgraded from $($_.NuspecVersion) to $($_.RemoteVersion)"
+        $gist_url = $Info.plugin_results.Gist -split '\n' | select -Last 1
+        git commit -m "$message`n[skip ci] $gist_url" --allow-empty
+        
+        if ($commitStrategy -eq 'atomictag') {
+          $tagcmd = "git tag -a $($_.Name)-$($_.RemoteVersion) -m '$($_.Name)-$($_.RemoteVersion)'"
+          Invoke-Expression $tagcmd
+        }
+    }
+}
+else {
+    Write-Host "Adding updated packages to git repository: $( $packages | % Name)"
+    $packages | % { git add -u $_.Path }
+    git status
+
+    Write-Host "Commiting"
+    $message = "AU: $($packages.Length) updated - $($packages | % Name)"
+    $gist_url = $Info.plugin_results.Gist -split '\n' | select -Last 1
+    git commit -m "$message`n[skip ci] $gist_url" --allow-empty
+
+}
 Write-Host "Pushing changes"
-git push -q
-
+git push -q 
+if ($commitStrategy -eq 'atomictag') {
+    write-host 'Atomic Tag Push'
+    git push -q --tags
+}
 popd
