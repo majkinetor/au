@@ -137,7 +137,7 @@ function Update-AUPackages {
                     $message += if (!$pkg.Pushed) { ' but push failed!' } else { ' and pushed'}
                 }
                 if ($pkg.Error) {
-                    $message = "$($pkg.Name) ERROR: "
+                    $message = "[$($p)/$($aup.length)] $($pkg.Name) ERROR: "
                     $message += $pkg.Error.ToString() -split "`n" | % { "`n" + ' '*5 + $_ }
                 }
                 Write-Host '  ' $message
