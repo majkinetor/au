@@ -46,7 +46,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
 
         $global:au_Timeout             = 100
         $global:au_Force               = $false
-        $global:au_Include             = ''
+        $global:au_IncludeStream       = ''
         $global:au_NoHostOutput        = $true
         $global:au_NoCheckUrl          = $true
         $global:au_NoCheckChocoVersion = $true
@@ -129,7 +129,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             It 'can let user override the version of a specific stream' {
                 get_latest -Version 1.2.3
                 $global:au_Force = $true
-                $global:au_Include = '1.2'
+                $global:au_IncludeStream = '1.2'
                 $global:au_Version = '1.0'
 
                 $res = update -ChecksumFor 32 6> $null
@@ -152,7 +152,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             }
 
             It 'automatically calculates the checksum' {
-                update -ChecksumFor 32 -Include 1.2 6> $null
+                update -ChecksumFor 32 -IncludeStream 1.2 6> $null
 
                 $global:Latest.Checksum32     | Should Not BeNullOrEmpty
                 $global:Latest.ChecksumType32 | Should Be 'sha256'
@@ -206,13 +206,13 @@ Describe 'Update-Package using streams' -Tag updatestreams {
 
             It "throws an error when forcing update whithout specifying a stream" {
                 get_latest -Version 1.2.3
-                { update -Force -Include 1.2,1.4 } | Should Throw 'A single stream must be included when forcing package update'
+                { update -Force -IncludeStream 1.2,1.4 } | Should Throw 'A single stream must be included when forcing package update'
             }
 
             It "updates the package when forced using choco fix notation" {
                 get_latest -Version 1.2.3
 
-                $res = update -Force -Include 1.2
+                $res = update -Force -IncludeStream 1.2
 
                 $d = (get-date).ToString('yyyyMMdd')
                 $res.Updated      | Should Be $true
@@ -225,7 +225,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             }
 
             It "does not use choco fix notation if the package remote version is higher" {
-                $res = update -Force -Include 1.2
+                $res = update -Force -IncludeStream 1.2
 
                 $res.Updated      | Should Be $true
                 $res.Streams.'1.2'.RemoteVersion       | Should Be 1.2.4
@@ -270,7 +270,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 $streams.'1.2' = '{{PackageVersion}}'
                 $streams | ConvertTo-Json | Set-Content "$TestDrive\test_package_with_streams\test_package_with_streams.json" -Encoding UTF8
 
-                update -Include 1.2 *> $null
+                update -IncludeStream 1.2 *> $null
 
                 $global:Latest.NuspecVersion | Should Be '0.0'
             }
@@ -329,20 +329,20 @@ Describe 'Update-Package using streams' -Tag updatestreams {
         Context 'Before and after update' {
             It 'calls au_BeforeUpdate if package is updated' {
                 function au_BeforeUpdate { $global:Latest.test = 1 }
-                update -Include 1.2
+                update -IncludeStream 1.2
                 $global:Latest.test | Should Be 1
             }
 
             It 'calls au_AfterUpdate if package is updated' {
                 function au_AfterUpdate { $global:Latest.test = 1 }
-                update -Include 1.2
+                update -IncludeStream 1.2
                 $global:Latest.test | Should Be 1
             }
 
             It 'doesnt call au_BeforeUpdate if package is not updated' {
                 get_latest -Version 1.2.3
                 function au_BeforeUpdate { $global:Latest.test = 1 }
-                update -Include 1.2
+                update -IncludeStream 1.2
                 $global:Latest.test | Should BeNullOrEmpty
             }
 

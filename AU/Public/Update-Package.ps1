@@ -84,7 +84,7 @@ function Update-Package {
 
         #Streams to process, either a string or an array. If ommitted, all streams are processed.
         #Single stream required when Force is specified.
-        $Include,
+        $IncludeStream,
 
         #Force package update even if no new version is found.
         #For multi streams packages, most recent stream is checked by default when Force is specified.
@@ -395,7 +395,7 @@ function Update-Package {
 
         if ($global:au_Force) {
             $Force = $true
-            if ($global:au_Include) { $Include = $global:au_Include }
+            if ($global:au_IncludeStream) { $IncludeStream = $global:au_IncludeStream }
         }
     } catch {
         throw "au_GetLatest failed`n$_"
@@ -412,23 +412,23 @@ function Update-Package {
         # In case of HashTable (i.e. not sorted), let's sort streams alphabetically descending
         if ($res.Streams -is [HashTable]) { $streams = $streams | sort -Descending }
 
-        if ($Include) {
-            if ($Include -isnot [string] -and $Include -isnot [double] -and $Include -isnot [Array]) {
-                throw "`$Include must be either a String, a Double or an Array but is $($Include.GetType())"
+        if ($IncludeStream) {
+            if ($IncludeStream -isnot [string] -and $IncludeStream -isnot [double] -and $IncludeStream -isnot [Array]) {
+                throw "`$IncludeStream must be either a String, a Double or an Array but is $($IncludeStream.GetType())"
             }
-            if ($Include -is [double]) { $Include = $Include -as [string] }
-            if ($Include -is [string]) { 
+            if ($IncludeStream -is [double]) { $IncludeStream = $IncludeStream -as [string] }
+            if ($IncludeStream -is [string]) { 
                 # Forcing type in order to handle case when only one version is included
-                [Array] $Include = $Include -split ',' | % { $_.Trim() }
+                [Array] $IncludeStream = $IncludeStream -split ',' | % { $_.Trim() }
             }
         } elseif ($Force) {
             # When forcing update, a single stream is expected
             # By default, we take the first one (i.e. the most recent one)
-            $Include = @($streams | select -First 1)
+            $IncludeStream = @($streams | select -First 1)
         }
-        if ($Force -and (!$Include -or $Include.Length -ne 1)) { throw 'A single stream must be included when forcing package update' }
+        if ($Force -and (!$IncludeStream -or $IncludeStream.Length -ne 1)) { throw 'A single stream must be included when forcing package update' }
 
-        if ($Include) { $streams = $streams | ? { $_ -in $Include } }
+        if ($IncludeStream) { $streams = $streams | ? { $_ -in $IncludeStream } }
         # Let's reverse the order in order to process streams starting with the oldest one
         [Array]::Reverse($streams)
 
