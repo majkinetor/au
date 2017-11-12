@@ -63,30 +63,32 @@ function global:au_GetLatest {
 
 The returned version is later compared to the one in the nuspec file and if remote version is higher, the files will be updated. The returned keys of this HashTable are available via global variable `$global:Latest` (along with some keys that AU generates). You can put whatever data you need in the returned HashTable - this data can be used later in `au_SearchReplace`.
 
+
+#### Streams
+
 When multiple streams have to be handled, multiple HashTables can be put together in order to describe each supported stream.
 
 ```powershell
 function global:au_GetLatest {
      # ...
      $streams = @{}
-     $streams.Add('1.2', @{ Version = $version12; URL32 = $url12 })
-     $streams.Add('1.3', @{ Version = $version13; URL32 = $url13 })
-     return @{ Streams = $streams }
+     $streams.'1.2' = @{ Version = $version12; URL32 = $url12 }
+     $streams.'1.3' = @{ Version = $version13; URL32 = $url13 }
+     @{ Streams = $streams }
 }
 ```
 
 In order to help working with versions, function `Get-Version` can be called in order to parse [semver](http://semver.org/) versions in a flexible manner. It returns an `AUVersion` object with all the details about the version. Furthermore, this object can be compared and sorted.
 
-```
-PS C:\> Get-Version 'v1.3.2.7rc1'
+```powershell
+PS> Get-Version 'v1.3.2.7rc1'
 
 Version Prerelease BuildMetadata
 ------- ---------- -------------
 1.3.2.7 rc1
 
-
-PS C:\> $version = Get-Version '1.3.2-beta2+5'
-PS C:\> $version.ToString(2) + ' => ' + $version.ToString()
+PS> $version = Get-Version '1.3.2-beta2+5'
+PS> $version.ToString(2) + ' => ' + $version.ToString()
 1.3 => 1.3.2-beta2+5
 ```
 
