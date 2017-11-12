@@ -2,7 +2,7 @@
 
 ## Next
 - `Update-AuPackage`
-  - New feature [strams](https://github.com/majkinetor/au#streams) that extends `au_GetLatest` with option to return multiple HashTables (one for each stream).
+  - New feature [streams](https://github.com/majkinetor/au#streams) that extends `au_GetLatest` with option to return multiple HashTables (one for each stream).
   - New parameter `IncludeStream` to force update of spcecific stream.
 - `au_BeforeUpdate` and `au_AfterUpdate` now provide parameter `Package` of type `[AUPackage]` which you can use to modify Nuspec data.
 - Added new function `Set-DescriptionFromReadme` that is called automatically when README.md is present in the package folder ([#85](https://github.com/majkinetor/au/issues/85)). See [documentation](README.md#automatic-package-description-from-readmemd).
