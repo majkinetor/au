@@ -9,6 +9,7 @@
 - Plugins:
   - New plugin: [GitReleases](https://github.com/majkinetor/au/blob/master/AU/Plugins/GitReleases.ps1)
   - Git: new parameter `Strategy` with options on how to commit repository changes
+  - Report: symbols in markdown report to mark embedded and stream packages
 
 ## 2017.8.30
 
