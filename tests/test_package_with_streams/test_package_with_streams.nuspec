@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>test_package_with_streams</id>
+    <version>1.2.3</version>
+    <title>Test Package with Streams</title>
+    <authors>Miodrag Milić</authors>
+    <owners>Miodrag Milić</owners>
+    <licenseUrl>http://www.gnu.org/copyleft/gpl.html</licenseUrl>
+    <projectUrl>https://github.com/majkinetor/au</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>This is a test package with streams for Pester</description>
+    <summary>This is a test package with streams for Pester</summary>
+    <tags>test streams pester</tags>
+    <dependencies>
+        <dependency id="test.install" version="1.0" />
+    </dependencies>
+    <releaseNotes>None</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

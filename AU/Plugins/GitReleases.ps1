@@ -55,12 +55,36 @@ function GetOrCreateRelease() {
         "prerelease"       = $false
     } | ConvertTo-Json -Compress
 
-    Write-Verbose "Trying to create the new release $tagName..."
+    Write-Host "Creating the new release $tagName..."
     return Invoke-RestMethod -UseBasicParsing -Method Post -Uri "https://api.github.com/repos/$repository/releases" -Body $json -Headers $headers
 }
 
 [array]$packages = if ($Force) { $Info.result.updated } else { $Info.result.pushed }
+
 if ($packages.Length -eq 0) { Write-Host "No package updated, skipping"; return }
+
+$packagesToRelease = New-Object 'System.Collections.Generic.List[hashtable]'
+
+$packages | % {
+    if ($_.Streams) {
+        $_.Streams.Values | ? { $_.Updated } | % {
+            $packagesToRelease.Add(@{
+                    Name          = $_.Name
+                    NuspecVersion = $_.NuspecVersion
+                    RemoteVersion = $_.RemoteVersion
+                    NuFile        = Resolve-Path ("$($_.Path)/$($_.Name).$($_.RemoteVersion).nupkg")
+                })
+        }
+    }
+    else {
+        $packagesToRelease.Add(@{
+                Name          = $_.Name
+                NuspecVersion = $_.NuspecVersion
+                RemoteVersion = $_.RemoteVersion
+                NuFile        = Resolve-Path ("$($_.Path)/$($_.Name).$($_.RemoteVersion).nupkg")
+            })
+    }
+}
 
 $origin = git config --get remote.origin.url
 
@@ -71,64 +95,69 @@ if (!($origin -match "github.com\/([^\/]+\/[^\/\.]+)")) {
 $repository = $Matches[1]
 
 $headers = @{
-  Authorization = "token $ApiToken"
+    Authorization = "token $ApiToken"
 }
 
 if ($releaseType -eq 'date' -and !$releaseHeader) {
-  $releaseHeader = 'Packages updated on <date>'
-} elseif (!$releaseHeader) {
-  $releaseHeader = '<PackageName> <RemoteVersion>'
+    $releaseHeader = 'Packages updated on <date>'
+}
+elseif (!$releaseHeader) {
+    $releaseHeader = '<PackageName> <RemoteVersion>'
 }
 
 if ($releaseType -eq 'date' -and !$releaseDescription) {
-  $releaseDescription = 'We had packages that was updated on <date>'
-} elseif (!$releaseDescription) {
-  $releaseDescription = '<PackageName> was updated from version <NuspecVersion> to <RemoteVersion>'
+    $releaseDescription = 'We had packages that was updated on <date>'
+}
+elseif (!$releaseDescription) {
+    $releaseDescription = '<PackageName> was updated from version <NuspecVersion> to <RemoteVersion>'
 }
 
 $date = Get-Date -UFormat $dateFormat
 
 if ($releaseType -eq 'date') {
-  $release = GetOrCreateRelease `
-    -tagName $date `
-    -releaseName ($releaseHeader -replace '<date>',$date) `
-    -releaseDescription ($releaseDescription -replace '<date>',$date) `
-    -repository $repository `
-    -headers $headers
+    $release = GetOrCreateRelease `
+        -tagName $date `
+        -releaseName ($releaseHeader -replace '<date>', $date) `
+        -releaseDescription ($releaseDescription -replace '<date>', $date) `
+        -repository $repository `
+        -headers $headers
 
-  if (!$release) {
-    Write-Error "Unable to create a new release, please check your permissions..."
-    return
-  }
+    if (!$release) {
+        Write-Error "Unable to create a new release, please check your permissions..."
+        return
+    }
 }
 
 $uploadHeaders = $headers.Clone()
 $uploadHeaders['Content-Type'] = 'application/zip'
 
-$packages | % {
-  if ($releaseType -eq 'package') {
-    $releaseName = $releaseHeader -replace '<PackageName>',$_.Name -replace '<RemoteVersion>',$_.RemoteVersion -replace '<NuspecVersion>',$_.NuspecVersion -replace '<date>',$date
-    $packageDesc = $releaseDescription -replace '<PackageName>',$_.Name -replace '<RemoteVersion>',$_.RemoteVersion -replace '<NuspecVersion>',$_.NuspecVersion -replace '<date>',$date
+$packagesToRelease | % {
+    # Because we grab all streams previously, we need to ignore
+    # cases when a stream haven't been updated (no nupkg file created)
+    if (!$_.NuFile) { return }
 
-    $release = GetOrCreateRelease `
-      -tagName "$($_.Name)-$($_.RemoteVersion)" `
-      -releaseName $releaseName `
-      -releaseDescription $packageDesc `
-      -repository $repository `
-      -headers $headers
-  }
+    if ($releaseType -eq 'package') {
+        $releaseName = $releaseHeader -replace '<PackageName>', $_.Name -replace '<RemoteVersion>', $_.RemoteVersion -replace '<NuspecVersion>', $_.NuspecVersion -replace '<date>', $date
+        $packageDesc = $releaseDescription -replace '<PackageName>', $_.Name -replace '<RemoteVersion>', $_.RemoteVersion -replace '<NuspecVersion>', $_.NuspecVersion -replace '<date>', $date
 
-  $path = Resolve-Path "$($_.Path)\*.nupkg"
-  $fileName = [System.IO.Path]::GetFileName($path)
+        $release = GetOrCreateRelease `
+            -tagName "$($_.Name)-$($_.RemoteVersion)" `
+            -releaseName $releaseName `
+            -releaseDescription $packageDesc `
+            -repository $repository `
+            -headers $headers
+    }
 
-  $existing = $release.assets | ? name -eq $fileName
-  if ($existing) {
-    Write-Verbose "Removing existing $fileName asset..."
-    Invoke-RestMethod -UseBasicParsing -Uri $existing.url -method Delete -Headers $headers | Out-Null
-  }
+    $fileName = [System.IO.Path]::GetFileName($_.NuFile)
 
-  $uploadUrl = $release.upload_url -replace '\{.*\}$',''
-  $rawContent = [System.IO.File]::ReadAllBytes($path)
-  Write-Host "Uploading $fileName asset..."
-  Invoke-RestMethod -UseBasicParsing -Uri "${uploadUrl}?name=${fileName}&label=$($_.Name) v$($_.RemoteVersion)" -Body $rawContent -Headers $uploadHeaders -Method Post | Out-Null
+    $existing = $release.assets | ? name -eq $fileName
+    if ($existing) {
+        Write-Verbose "Removing existing $fileName asset..."
+        Invoke-RestMethod -UseBasicParsing -Uri $existing.url -method Delete -Headers $headers | Out-Null
+    }
+
+    $uploadUrl = $release.upload_url -replace '\{.*\}$', ''
+    $rawContent = [System.IO.File]::ReadAllBytes($_.NuFile)
+    Write-Host "Uploading $fileName asset..."
+    Invoke-RestMethod -UseBasicParsing -Uri "${uploadUrl}?name=${fileName}&label=$($_.Name) v$($_.RemoteVersion)" -Body $rawContent -Headers $uploadHeaders -Method Post | Out-Null
 }

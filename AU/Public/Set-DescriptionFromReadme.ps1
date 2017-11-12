@@ -14,16 +14,18 @@
 #>
 function Set-DescriptionFromReadme{
     param(
-      [AUPackage] $Package, 
+      [AUPackage] $Package,
       # Number of start lines to skip from the README.md, by default 0.
       [int] $SkipFirst=0, 
       # Number of end lines to skip from the README.md, by default 0.
-      [int] $SkipLast=0
+      [int] $SkipLast=0,
+      # Readme file path
+      [string] $ReadmePath = 'README.md'
     )
 
-    'Setting package description from README.md'
+    "Setting package description from $ReadmePath"
 
-    $description = gc README.md -Encoding UTF8
+    $description = gc $ReadmePath -Encoding UTF8
     $endIdx = $description.Length - $SkipLast
     $description = $description | select -Index ($SkipFirst..$endIdx) | Out-String
 

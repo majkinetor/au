@@ -47,6 +47,7 @@ function Update-AUPackages {
           UpdateTimeout     - Timeout for background job in seconds, by default 1200 (20 minutes).
           Force             - Force package update even if no new version is found.
           Push              - Set to true to push updated packages to Chocolatey community repository.
+          PushAll           - Set to true to push all updated packages and not only the most recent one per folder.
           WhatIf            - Set to true to set WhatIf option for all packages.
           PluginPath        - Additional path to look for user plugins. If not set only module integrated plugins will work
 
@@ -128,6 +129,8 @@ function Update-AUPackages {
                     } else {
                         $pkg.Error = 'Job returned no object, Vector smash ?'
                     }
+                } else {
+                    $pkg = [AUPackage]::new($pkg)
                 }
 
                 $jobseconds = ($job.PSEndTime.TimeOfDay - $job.PSBeginTime.TimeOfDay).TotalSeconds
@@ -215,7 +218,7 @@ function Update-AUPackages {
             if ( "$type" -ne 'AUPackage') { throw "'$using:package_name' update script didn't return AUPackage but: $type" }
 
             if ($pkg.Updated -and $Options.Push) {
-                $pkg.Result += $r = Push-Package
+                $pkg.Result += $r = Push-Package -All:$Options.PushAll
                 if ($LastExitCode -eq 0) {
                     $pkg.Pushed = $true
                 } else {
@@ -228,7 +231,7 @@ function Update-AUPackages {
                 . $s $using:package_name $Options
             }
 
-            $pkg
+            $pkg.Serialize()
         } | Out-Null
     }
     $result = $result | sort Name

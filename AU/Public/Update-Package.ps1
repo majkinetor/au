@@ -82,7 +82,12 @@ function Update-Package {
         #Timeout for all web operations, by default 100 seconds.
         [int]    $Timeout,
 
+        #Streams to process, either a string or an array. If ommitted, all streams are processed.
+        #Single stream required when Force is specified.
+        $IncludeStream,
+
         #Force package update even if no new version is found.
+        #For multi streams packages, most recent stream is checked by default when Force is specified.
         [switch] $Force,
 
         #Do not show any Write-Host output.
@@ -120,7 +125,7 @@ function Update-Package {
             mkdir -Force $pkg_path | Out-Null
 
             $Env:ChocolateyPackageName         = "chocolatey\$($package.Name)"
-            $Env:ChocolateyPackageVersion      = $global:Latest.Version
+            $Env:ChocolateyPackageVersion      = $global:Latest.Version.ToString()
             $Env:ChocolateyAllowEmptyChecksums = 'true'
             foreach ($a in $arch) {
                 $Env:chocolateyForceX86 = if ($a -eq '32') { 'true' } else { '' }
@@ -194,40 +199,119 @@ function Update-Package {
         invoke_installer
     }
 
+    function process_stream() {
+        $package.Updated = $false
+
+        if (!(is_version $package.NuspecVersion)) {
+            Write-Warning "Invalid nuspec file Version '$($package.NuspecVersion)' - using 0.0"
+            $global:Latest.NuspecVersion = $package.NuspecVersion = '0.0'
+        }
+        if (!(is_version $Latest.Version)) { throw "Invalid version: $($Latest.Version)" }
+        $package.RemoteVersion = $Latest.Version
+
+        # For set_fix_version to work propertly, $Latest.Version's type must be assignable from string.
+        # If not, then cast its value to string.
+        if (!('1.0' -as $Latest.Version.GetType())) {
+            $Latest.Version = [string] $Latest.Version
+        }
+
+        if (!$NoCheckUrl) { check_urls }
+
+        "nuspec version: " + $package.NuspecVersion | result
+        "remote version: " + $package.RemoteVersion | result
+
+        $script:is_forced = $false
+        if ([AUVersion] $Latest.Version -gt [AUVersion] $Latest.NuspecVersion) {
+            if (!($NoCheckChocoVersion -or $Force)) {
+                $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $global:Latest.PackageName, $package.RemoteVersion
+                try {
+                    request $choco_url $Timeout | out-null
+                    "New version is available but it already exists in the Chocolatey community feed (disable using `$NoCheckChocoVersion`):`n  $choco_url" | result
+                    return
+                } catch { }
+            }
+        } else {
+            if (!$Force) {
+                'No new version found' | result
+                return
+            }
+            else { 'No new version found, but update is forced' | result; set_fix_version }
+        }
+
+        'New version is available' | result
+
+        $match_url = ($Latest.Keys | ? { $_ -match '^URL*' } | select -First 1 | % { $Latest[$_] } | split-Path -Leaf) -match '(?<=\.)[^.]+$'
+        if ($match_url -and !$Latest.FileType) { $Latest.FileType = $Matches[0] }
+
+        if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' | result }
+
+        if ($WhatIf) { $package.Backup() }
+        try {
+            if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate' | result; au_BeforeUpdate $package | result }
+            if (!$NoReadme -and (Test-Path "$($package.Path)\README.md")) { Set-DescriptionFromReadme $package -SkipFirst 2 | result }        
+            update_files
+            if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate $package | result }
+        
+            choco pack --limit-output | result
+            if ($LastExitCode -ne 0) { throw "Choco pack failed with exit code $LastExitCode" }
+        } finally {
+            if ($WhatIf) {
+                $save_dir = $package.SaveAndRestore() 
+                Write-Warning "Package restored and updates saved to: $save_dir"
+            }
+        }
+
+        $package.Updated = $true
+    }
+
     function set_fix_version() {
         $script:is_forced = $true
 
         if ($global:au_Version) {
             "Overriding version to: $global:au_Version" | result
-            $global:Latest.Version = $package.RemoteVersion = $global:au_Version
-            if (!(is_version $Latest.Version)) { throw "Invalid version: $($Latest.Version)" }
+            $package.RemoteVersion = $global:au_Version
+            if (!(is_version $global:au_Version)) { throw "Invalid version: $global:au_Version" }
+            $global:Latest.Version = $package.RemoteVersion
             $global:au_Version = $null
             return
         }
 
         $date_format = 'yyyyMMdd'
         $d = (get-date).ToString($date_format)
-        $v = [version]($package.NuspecVersion -replace '-.+')
+        $nuspecVersion = [AUVersion] $Latest.NuspecVersion
+        $v = $nuspecVersion.Version
         $rev = $v.Revision.ToString()
         try { $revdate = [DateTime]::ParseExact($rev, $date_format,[System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None) } catch {}
         if (($rev -ne -1) -and !$revdate) { return }
 
         $build = if ($v.Build -eq -1) {0} else {$v.Build}
-        $Latest.Version = $package.RemoteVersion = '{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d
+        $v = [version] ('{0}.{1}.{2}.{3}' -f $v.Major, $v.Minor, $build, $d)
+        $package.RemoteVersion = $nuspecVersion.WithVersion($v).ToString()
+        $Latest.Version = $package.RemoteVersion -as $Latest.Version.GetType()
+    }
+
+    function set_latest( [HashTable] $latest, [string] $version, $stream ) {
+        if (!$latest.NuspecVersion) { $latest.NuspecVersion = $version }
+        if ($stream -and !$latest.Stream) { $latest.Stream = $stream }
+        $package.NuspecVersion = $latest.NuspecVersion
+
+        $global:Latest = $global:au_Latest
+        $latest.Keys | % { $global:Latest.Remove($_) }
+        $global:Latest += $latest
     }
 
     function update_files( [switch]$SkipNuspecFile )
     {
         'Updating files' | result
-        '  $Latest data:' | result;  ($global:Latest.keys | sort | % { "    {0,-15} ({1})    {2}" -f $_, $global:Latest[$_].GetType().Name, $global:Latest[$_] }) | result; '' | result
+        '  $Latest data:' | result;  ($global:Latest.keys | sort | % { "    {0,-25} {1,-12} {2}" -f $_, "($($global:Latest[$_].GetType().Name))", $global:Latest[$_] }) | result
 
         if (!$SkipNuspecFile) {
             "  $(Split-Path $package.NuspecPath -Leaf)" | result
 
-            "    setting id:  $($global:Latest.PackageName)" | result
+            "    setting id: $($global:Latest.PackageName)" | result
             $package.NuspecXml.package.metadata.id = $package.Name = $global:Latest.PackageName.ToString()
 
-            $msg ="updating version: {0} -> {1}" -f $package.NuspecVersion, $package.RemoteVersion
+            $msg = "    updating version: {0} -> {1}" -f $package.NuspecVersion, $package.RemoteVersion
             if ($script:is_forced) {
                 if ($package.RemoteVersion -eq $package.NuspecVersion) {
                     $msg = "    version not changed as it already uses 'revision': {0}" -f $package.NuspecVersion
@@ -239,6 +323,9 @@ function Update-Package {
 
             $package.NuspecXml.package.metadata.version = $package.RemoteVersion.ToString()
             $package.SaveNuspec()
+            if ($global:Latest.Stream) {
+                $package.UpdateStream($global:Latest.Stream, $package.RemoteVersion)
+            }
         }
 
         $sr = au_SearchReplace
@@ -250,7 +337,7 @@ function Update-Package {
             # is detected as ANSI
             $fileContent = gc $fileName -Encoding UTF8
             $sr[ $fileName ].GetEnumerator() | % {
-                ('    {0} = {1} ' -f $_.name, $_.value) | result
+                ('    {0,-35} = {1}' -f $_.name, $_.value) | result
                 if (!($fileContent -match $_.name)) { throw "Search pattern not found: '$($_.name)'" }
                 $fileContent = $fileContent -replace $_.name, $_.value
             }
@@ -260,20 +347,6 @@ function Update-Package {
             $output = $fileContent | Out-String
             [System.IO.File]::WriteAllText((gi $fileName).FullName, $output, $encoding)
         }
-    }
-
-    function is_updated() {
-        $remote_l = $package.RemoteVersion -replace '-.+'
-        $nuspec_l = $package.NuspecVersion -replace '-.+'
-        $remote_r = $package.RemoteVersion.Replace($remote_l,'')
-        $nuspec_r = $package.NuspecVersion.Replace($nuspec_l,'')
-
-        if ([version]$remote_l -eq [version] $nuspec_l) {
-            if (!$remote_r -and $nuspec_r) { return $true }
-            if ($remote_r -and !$nuspec_r) { return $false }
-            return ($remote_r -gt $nuspec_r)
-        }
-        [version]$remote_l -gt [version] $nuspec_l
     }
 
     function result() {
@@ -306,17 +379,13 @@ function Update-Package {
     if ($Result) { sv -Scope Global -Name $Result -Value $package }
 
     $global:Latest = @{PackageName = $package.Name}
-    $global:Latest.NuspecVersion = $package.NuspecVersion
-    if (!(is_version $package.NuspecVersion)) {
-        Write-Warning "Invalid nuspec file Version '$($package.NuspecVersion)' - using 0.0"
-        $global:Latest.NuspecVersion = $package.NuspecVersion = '0.0'
-    }
 
     [System.Net.ServicePointManager]::SecurityProtocol = 'Ssl3,Tls,Tls11,Tls12' #https://github.com/chocolatey/chocolatey-coreteampackages/issues/366
     $module = $MyInvocation.MyCommand.ScriptBlock.Module
     "{0} - checking updates using {1} version {2}" -f $package.Name, $module.Name, $module.Version | result
     try {
         $res = au_GetLatest | select -Last 1
+        $global:au_Latest = $global:Latest
         if ($res -eq $null) { throw 'au_GetLatest returned nothing' }
 
         if ($res -eq 'ignore') { return $res }
@@ -324,63 +393,82 @@ function Update-Package {
         $res_type = $res.GetType()
         if ($res_type -ne [HashTable]) { throw "au_GetLatest doesn't return a HashTable result but $res_type" }
 
-        $res.Keys | % { $global:Latest.Remove($_) }
-        $global:Latest += $res
         if ($global:au_Force) { $Force = $true }
+        if ($global:au_IncludeStream) { $IncludeStream = $global:au_IncludeStream }
     } catch {
         throw "au_GetLatest failed`n$_"
     }
 
-    if (!(is_version $Latest.Version)) { throw "Invalid version: $($Latest.Version)" }
-    $package.RemoteVersion = $Latest.Version
-
-    if (!$NoCheckUrl) { check_urls }
-
-    "nuspec version: " + $package.NuspecVersion | result
-    "remote version: " + $package.RemoteVersion | result
-
-    if (is_updated) {
-        if (!($NoCheckChocoVersion -or $Force)) {
-            $choco_url = "https://chocolatey.org/packages/{0}/{1}" -f $global:Latest.PackageName, $package.RemoteVersion
-            try {
-                request $choco_url $Timeout | out-null
-                "New version is available but it already exists in the Chocolatey community feed (disable using `$NoCheckChocoVersion`):`n  $choco_url" | result
-                return $package
-            } catch { }
+    if ($res.ContainsKey('Streams')) {
+        if (!$res.Streams) { throw "au_GetLatest's streams returned nothing" }
+        if ($res.Streams -isnot [System.Collections.Specialized.OrderedDictionary] -and $res.Streams -isnot [HashTable]) {
+            throw "au_GetLatest doesn't return an OrderedDictionary or HashTable result for streams but $($res.Streams.GetType())"
         }
+
+        # Streams are expected to be sorted starting with the most recent one
+        $streams = @($res.Streams.Keys)
+        # In case of HashTable (i.e. not sorted), let's sort streams alphabetically descending
+        if ($res.Streams -is [HashTable]) { $streams = $streams | sort -Descending }
+
+        if ($IncludeStream) {
+            if ($IncludeStream -isnot [string] -and $IncludeStream -isnot [double] -and $IncludeStream -isnot [Array]) {
+                throw "`$IncludeStream must be either a String, a Double or an Array but is $($IncludeStream.GetType())"
+            }
+            if ($IncludeStream -is [double]) { $IncludeStream = $IncludeStream -as [string] }
+            if ($IncludeStream -is [string]) { 
+                # Forcing type in order to handle case when only one version is included
+                [Array] $IncludeStream = $IncludeStream -split ',' | % { $_.Trim() }
+            }
+        } elseif ($Force) {
+            # When forcing update, a single stream is expected
+            # By default, we take the first one (i.e. the most recent one)
+            $IncludeStream = @($streams | select -First 1)
+        }
+        if ($Force -and (!$IncludeStream -or $IncludeStream.Length -ne 1)) { throw 'A single stream must be included when forcing package update' }
+
+        if ($IncludeStream) { $streams = @($streams | ? { $_ -in $IncludeStream }) }
+        # Let's reverse the order in order to process streams starting with the oldest one
+        [Array]::Reverse($streams)
+
+        $res.Keys | ? { $_ -ne 'Streams' } | % { $global:au_Latest.Remove($_) }
+        $global:au_Latest += $res
+
+        $allStreams = [ordered] @{}
+        $streams | % {
+            $stream = $res.Streams[$_]
+
+            '' | result
+            "*** Stream: $_ ***" | result
+
+            if ($stream -eq $null) { throw "au_GetLatest's $_ stream returned nothing" }
+            if ($stream -eq 'ignore') { return }
+            if ($stream -isnot [HashTable]) { throw "au_GetLatest's $_ stream doesn't return a HashTable result but $($stream.GetType())" }
+
+            if ($package.Streams.$_.NuspecVersion -eq 'ignore') {
+                'Ignored' | result
+                return
+            }
+
+            set_latest $stream $package.Streams.$_.NuspecVersion $_
+            process_stream
+
+            if ($package.Streams.$_) {
+                $allStreams.$_ = $package.Streams.$_
+            } else {
+                $allStreams.$_ = @{ NuspecVersion = $package.NuspecVersion }
+            }
+            $allStreams.$_ += $package.GetStreamDetails()
+        }
+        $package.Updated = $false
+        $package.Streams = $allStreams
+        $package.Streams.Values | ? { $_.Updated } | % { $package.Updated = $true }
     } else {
-        if (!$Force) {
-            'No new version found' | result
-            return $package
-        }
-        else { 'No new version found, but update is forced' | result; set_fix_version }
+        '' | result
+        set_latest $res $package.NuspecVersion
+        process_stream
     }
 
-    'New version is available' | result
-
-    $match_url = ($Latest.Keys | ? { $_ -match '^URL*' } | select -First 1 | % { $Latest[$_] } | split-Path -Leaf) -match '(?<=\.)[^.]+$'
-    if ($match_url -and !$Latest.FileType) { $Latest.FileType = $Matches[0] }
-
-    if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' | result }
-
-    if ($WhatIf) { $package.Backup() }
-    try {
-        if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate' | result; au_BeforeUpdate $package | result }
-        if (!$NoReadme -and (Test-Path "$($package.Path)\README.md")) { Set-DescriptionFromReadme $package -SkipFirst 2 | result }        
-        update_files
-        if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate $package | result }
-        
-        choco pack --limit-output | result
-        if ($LastExitCode -ne 0) { throw "Choco pack failed with exit code $LastExitCode" }
-    } finally {
-        if ($WhatIf) {
-            $save_dir = $package.SaveAndRestore() 
-            Write-Warning "Package restored and updates saved to: $save_dir"
-        }
-    }
-
-    'Package updated' | result
-    $package.Updated = $true
+    if ($package.Updated) { 'Package updated' | result }
 
     return $package
 }

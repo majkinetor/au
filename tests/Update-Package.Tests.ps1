@@ -48,7 +48,7 @@ Describe 'Update-Package' -Tag update {
                 (nuspec_file).package.metadata.description.InnerText.Trim() | Should Be $readme
             }
 
-            It 'deesnt set description from README.md with NoReadme parameter' {
+            It 'does not set description from README.md with NoReadme parameter' {
                 $readme = 'dummy readme & test'
                 '','', $readme | Out-File $TestDrive\test_package\README.md
                 $res = update -NoReadme
@@ -254,7 +254,7 @@ Describe 'Update-Package' -Tag update {
 
                 update *> $null
 
-                $global:Latest.NuspecVersion | Should Be 0.0
+                $global:Latest.NuspecVersion | Should Be '0.0'
             }
         }
 
@@ -276,6 +276,51 @@ Describe 'Update-Package' -Tag update {
             It "rethrows if au_GetLatest throws" {
                 function global:au_GetLatest { throw 'test' }
                 { update } | Should Throw "test"
+            }
+
+            It 'checks values in $Latest when entering au_GetLatest' {
+                function global:au_GetLatest {
+                    $Latest.Count       | Should Be 1
+                    $Latest.PackageName | Should Be 'test_package'
+                    @{ Version = '1.2' }
+                }
+                update
+            }
+
+            It 'supports returning custom values' {
+                function global:au_GetLatest { @{ Version = '1.2'; NewValue = 1 } }
+                update
+                $global:Latest.NewValue | Should Be 1
+            }
+
+            It 'supports adding values to $global:Latest' {
+                function global:au_GetLatest { $global:Latest += @{ NewValue = 1 }; @{ Version = '1.2' } }
+                update
+                $global:Latest.NewValue | Should Be 1
+            }
+
+            It 'supports adding values to $Latest' {
+                function global:au_GetLatest { $Latest.NewValue = 1; @{ Version = '1.2' } }
+                update
+                $global:Latest.NewValue | Should Be 1
+            }
+
+            $testCases = @(
+                @{ Version = '1.2'; Type = [string] }
+                @{ Version = [AUVersion] '1.2'; Type = [AUVersion] }
+                @{ Version = [version] '1.2'; Type = [version] }
+                @{ Version = [regex]::Match('1.2', '^(.+)$').Groups[1]; Type = [string] }
+            )
+
+            It 'supports various Version types' -TestCases $testCases { param($Version)
+                function global:au_GetLatest { @{ Version = $Version } }
+                { update } | Should Not Throw
+            }
+
+            It 'supports various Version types when forcing update' -TestCases $testCases { param($Version, $Type)
+                function global:au_GetLatest { @{ Version = $Version } }
+                function global:au_BeforeUpdate { $Latest.Version | Should BeOfType $Type }
+                { update -Force } | Should Not Throw
             }
         }
 

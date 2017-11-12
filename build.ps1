@@ -33,7 +33,7 @@ $b = {
 
     $ErrorActionPreference = 'Stop'
 
-    Write-Host "`n==| Bulding $module_name $version`n"
+    Write-Host "`n==| Building $module_name $version`n"
     init
 
     $module_path = "$build_dir/$module_name"
