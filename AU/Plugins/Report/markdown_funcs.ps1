@@ -32,7 +32,7 @@ function md_table($result, $Columns, $MaxErrorLength=150) {
                         $r  = "[{0}](#{1})" -f $_.Updated, $_.Name.Replace('.','').ToLower()
                         $r += if ($_.Updated) { ' &#x1F538;' }
                         $r += if ($_.Streams) { ' &#x1F544;' }
-                        $r += if (ls -Recurse VERIFICATION.txt) { ' &#x1F381;' }
+                        $r += if (ls $_.Path -Recurse -Include VERIFICATION.txt) { ' &#x1F381;' }
                         $r
                     }
                 },
