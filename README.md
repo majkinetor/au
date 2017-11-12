@@ -63,40 +63,6 @@ function global:au_GetLatest {
 
 The returned version is later compared to the one in the nuspec file and if remote version is higher, the files will be updated. The returned keys of this HashTable are available via global variable `$global:Latest` (along with some keys that AU generates). You can put whatever data you need in the returned HashTable - this data can be used later in `au_SearchReplace`.
 
-#### Streams
-
-The software vendor may maintain _multiple latest versions_, of specific releases because of the need for long time support. `au_GetLatest` provies an option to return multiple HashTables in order for its user to monitor each supported software _stream_. Prior to streams, each stream was typically treated as a separate package and maintained independently. Using AU streams allows a single package updater to update multiple version streams in a single run:
-
-```powershell
-function global:au_GetLatest {
-     # ...
-     $streams = @{}
-     $streams.'1.2' = @{ Version = $version12; URL32 = $url12 }  # $version12 = '1.2.3.1'
-     $streams.'1.3' = @{ Version = $version13; URL32 = $url13 }  # $version13 = '1.3.9'
-     @{ Streams = $streams }
-}
-```
-
-Latest stream versions are kept in the `<package_name>.json` file in the package directory.
-
-Take a look at few working stream examples to gain more understading:
-- [LibreOffice](https://github.com/chocolatey/chocolatey-coreteampackages/blob/master/automatic/libreoffice/update.ps1) package uses streams to manage two different variants of the software (prior to streams this was handled via 2 packages.)
-- [Python3](https://github.com/chocolatey/chocolatey-coreteampackages/blob/master/automatic/python3/update.ps1) package automatically finds available python 3 streams and keeps them up to date. 
-
-In order to help working with versions, function `Get-Version` can be called in order to parse [semver](http://semver.org/) versions in a flexible manner. It returns an `AUVersion` object with all the details about the version. Furthermore, this object can be compared and sorted.
-
-```powershell
-PS> Get-Version 'v1.3.2.7rc1'
-
-Version Prerelease BuildMetadata
-------- ---------- -------------
-1.3.2.7 rc1
-
-PS> $version = Get-Version '1.3.2-beta2+5'
-PS> $version.ToString(2) + ' => ' + $version.ToString()
-1.3 => 1.3.2-beta2+5
-```
-
 ### `au_SearchReplace`  
 
 Function returns HashTable containing search and replace data for any package file in the form:  
@@ -343,6 +309,40 @@ function au_BeforeUpdate() {
 This function will also set the appropriate `$Latest.ChecksumXX`. 
 
 **NOTE**: There is no need to use automatic checksum when embedding because `Get-RemoteFiles` will do it, so always use parameter `-ChecksumFor none`. 
+
+### Streams
+
+The software vendor may maintain _multiple latest versions_, of specific releases because of the need for long time support. `au_GetLatest` provides an option to return multiple HashTables in order for its user to monitor each supported software _stream_. Prior to AU streams, each software stream was typically treated as a separate package and maintained independently. Using AU streams allows a single package updater to update multiple version streams in a single run:
+
+```powershell
+function global:au_GetLatest {
+     # ...
+     $streams = @{}
+     $streams.'1.2' = @{ Version = $version12; URL32 = $url12 }  # $version12 = '1.2.3.1'
+     $streams.'1.3' = @{ Version = $version13; URL32 = $url13 }  # $version13 = '1.3.9'
+     @{ Streams = $streams }
+}
+```
+
+Latest stream versions are kept in the `<package_name>.json` file in the package directory.
+
+Take a look at few working stream examples to gain more understading:
+- [LibreOffice](https://github.com/chocolatey/chocolatey-coreteampackages/blob/master/automatic/libreoffice/update.ps1) package uses streams to manage two different variants of the software (prior to streams this was handled via 2 packages.)
+- [Python3](https://github.com/chocolatey/chocolatey-coreteampackages/blob/master/automatic/python3/update.ps1) package automatically finds available python 3 streams and keeps them up to date. 
+
+In order to help working with versions, function `Get-Version` can be called in order to parse [semver](http://semver.org/) versions in a flexible manner. It returns an `AUVersion` object with all the details about the version. Furthermore, this object can be compared and sorted.
+
+```powershell
+PS> Get-Version 'v1.3.2.7rc1'
+
+Version Prerelease BuildMetadata
+------- ---------- -------------
+1.3.2.7 rc1
+
+PS> $version = Get-Version '1.3.2-beta2+5'
+PS> $version.ToString(2) + ' => ' + $version.ToString()
+1.3 => 1.3.2-beta2+5
+```
 
 ### WhatIf
 
