@@ -316,13 +316,13 @@ The software vendor may maintain _multiple latest versions_, of specific release
 
 ```powershell
 function global:au_GetLatest {
-     # ...
-     @ { 
-         Streams = @{
+    # ...
+    @{
+        Streams = @{
             '1.2' = @{ Version = $version12; URL32 = $url12 }  # $version12 = '1.2.3.1'
             '1.3' = @{ Version = $version13; URL32 = $url13 }  # $version13 = '1.3.9'
-         }
-     }     
+        }
+    }
 }
 ```
 
