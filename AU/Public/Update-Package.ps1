@@ -452,11 +452,8 @@ function Update-Package {
             set_latest $stream $package.Streams.$_.NuspecVersion $_
             process_stream
 
-            if ($package.Streams.$_) {
-                $allStreams.$_ = $package.Streams.$_
-            } else {
-                $allStreams.$_ = @{ NuspecVersion = $package.NuspecVersion }
-            }
+            $allStreams.$_ = if ($package.Streams.$_) { $package.Streams.$_.Clone() } else { @{} }
+            $allStreams.$_.NuspecVersion = $package.NuspecVersion
             $allStreams.$_ += $package.GetStreamDetails()
         }
         $package.Updated = $false
