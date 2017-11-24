@@ -318,13 +318,15 @@ The software vendor may maintain _multiple latest versions_, of specific release
 function global:au_GetLatest {
     # ...
     @{
-        Streams = @{
-            '1.2' = @{ Version = $version12; URL32 = $url12 }  # $version12 = '1.2.3.1'
+        Streams = [ordered] @{
             '1.3' = @{ Version = $version13; URL32 = $url13 }  # $version13 = '1.3.9'
+            '1.2' = @{ Version = $version12; URL32 = $url12 }  # $version12 = '1.2.3.1'
         }
     }
 }
 ```
+
+Though a `Hashtable` can be returned for streams, it is recommended to return an `OrderedDictionary` (see above example) that contains streams from the most recent to the oldest one. This ensures that when forcing an update, the most recent stream available will be considered by default (i.e. when no `-IncludeStream` is specified).
 
 Latest stream versions are kept in the `<package_name>.json` file in the package directory. For real life example take a look at the [Python3](https://github.com/chocolatey/chocolatey-coreteampackages/blob/master/automatic/python3/update.ps1) package updater which automatically finds available python 3 streams and keeps them [up to date](https://gist.github.com/a14b1e5bfaf70839b338eb1ab7f8226f/78cdc99c2d7433d26c65bc721c26c1cc60ccca3d#python3).
 
