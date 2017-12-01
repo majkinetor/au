@@ -303,7 +303,7 @@ function Update-Package {
     function update_files( [switch]$SkipNuspecFile )
     {
         'Updating files' | result
-        '  $Latest data:' | result;  ($global:Latest.keys | sort | % { "    {0,-25} {1,-12} {2}" -f $_, "($($global:Latest[$_].GetType().Name))", $global:Latest[$_] }) | result
+        '  $Latest data:' | result;  ($global:Latest.keys | sort | % { $v=$global:Latest[$_]; "    {0,-25} {1,-12} {2}" -f $_, "($( if ($v) { $v.GetType().Name } ))", $v }) | result
 
         if (!$SkipNuspecFile) {
             "  $(Split-Path $package.NuspecPath -Leaf)" | result
