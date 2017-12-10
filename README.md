@@ -334,6 +334,8 @@ Streams can be also used to manage multiple related packages as a single package
 
 In order to help working with versions, function `Get-Version` can be called in order to parse [semver](http://semver.org/) versions in a flexible manner. It returns an `AUVersion` object with all the details about the version. Furthermore, this object can be compared and sorted.
 
+**NOTE**: By default only the first updated stream is pushed per run of `updateall`. In order to push all of them add among its options `PushAll = $true`.
+
 ```powershell
 PS> Get-Version 'v1.3.2.7rc1'
 
