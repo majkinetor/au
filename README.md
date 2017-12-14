@@ -529,3 +529,10 @@ Push the latest package using your API key.
 
 - Get-AuPackages (alias `gau` or `lsau`)  
 Returns the list of the packages which have `update.ps1` script in its directory and which name doesn't start with '_'.
+
+## Community
+
+- [Wormies AU Helpers](https://github.com/WormieCorp/Wormies-AU-Helpers)  
+Helper scripts to make maintaining packages using AU even easier
+- [Chocolatey Core Community Maintainers Team Packages](https://github.com/chocolatey/chocolatey-coreteampackages)  
+The [largest](https://gist.github.com/choco-bot/a14b1e5bfaf70839b338eb1ab7f8226f) repository of AU packages by far
