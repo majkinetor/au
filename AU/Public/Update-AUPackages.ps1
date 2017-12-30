@@ -125,7 +125,7 @@ function Update-AUPackages {
                         $pkg.Ignored = $true
                         $pkg.IgnoreMessage = $pkg.Result[-1]
                     } elseif ($job.State -eq 'Stopped') {
-                        $pkg.Error = "Job termintated due to the $($Options.UpdateTimeout)s UpdateTimeout"
+                        $pkg.Error = "Job terminated due to the $($Options.UpdateTimeout)s UpdateTimeout"
                     } else {
                         $pkg.Error = 'Job returned no object, Vector smash ?'
                     }

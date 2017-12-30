@@ -221,7 +221,7 @@ Describe 'Update-AUPackages' -Tag updateall {
         $Options.UpdateTimeout = 5
 
         $res = updateall -Options $Options 3>$null 6> $null
-        $res[0].Error -eq "Job termintated due to the 5s UpdateTimeout" | Should Be $true
+        $res[0].Error -eq "Job terminated due to the 5s UpdateTimeout" | Should Be $true
     }
 
     It 'should update all packages when forced' {
