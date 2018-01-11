@@ -1,6 +1,6 @@
 # AU Project Changelog
 
-## Next
+## 2018.1.11
 - `Update-AuPackage`
   - New feature [streams](https://github.com/majkinetor/au#streams) that extends `au_GetLatest` with option to return multiple HashTables (one for each stream).
   - New parameter `IncludeStream` to force update of specific stream.
