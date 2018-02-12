@@ -36,20 +36,26 @@ class AUVersion : System.IComparable {
         if ($input -notmatch $pattern) { return $false }
         $reference = [ref] $null
         if (![version]::TryParse($Matches['version'], $reference)) { return $false }
-        $result.Value = [AUVersion]::new($reference.Value, $Matches['prerelease'], $Matches['buildMetadata'])
+        $pr = $Matches['prerelease']
+        $bm = $Matches['buildMetadata']
+        if ($pr -and !$strict) { $pr = $pr.Replace(' ', '.') }
+        if ($bm -and !$strict) { $bm = $bm.Replace(' ', '.') }
+        # for now, chocolatey does only support SemVer v1 (no dot separated identifiers in pre-release):
+        if ($pr) { $pr = $pr.Replace('.', '') }
+        if ($bm) { $bm = $bm.Replace('.', '') }
+        #
+        $result.Value = [AUVersion]::new($reference.Value, $pr, $bm)
         return $true
     }
 
     hidden static [string] GetPattern([bool] $strict) {
-        $versionPattern = '(?<version>\d+(?:\.\d+){0,3})'
-        # for now, chocolatey does only support SemVer v1 (no dot separated identifiers in pre-release):
-        $identifierPattern = "[0-9A-Za-z-]+"
-        # here is the SemVer v2 equivalent:
-        #$identifierPattern = "[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*"
+        $versionPattern = '(?<version>\d+(?:\.\d+){1,3})'
         if ($strict) {
+            $identifierPattern = "[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*"
             return "^$versionPattern(?:-(?<prerelease>$identifierPattern))?(?:\+(?<buildMetadata>$identifierPattern))?`$"
         } else {
-            return "$versionPattern(?:-?(?<prerelease>$identifierPattern))?(?:\+(?<buildMetadata>$identifierPattern))?"
+            $identifierPattern = "[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+| \d+)*"
+            return "$versionPattern(?:[- ]*(?<prerelease>$identifierPattern))?(?:[+ *](?<buildMetadata>$identifierPattern))?"
         }
     }
 

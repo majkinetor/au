@@ -26,10 +26,7 @@ Describe 'Get-Version' -Tag getversion {
 
         It 'should not convert a non-strict version' {
             { ConvertTo-AUVersion '1.2.3.4a' } | Should Throw
-            # for now, chocolatey does only support SemVer v1 (no dot separated identifiers in pre-release):
-            { ConvertTo-AUVersion 'v1.2.3.4-beta1+xyz001' } | Should Throw
-            # here is the SemVer v2 equivalent:
-            #{ ConvertTo-AUVersion 'v1.2.3.4-beta.1+xyz.001' } | Should Throw
+            { ConvertTo-AUVersion 'v1.2.3.4-beta.1+xyz.001' } | Should Throw
         }
 
         It 'should parse a non strict version' {
@@ -106,6 +103,43 @@ Describe 'Get-Version' -Tag getversion {
         It 'converts from any type of values' -TestCases $testCases { param($Value)
             $version = [AUVersion] $Value
             $version | Should Not BeNullOrEmpty
+        }
+
+        $testCases = @(
+            @{Value = '1.2-beta.3'          ; ExpectedResult = '1.2-beta3'}
+            @{Value = '1.2+xyz.4'           ; ExpectedResult = '1.2+xyz4'}
+            @{Value = '1.2-beta.3+xyz.4'    ; ExpectedResult = '1.2-beta3+xyz4'}
+            )
+
+        It 'converts semver v2 to semver v1' -TestCases $testCases { param($Value, $ExpectedResult)
+            $version = [AUVersion] $Value
+            $version | Should Be ([AUVersion] $ExpectedResult)
+        }
+
+        $testCases = @(
+            @{ExpectedResult = '5.4.9'    ; Delimiter = '-' ; Value = 'http://dl.airserver.com/pc32/AirServer-5.4.9-x86.msi'}
+            @{ExpectedResult = '1.24.0-beta2'               ; Value = 'https://github.com/atom/atom/releases/download/v1.24.0-beta2/AtomSetup.exe'}
+            @{ExpectedResult = '2.4.0.24-beta'              ; Value = 'https://github.com/gurnec/HashCheck/releases/download/v2.4.0.24-beta/HashCheckSetup-v2.4.0.24-beta.exe'}
+            @{ExpectedResult = '2.0.9'                      ; Value = 'http://www.ltr-data.se/files/imdiskinst_2.0.9.exe'}
+            @{ExpectedResult = '17.6'     ; Delimiter = '-' ; Value = 'http://mirrors.kodi.tv/releases/windows/win32/kodi-17.6-Krypton-x86.exe'}
+            @{ExpectedResult = '0.70.2'                     ; Value = 'https://github.com/Nevcairiel/LAVFilters/releases/download/0.70.2/LAVFilters-0.70.2-Installer.exe'}
+            @{ExpectedResult = '2.2.0-1'                    ; Value = 'https://files.kde.org/marble/downloads/windows/Marble-setup_2.2.0-1_x64.exe'}
+            @{ExpectedResult = '2.3.2'                      ; Value = 'https://github.com/sabnzbd/sabnzbd/releases/download/2.3.2/SABnzbd-2.3.2-win-setup.exe'}
+            @{ExpectedResult = '1.9'      ; Delimiter = '-' ; Value = 'http://download.serviio.org/releases/serviio-1.9-win-setup.exe'}
+            @{ExpectedResult = '0.17.0'                     ; Value = 'https://github.com/Stellarium/stellarium/releases/download/v0.17.0/stellarium-0.17.0-win32.exe'}
+            @{ExpectedResult = '5.24.3.1'                   ; Value = 'http://strawberryperl.com/download/5.24.3.1/strawberry-perl-5.24.3.1-32bit.msi'}
+            @{ExpectedResult = '3.5.4'                      ; Value = 'https://github.com/SubtitleEdit/subtitleedit/releases/download/3.5.4/SubtitleEdit-3.5.4-Setup.zip'}
+            # for now, chocolatey does only support SemVer v1 (no dot separated identifiers in pre-release):
+            @{ExpectedResult = '1.2.3-beta4'                ; Value = 'v 1.2.3 beta 4'}
+            @{ExpectedResult = '1.2.3-beta3'                ; Value = 'Last version: 1.2.3 beta 3.'}
+            # here is the SemVer v2 equivalent:
+            #@{ExpectedResult = '1.2.3-beta.4'                ; Value = 'v 1.2.3 beta 4'}
+            #@{ExpectedResult = '1.2.3-beta.3'                ; Value = 'Last version: 1.2.3 beta 3.'}
+            )
+
+        It 'should parse any non strict version' -TestCases $testCases { param($Value, $Delimiter, $ExpectedResult)
+            $version = Get-Version $Value -Delimiter $Delimiter
+            $version | Should Be ([AUVersion] $ExpectedResult)
         }
     }
 }
