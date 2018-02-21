@@ -217,7 +217,7 @@ Sometimes invoking `chocolateyInstall.ps1` during the automatic checksum could b
   }
 
   function au_GetLatest() {
-    download_page = Invoke-WebRequest $releases -UseBasicParsing
+    $download_page = Invoke-WebRequest $releases -UseBasicParsing
     $url     = $download_page.links | ? href -match '\.exe$' | select -First 1 -expand href
     $version = $url -split '/' | select -Last 1 -Skip 1
     @{
