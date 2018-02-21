@@ -41,7 +41,7 @@ function Get-RemoteFiles {
     function name4url($url) {
         if ($FileNameBase) { return $FileNameBase }
         $res = $url -split '/' | select -Last 1 -Skip $FileNameSkip
-        $res -replace '\.[a-zA-Z]+$'
+        $res -replace '\.[^.]+$'
     }
 
     function ext() {
