@@ -106,14 +106,13 @@ Describe 'Get-Version' -Tag getversion {
         }
 
         $testCases = @(
-            @{Value = '1.2-beta.3'          ; ExpectedResult = '1.2-beta3'}
-            @{Value = '1.2+xyz.4'           ; ExpectedResult = '1.2+xyz4'}
-            @{Value = '1.2-beta.3+xyz.4'    ; ExpectedResult = '1.2-beta3+xyz4'}
+            @{Value = '1.2-beta.3'}
+            @{Value = '1.2+xyz.4'}
+            @{Value = '1.2-beta.3+xyz.4'}
             )
 
-        It 'converts semver v2 to semver v1' -TestCases $testCases { param($Value, $ExpectedResult)
-            $version = [AUVersion] $Value
-            $version | Should Be ([AUVersion] $ExpectedResult)
+        It 'does not convert semver v2' -TestCases $testCases { param($Value, $ExpectedResult)
+            { [AUVersion] $Value } | Should Throw 'Invalid version'
         }
 
         $testCases = @(

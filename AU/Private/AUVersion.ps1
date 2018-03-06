@@ -41,6 +41,8 @@ class AUVersion : System.IComparable {
         if ($pr -and !$strict) { $pr = $pr.Replace(' ', '.') }
         if ($bm -and !$strict) { $bm = $bm.Replace(' ', '.') }
         # for now, chocolatey does only support SemVer v1 (no dot separated identifiers in pre-release):
+        if ($pr -and $strict -and $pr -like '*.*') { return $false }
+        if ($bm -and $strict -and $bm -like '*.*') { return $false }
         if ($pr) { $pr = $pr.Replace('.', '') }
         if ($bm) { $bm = $bm.Replace('.', '') }
         #
