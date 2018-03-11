@@ -25,7 +25,7 @@ param(
 
 Write-Host "Saving history to $Path"
 
-$res=[ordered]@{}
+$res=[System.Collections.Specialized.OrderedDictionary]@{}
 $log = git --no-pager log -q --grep '^AU: ' --date iso | Out-String
 $all_commits = $log | sls 'commit(.|\n)+?(?=\ncommit )' -AllMatches
 foreach ($commit in $all_commits.Matches.Value) {
@@ -50,7 +50,7 @@ foreach ($commit in $all_commits.Matches.Value) {
     $res.$date += $packages_md
 }
 
-$res = $res.Keys | select -First $Lines | % { $r=[ordered]@{} } { $r[$_] = $res[$_] } {$r}
+$res = $res.Keys | select -First $Lines | % { $r=[System.Collections.Specialized.OrderedDictionary]@{} } { $r[$_] = $res[$_] } {$r}
 
 $history = @"
 # Update History

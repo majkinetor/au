@@ -53,7 +53,7 @@ class AUPackage {
 
     static [System.Collections.Specialized.OrderedDictionary] LoadStreams( $streamsPath ) {
         if (!(Test-Path $streamsPath)) { return $null }
-        $res = [ordered] @{}
+        $res = [System.Collections.Specialized.OrderedDictionary] @{}
         $versions = Get-Content $streamsPath | ConvertFrom-Json
         $versions.psobject.Properties | % {
             $stream = $_.Name
@@ -65,10 +65,10 @@ class AUPackage {
     UpdateStream( $stream, $version ){
         $s = $stream.ToString()
         $v = $version.ToString()
-        if (!$this.Streams) { $this.Streams = [ordered] @{} }
+        if (!$this.Streams) { $this.Streams = [System.Collections.Specialized.OrderedDictionary] @{} }
         if (!$this.Streams.Contains($s)) { $this.Streams.$s = @{} }
         if ($this.Streams.$s -ne 'ignore') { $this.Streams.$s.NuspecVersion = $v }
-        $versions = [ordered] @{}
+        $versions = [System.Collections.Specialized.OrderedDictionary] @{}
         $this.Streams.Keys | % {
             $versions.Add($_, $this.Streams.$_.NuspecVersion)
         }
@@ -98,7 +98,7 @@ class AUPackage {
             $this.$_ = $obj.$_
         }
         if ($obj.Streams) {
-            $this.Streams = [ordered] @{}
+            $this.Streams = [System.Collections.Specialized.OrderedDictionary] @{}
             $obj.Streams.psobject.Properties | % {
                 $this.Streams.Add($_.Name, $_.Value)
             }
