@@ -433,7 +433,7 @@ function Update-Package {
         $res.Keys | ? { $_ -ne 'Streams' } | % { $global:au_Latest.Remove($_) }
         $global:au_Latest += $res
 
-        $allStreams = [ordered] @{}
+        $allStreams = [System.Collections.Specialized.OrderedDictionary] @{}
         $streams | % {
             $stream = $res.Streams[$_]
 
