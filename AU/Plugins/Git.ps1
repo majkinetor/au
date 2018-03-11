@@ -20,7 +20,10 @@ param(
     #  atomic    - 1 commit per package    
     #  atomictag - 1 commit and tag per package
     [ValidateSet('single', 'atomic', 'atomictag')]
-    [string]$commitStrategy = 'single'
+    [string]$commitStrategy = 'single',
+
+    # Branch name
+    [string]$Branch = 'master'
 )
 
 [array]$packages = if ($Force) { $Info.result.updated } else { $Info.result.pushed }
@@ -46,8 +49,8 @@ if ($User -and $Password) {
 }
 
 Write-Host "Executing git pull"
-git checkout -q master
-git pull -q origin master
+git checkout -q $Branch
+git pull -q origin $Branch
 
 
 if  ($commitStrategy -like 'atomic*') {
