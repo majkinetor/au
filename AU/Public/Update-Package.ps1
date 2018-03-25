@@ -120,6 +120,7 @@ function Update-Package {
 
             if ($ChecksumFor -eq 'none') { "Automatic checksum calculation is disabled"; return }
             if ($ChecksumFor -eq 'all')  { $arch = '32','64' } else { $arch = $ChecksumFor }
+            if ($env:au_TrustPackageChecksums -and $global:Latest.ContainsKey('Checksum32') -and $global:Latest.ContainsKey('Checksum64')) { "Automatic checksum validation is disabled"; return }
 
             $pkg_path = [System.IO.Path]::GetFullPath("$Env:TEMP\chocolatey\$($package.Name)\" + $global:Latest.Version) #https://github.com/majkinetor/au/issues/32
             mkdir -Force $pkg_path | Out-Null
