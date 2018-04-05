@@ -212,11 +212,11 @@ If the `ChecksumXX` hash key is present, the AU will change to checksum verifica
 Sometimes invoking `chocolateyInstall.ps1` during the automatic checksum could be problematic so you need to disable it using update option `ChecksumFor none` and get the checksum some other way. Function `Get-RemoteChecksum` can be used to simplify that:
 
 ```powershell
-  function au_BeforeUpdate() {
+  function global:au_BeforeUpdate() {
      $Latest.Checksum32 = Get-RemoteChecksum $Latest.Url32
   }
 
-  function au_GetLatest() {
+  function global:au_GetLatest() {
     $download_page = Invoke-WebRequest $releases -UseBasicParsing
     $url     = $download_page.links | ? href -match '\.exe$' | select -First 1 -expand href
     $version = $url -split '/' | select -Last 1 -Skip 1
@@ -300,7 +300,7 @@ AU function `Get-RemoteFiles` can download files and save them in the package's 
 The following example downloads files inside `au_BeforeUpdate` function which is called before the package files are updated with the latest data (function is not called if no update is available): 
 
 ```powershell
-function au_BeforeUpdate() {
+function global:au_BeforeUpdate() {
     #Download $Latest.URL32 / $Latest.URL64 in tools directory and remove any older installers.
     Get-RemoteFiles -Purge
 }
