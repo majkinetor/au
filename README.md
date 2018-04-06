@@ -1,4 +1,4 @@
-[![build](https://ci.appveyor.com/api/projects/status/github/majkinetor/au?svg=true)](https://ci.appveyor.com/project/majkinetor/au)   [![chat](https://img.shields.io/badge/gitter-join_chat-1dce73.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSIwIiB5PSI1IiBmaWxsPSIjZmZmIiB3aWR0aD0iMSIgaGVpZ2h0PSI1Ii8%2BPHJlY3QgeD0iMiIgeT0iNiIgZmlsbD0iI2ZmZiIgd2lkdGg9IjEiIGhlaWdodD0iNyIvPjxyZWN0IHg9IjQiIHk9IjYiIGZpbGw9IiNmZmYiIHdpZHRoPSIxIiBoZWlnaHQ9IjciLz48cmVjdCB4PSI2IiB5PSI2IiBmaWxsPSIjZmZmIiB3aWR0aD0iMSIgaGVpZ2h0PSI0Ii8%2BPC9zdmc%2B&logoWidth=8)](https://gitter.im/chocolatey_au/Lobby)   [![license](https://img.shields.io/badge/license-GPL2-blue.svg)](https://raw.githubusercontent.com/majkinetor/au/master/license.txt)
+[![build](https://ci.appveyor.com/api/projects/status/github/majkinetor/au?svg=true)](https://ci.appveyor.com/project/majkinetor/au)   [![chat](https://img.shields.io/badge/gitter-join_chat-1dce73.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSIwIiB5PSI1IiBmaWxsPSIjZmZmIiB3aWR0aD0iMSIgaGVpZ2h0PSI1Ii8%2BPHJlY3QgeD0iMiIgeT0iNiIgZmlsbD0iI2ZmZiIgd2lkdGg9IjEiIGhlaWdodD0iNyIvPjxyZWN0IHg9IjQiIHk9IjYiIGZpbGw9IiNmZmYiIHdpZHRoPSIxIiBoZWlnaHQ9IjciLz48cmVjdCB4PSI2IiB5PSI2IiBmaWxsPSIjZmZmIiB3aWR0aD0iMSIgaGVpZ2h0PSI0Ii8%2BPC9zdmc%2B&logoWidth=8)](https://gitter.im/chocolatey_au/Lobby)   [![license](https://img.shields.io/badge/license-GPL2-blue.svg)](https://raw.githubusercontent.com/majkinetor/au/master/license.txt)
 
 ---
 
@@ -188,6 +188,9 @@ For some packages, you may want to disable some of the checks by specifying addi
 
 ### Automatic checksums
 
+**NOTE**: This feature works by invoking `chocolateyInstall.ps1` of the respective package with a [monkey-patched version of the `Get-ChocolateyWebFile` helper function](https://github.com/majkinetor/au/blob/a8d31244997f08685cc894da4faa1012c60b34f1/AU/Public/Update-Package.ps1#L172). The install script is supposed to either call this function explicitly or indirectly (e.g. `Install-ChocolateyInstallPackage $url`, which calls the former one).
+In any case, upon execution of `Get-ChocolateyWebFile`, the install script will be **terminated**. Any actions in your script occurring after the call to `Get-ChocolateyWebFile` will **not** be run. This is due to the nature of [how the function gets monkey-patched](https://github.com/majkinetor/au/blob/a8d31244997f08685cc894da4faa1012c60b34f1/AU/Public/Update-Package.ps1#L172), which might be improved in the future.
+
 When new version is available, the `update` function will by default download both x32 and x64 versions of the installer and calculate the desired checksum. It will inject this info in the `$global:Latest` HashTable variable so you can use it via `au_SearchReplace` function to update hashes. The parameter `ChecksumFor` can contain words `all`, `none`, `32` or `64` to further control the behavior.
 
 You can disable this feature by calling update like this:
@@ -204,19 +207,16 @@ If the checksum is actually obtained from the vendor's site, you can provide it 
 
 If the `ChecksumXX` hash key is present, the AU will change to checksum verification mode - it will download the installer and verify that its checksum matches the one provided. If the key is not present, the AU will calculate hash with the given `ChecksumTypeXX` algorithm.
 
-**NOTE**: This feature works by monkey patching the `Get-ChocolateyWebFile` helper function and invoking the `chocolateyInstall.ps1` afterwards for the package in question. This means that it downloads the files using whatever method is specified in the package installation script.
-
-
 ### Manual checksums
 
 Sometimes invoking `chocolateyInstall.ps1` during the automatic checksum could be problematic so you need to disable it using update option `ChecksumFor none` and get the checksum some other way. Function `Get-RemoteChecksum` can be used to simplify that:
 
 ```powershell
-  function au_BeforeUpdate() {
+  function global:au_BeforeUpdate() {
      $Latest.Checksum32 = Get-RemoteChecksum $Latest.Url32
   }
 
-  function au_GetLatest() {
+  function global:au_GetLatest() {
     $download_page = Invoke-WebRequest $releases -UseBasicParsing
     $url     = $download_page.links | ? href -match '\.exe$' | select -First 1 -expand href
     $version = $url -split '/' | select -Last 1 -Skip 1
@@ -300,7 +300,7 @@ AU function `Get-RemoteFiles` can download files and save them in the package's 
 The following example downloads files inside `au_BeforeUpdate` function which is called before the package files are updated with the latest data (function is not called if no update is available): 
 
 ```powershell
-function au_BeforeUpdate() {
+function global:au_BeforeUpdate() {
     #Download $Latest.URL32 / $Latest.URL64 in tools directory and remove any older installers.
     Get-RemoteFiles -Purge
 }
