@@ -40,6 +40,10 @@ ls $Path | % {
 }
 
 # request
+
+#https://github.com/majkinetor/au/issues/142
+[System.Net.ServicePointManager]::SecurityProtocol = 3072 -bor 768 -bor [System.Net.SecurityProtocolType]::Tls -bor [System.Net.SecurityProtocolType]::Ssl3
+
 $uri  = 'https://api.github.com/gists'
 $params = @{
     ContentType = 'application/json'
@@ -53,6 +57,7 @@ if ($ApiKey) {
         Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($ApiKey))
     }
 }
+
 $res = iwr @params
 
 #https://api.github.com/gists/a700c70b8847b29ebb1c918d47ee4eb1/211bac4dbb707c75445533361ad12b904c593491
