@@ -516,6 +516,16 @@ RepeatCount   = 2                                  #How many times to repeat on 
 - If the same error is both in `RepeatOn` and `IgnoreOn` list, the package will first be repeated and if the error persists, it will be ignored.
 - The last line returned by the package prior to the word 'ignore' is used as `IgnoreMessage` for that package and shown in reports.
 
+#### Can't validate URL error
+
+If you encounter `Can't validate URL` error like
+
+```bash
+Can't validate URL
+Exception calling "GetResponse" with "0" argument(s): "The remote server returned an error: (401) Unauthorized.":<url>
+```
+
+you need to pass HTTP/HTTPS headers used for retreiving `url`/`url64bit` to `$Latest.Options.Headers` as `Hashtable`, where key is header name, and value are header itself. This may be `Authorization` or `Referer` header or any others.
 
 ## Other functions
 
