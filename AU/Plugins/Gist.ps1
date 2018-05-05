@@ -58,7 +58,7 @@ if ($ApiKey) {
     }
 }
 
-$res = iwr @params
+$res = iwr @params -Verbose
 
 #https://api.github.com/gists/a700c70b8847b29ebb1c918d47ee4eb1/211bac4dbb707c75445533361ad12b904c593491
 $id = (($res.Content | ConvertFrom-Json).history[0].url -split '/')[-2,-1] -join '/'
