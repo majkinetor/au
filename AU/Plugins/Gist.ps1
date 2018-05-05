@@ -53,7 +53,7 @@ $params = @{
     UseBasicparsing = $true
 }
 
-$params | ConvertTo-Json -Depth 100 | Write-Host
+#$params | ConvertTo-Json -Depth 100 | Write-Host
 
 if ($ApiKey) {
     $params.Headers = @{
