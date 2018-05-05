@@ -52,13 +52,16 @@ $params = @{
     Body        = $gist | ConvertTo-Json
     UseBasicparsing = $true
 }
+
+$params | ConvertTo-Json -Depth 100 | Write-Host
+
 if ($ApiKey) {
     $params.Headers = @{
         Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($ApiKey))
     }
 }
 
-$res = iwr @params -Verbose
+$res = iwr @params
 
 #https://api.github.com/gists/a700c70b8847b29ebb1c918d47ee4eb1/211bac4dbb707c75445533361ad12b904c593491
 $id = (($res.Content | ConvertFrom-Json).history[0].url -split '/')[-2,-1] -join '/'
