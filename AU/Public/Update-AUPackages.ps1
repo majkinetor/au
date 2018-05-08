@@ -50,7 +50,7 @@ function Update-AUPackages {
           PushAll           - Set to true to push all updated packages and not only the most recent one per folder.
           WhatIf            - Set to true to set WhatIf option for all packages.
           PluginPath        - Additional path to look for user plugins. If not set only module integrated plugins will work
-          NoCheckChocoVersion  - Set to true to set NoCheckChocoVersion option for all packages. Thanks to RBZ
+          NoCheckChocoVersion  - Set to true to set NoCheckChocoVersion option for all packages.
 
           Plugin            - Any HashTable key will be treated as plugin with the same name as the option name.
                               A script with that name will be searched for in the AU module path and user specified path.
@@ -83,7 +83,7 @@ function Update-AUPackages {
     if (!$Options.Force)        { $Options.Force         = $false }
     if (!$Options.Push)         { $Options.Push          = $false }
     if (!$Options.PluginPath)   { $Options.PluginPath    = '' }
-    if (!$Options.NoCheckChocoVersion){ $Options.NoCheckChocoVersion	= $false } # RBZ Edit
+    if (!$Options.NoCheckChocoVersion){ $Options.NoCheckChocoVersion	= $false }
 
     Remove-Job * -force #remove any previously run jobs
 
@@ -94,7 +94,7 @@ function Update-AUPackages {
     $aup = Get-AUPackages $Name
     Write-Host 'Updating' $aup.Length  'automatic packages at' $($startTime.ToString("s") -replace 'T',' ') $(if ($Options.Force) { "(forced)" } else {})
     Write-Host 'Push is' $( if ($Options.Push) { 'enabled' } else { 'disabled' } )
-    Write-Host 'NoCheckChocoVersion is' $( if ($Options.NoCheckChocoVersion) { 'enabled' } else { 'disabled' } ) # RBZ Edit
+    Write-Host 'NoCheckChocoVersion is' $( if ($Options.NoCheckChocoVersion) { 'enabled' } else { 'disabled' } )
     if ($Options.Force) { Write-Host 'FORCE IS ENABLED. All packages will be updated' }
 
     $script_err = 0
