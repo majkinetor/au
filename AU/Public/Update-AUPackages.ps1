@@ -178,7 +178,7 @@ function Update-AUPackages {
             $global:au_Force   = $Options.Force
             $global:au_WhatIf  = $Options.WhatIf
             $global:au_Result  = 'pkg'
-            $global:au_NoCheckChocoVersion = $Options.NoCheckChocoVersion # RBZ Edit
+            $global:au_NoCheckChocoVersion = $Options.NoCheckChocoVersion
 
             if ($Options.BeforeEach) {
                 $s = [Scriptblock]::Create( $Options.BeforeEach )
