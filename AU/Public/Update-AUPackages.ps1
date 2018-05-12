@@ -1,12 +1,9 @@
-<#
- Author: Miodrag Milic <miodrag.milic@gmail.com>
- Last Change: 08-May-2018
- 
- ChangeLog:
- Changed on 08-May-2018
- Added NoCheckChocoVersion as a switch for not checking http://chocolatey.org version.
- 
 
+ # Author: Miodrag Milic <miodrag.milic@gmail.com>
+ # Last Change: 08-May-2018
+
+ 
+<#
 .SYNOPSIS
     Update all automatic packages
 
