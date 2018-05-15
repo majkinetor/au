@@ -1,7 +1,9 @@
 # AU Project Changelog
 
 ## Next
-- `Update-Package`: Now you can pass HTTP/HTTPS headers to `$Latest.Options.Headers` to avoid `Unauthorized` errors while checking URLs.
+- `Update-Package`: 
+  - Now you can pass HTTP/HTTPS headers to `$Latest.Options.Headers` to avoid `Unauthorized` errors while checking URLs.
+  - Package Gallery URL is no longer hard-coded but taken from the `$au_GalleryUrl` if it exists ([#95](https://github.com/majkinetor/au/issues/95))
 - `Update-AUPackages`: Added `NoCheckChocoVersion` option.
 - Plugins:
   - `Git`: Added `Branch` parameter to specify a branch name

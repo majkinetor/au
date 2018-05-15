@@ -277,6 +277,8 @@ This is the same as if you added the parameters to `update` function inside the 
 
 however, its way easier to setup global variable with manual intervention on multiple packages.
 
+There is also a special variable `$au_GalleryUrl` using which you can change the URL that is used to check if package is already pushed. It defaults to https://chocolatey.org and you can change it if you need to this option for 3rd party or internal package repositories. 
+
 ### Reusing the AU updater with metapackages
 
 Metapackages can reuse an AU updater of its dependency by the following way:
