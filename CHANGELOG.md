@@ -6,7 +6,8 @@
 
 ### Bugfixes
 
-- Gist plugin: Security protocol is set according to updated [Github requirements](https://githubengineering.com/crypto-removal-notice).
+- `Gist` plugin: Security protocol is set according to updated [Github requirements](https://githubengineering.com/crypto-removal-notice).
+- `Get-RemoteFiles`: Fixed wrong checksum type being set on 64bit url
 
 ## 2018.1.11
 - `Update-AuPackage`
