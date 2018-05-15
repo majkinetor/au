@@ -1,7 +1,7 @@
 # AU Project Changelog
 
 ## Next
-- Git plugin: add `Branch` parameter to specify a branch name
+- `Git` plugin: add `Branch` parameter to specify a branch name
 - `Update-Package`: Now you can pass HTTP/HTTPS headers to `$Latest.Options.Headers` to avoid `Unauthorized` errors while checking URLs.
 
 ### Bugfixes
