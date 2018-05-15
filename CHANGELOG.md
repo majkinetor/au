@@ -1,17 +1,16 @@
 # AU Project Changelog
 
 ## Next
-- `Git` plugin: add `Branch` parameter to specify a branch name
 - `Update-Package`: Now you can pass HTTP/HTTPS headers to `$Latest.Options.Headers` to avoid `Unauthorized` errors while checking URLs.
+- `Update-AUPackages`: Added `NoCheckChocoVersion` option.
+- Plugins:
+  - `Git`: Added `Branch` parameter to specify a branch name
+  - `Mail`: Added `From` parameter to be used with mail servers that do not allow non-existent email addresses.
 
 ### Bugfixes
 
 - `Gist` plugin: Security protocol is set according to updated [Github requirements](https://githubengineering.com/crypto-removal-notice).
 - `Get-RemoteFiles`: Fixed wrong checksum type being set on 64bit url
-
-## 2018.5.81
-- `Update-AuPackage`
-  - Added NoCheckChocoVersion as a switch for not checking http://chocolatey.org version.
 
 ## 2018.1.11
 - `Update-AuPackage`
