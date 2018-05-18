@@ -1,6 +1,10 @@
 # AU Project Changelog
 
 ## Next
+
+
+## 2018.5.18
+
 - `Update-Package`: 
   - Now you can pass HTTP/HTTPS headers to `$Latest.Options.Headers` to avoid `Unauthorized` errors while checking URLs.
   - Package Gallery URL is no longer hard-coded but taken from the `$au_GalleryUrl` if it exists ([#95](https://github.com/majkinetor/au/issues/95))
