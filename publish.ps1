@@ -54,6 +54,9 @@ function get_release_notes() {
 }
 
 function Publish-Github() {
+
+    [System.Net.ServicePointManager]::SecurityProtocol = 3072 -bor 768 -bor [System.Net.SecurityProtocolType]::Tls -bor [System.Net.SecurityProtocolType]::Ssl3
+
     if (!$Github) { Write-Host "Github publish disabled."; return }
     Write-Host 'Publishing to Github'
 
