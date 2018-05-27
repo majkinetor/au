@@ -3,10 +3,10 @@
 
 <#
 .SYNOPSIS
-   Get Latest URL32 and/or URL64 into tools directxory.
+   Get Latest URL32 and/or URL64 into tools directory.
 
 .DESCRIPTION
-   This function will download the binaries pointed to by $Latest.URL32 and $Latest.URL34.
+   This function will download the binaries pointed to by $Latest.URL32 and $Latest.URL64.
    The function is used to embed binaries into the Chocolatey package.
 
    The function will keep original remote file name but it will add suffix _x32 or _x64.
