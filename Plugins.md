@@ -28,6 +28,23 @@ To set up plugin to create gist under your user name you need to give it your gi
 
 * It is recommended to add the following line `skip_tags: true` in the `appveyor.yml` file to prevent tags from being built. While it may not be necessary, this is used to prevent packages from being submitted again when `[AU]` or `[PUSH]` is being used in the commit header message.
 
+## [Gitter](https://github.com/majkinetor/au/blob/master/AU/Plugins/Gitter.ps1)
+
+**Setup project to submit gitter status**
+
+* First of all, navigate to the gitter channel you wish to have the status listed (you'll need to have permission to add integrations, and need to do it through the webpage).
+  1. Click on the icon for room settings, then select `Integrations`.
+  2. Select a `Custom` Integration
+  3. Copy the unique webhook url listed in the dialog.
+  4. Navigate to the `update_all.ps1` file in your repository, and update the `$Options` hashtable with the following  
+     ```powershell
+     Gitter = @{
+       WebHookUrl = $env:gitter_webhook
+     }
+     ```
+  5. Update your appveyor environment variable with your unique webhook, and set the name to `gitter_webhook`.
+  6. Enjoy your status updates, or frown on failures.
+
 ## [History](https://github.com/majkinetor/au/blob/master/AU/Plugins/History.ps1)
 
 **Create update history as markdown report using git log**. 
