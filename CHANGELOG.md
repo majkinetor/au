@@ -2,6 +2,8 @@
 
 ## Next
 
+- Plugins:
+  - New plugin: Gitter
 
 ## 2018.5.18
 
