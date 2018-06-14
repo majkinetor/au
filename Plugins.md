@@ -36,13 +36,13 @@ To set up plugin to create gist under your user name you need to give it your gi
   1. Click on the icon for room settings, then select `Integrations`.
   2. Select a `Custom` Integration
   3. Copy the unique webhook url listed in the dialog.
-  4. Navigate to the `update_all.ps1` file in your repository, and update the `$Options` hashtable with the following  
+  4. Update your appveyor environment variable with your unique webhook, and set the name to `gitter_webhook`.
+  5. Navigate to the `update_all.ps1` file in your repository, and update the `$Options` hashtable with the following  
      ```powershell
      Gitter = @{
        WebHookUrl = $env:gitter_webhook
      }
      ```
-  5. Update your appveyor environment variable with your unique webhook, and set the name to `gitter_webhook`.
   6. Enjoy your status updates, or frown on failures.
 
 ## [History](https://github.com/majkinetor/au/blob/master/AU/Plugins/History.ps1)

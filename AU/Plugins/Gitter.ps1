@@ -29,7 +29,7 @@ $failedPackages    = $Info.error_count.total
 $gistUrl           = $Info.plugin_results.Gist -split '\n' | select -Last 1
 $packageCount      = $Info.result.all.Length
 
-$gitterMessage     = ($MessageFormat = -f $packageCount, $updatedPackages, $publishedPackages, $failedPackages, $gistUrl)
+$gitterMessage     = ($MessageFormat -f $packageCount, $updatedPackages, $publishedPackages, $failedPackages, $gistUrl)
 
 $arguments = @{
   Body             = if ($failedPackages -gt 0) { "message=$gitterMessage&level=error" } else { "message=$gitterMessage" }
