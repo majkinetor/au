@@ -5,6 +5,10 @@
 - Plugins:
   - New plugin: Gitter
 
+### Bugfixes
+  
+  - Fixed header handling during request ([#164](https://github.com/majkinetor/au/issues/164))
+
 ## 2018.5.18
 
 - `Update-Package`: 
