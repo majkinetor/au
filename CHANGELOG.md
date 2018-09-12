@@ -2,6 +2,7 @@
 
 ## Next
 
+- `Get-RemoteChecksum`: New parameter `Headers`
 - Plugins:
   - New plugin: Gitter
 
