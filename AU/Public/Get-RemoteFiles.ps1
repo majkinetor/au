@@ -40,14 +40,14 @@ function Get-RemoteFiles {
 
     function name4url($url) {
         if ($FileNameBase) { return $FileNameBase }
-        $res = $url -split '/' | select -Last 1 -Skip $FileNameSkip
+        $res = ([System.Uri]$url).AbsolutePath -split '/' | select -Last 1 -Skip $FileNameSkip
         $res -replace '\.[^.]+$'
     }
 
     function ext() {
         if ($Latest.FileType) { return $Latest.FileType }
         $url = $Latest.Url32; if (!$url) { $url = $Latest.Url64 }
-        if ($url -match '(?<=\.)[^.]+$') { return $Matches[0] }
+        if (([System.Uri]$url).AbsolutePath -match '(?<=\.)[^.]+$') { return $Matches[0] }
     }
 
     mkdir tools -ea 0 | Out-Null
