@@ -2,12 +2,10 @@
 # Last Change: 10-Nov-2016.
 <#
 .SYNOPSIS
-    Create update history as markdown report using git commit log.
+    Upload files to Github gist platform.
 
 .DESCRIPTION
-   Shows one date per line and all of the packages pushed to the Chocolatey community repository during that day.
-   First letter of the package name links to report (produced by the Report plugin), the rest links to actuall
-   commit (produced by the Git plugin).
+    Plugin uploads one or more local files to the gist with the given id
 #>
 param(
     $Info,
