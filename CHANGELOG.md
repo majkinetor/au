@@ -5,6 +5,7 @@
 - `Get-RemoteChecksum`: New parameter `Headers`
 - Plugins:
   - New plugin: Gitter
+  - New plugin: Snippet
 
 ### Bugfixes
   

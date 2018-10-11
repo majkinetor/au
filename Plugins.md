@@ -72,3 +72,14 @@ The plugin saves state of all packages in a file that can be used locally or upl
 
 Run this plugin as the last one to save all other info produced during the run in such way that it can be recreated as object.
 To load it for inspection use `$info = Import-CliXml update_info.xml`.
+
+## [Snippet](https://github.com/majkinetor/au/blob/master/AU/Plugins/Snippet.ps1)
+
+**Upload update history report to GitLab snippet**.
+
+To set up plugin to create snippet under your user name you need to give it your snippet id and authentication:
+
+* Log into https://gitlab.com/users/sign_in with the user you want to use.
+* [Create a snippet](https://gitlab.com/snippets/new) (private or not) with a title and some random content.  Grab the id at the end of it - `https://gitlab.com/snippets/{id}`. Set it as `$Env:snippet_id` environment variable.
+* Create [GitLab personal access token](https://gitlab.com/profile/personal_access_tokens) and **make sure token has _api_ scope selected**. Authenticating with username and password isn't supported for security reasons. Set it as `$Env:gitlab_api_token` environment variable.
+

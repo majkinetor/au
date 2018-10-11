@@ -62,8 +62,9 @@ if  ($commitStrategy -like 'atomic*') {
         Write-Host "Commiting $($_.Name)"
         $message = "AU: $($_.Name) upgraded from $($_.NuspecVersion) to $($_.RemoteVersion)"
         $gist_url = $Info.plugin_results.Gist -split '\n' | select -Last 1
-        git commit -m "$message`n[skip ci] $gist_url" --allow-empty
-        
+        $snippet_url = $Info.plugin_results.Snippet -split '\n' | select -Last 1
+        git commit -m "$message`n[skip ci] $gist_url $snippet_url" --allow-empty
+
         if ($commitStrategy -eq 'atomictag') {
           $tagcmd = "git tag -a $($_.Name)-$($_.RemoteVersion) -m '$($_.Name)-$($_.RemoteVersion)'"
           Invoke-Expression $tagcmd
@@ -78,7 +79,8 @@ else {
     Write-Host "Commiting"
     $message = "AU: $($packages.Length) updated - $($packages | % Name)"
     $gist_url = $Info.plugin_results.Gist -split '\n' | select -Last 1
-    git commit -m "$message`n[skip ci] $gist_url" --allow-empty
+    $snippet_url = $Info.plugin_results.Snippet -split '\n' | select -Last 1
+    git commit -m "$message`n[skip ci] $gist_url $snippet_url" --allow-empty
 
 }
 Write-Host "Pushing changes"
