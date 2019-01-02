@@ -164,9 +164,14 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 $res = update
 
                 $res.Updated      | Should Be $true
-                $res.Streams.'1.2'.RemoteVersion       | Should Be 1.2.4
-                $res.Streams.'1.3'.RemoteVersion       | Should Be 1.3.1
-                $res.Streams.'1.4'.RemoteVersion       | Should Be 1.4-beta1
+                $res.NuspecVersion               | Should Be 1.2.3
+                $res.RemoteVersion               | Should Be 1.2.4
+                $res.Streams.'1.2'.NuspecVersion | Should Be 1.2.3
+                $res.Streams.'1.2'.RemoteVersion | Should Be 1.2.4
+                $res.Streams.'1.3'.NuspecVersion | Should Be 1.3.1
+                $res.Streams.'1.3'.RemoteVersion | Should Be 1.3.1
+                $res.Streams.'1.4'.NuspecVersion | Should Be 1.4-beta1
+                $res.Streams.'1.4'.RemoteVersion | Should Be 1.4-beta1
                 $res.Result[-1]   | Should Be 'Package updated'
                 (nuspec_file).package.metadata.version | Should Be 1.2.4
                 (json_file).'1.2' | Should Be 1.2.4
@@ -175,21 +180,23 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             }
 
             It 'updates package when multiple remote versions are higher' {
-                get_latest -Version 1.4.0
+                get_latest -Version 1.3.2
 
                 $res = update
 
                 $res.Updated      | Should Be $true
+                $res.NuspecVersion               | Should Be 1.3.1
+                $res.RemoteVersion               | Should Be 1.3.2
                 $res.Streams.'1.2'.NuspecVersion | Should Be 1.2.3
                 $res.Streams.'1.2'.RemoteVersion | Should Be 1.2.4
                 $res.Streams.'1.3'.NuspecVersion | Should Be 1.3.1
-                $res.Streams.'1.3'.RemoteVersion | Should Be 1.3.1
+                $res.Streams.'1.3'.RemoteVersion | Should Be 1.3.2
                 $res.Streams.'1.4'.NuspecVersion | Should Be 1.4-beta1
-                $res.Streams.'1.4'.RemoteVersion | Should Be 1.4.0
+                $res.Streams.'1.4'.RemoteVersion | Should Be 1.4-beta1
                 $res.Result[-1]   | Should Be 'Package updated'
                 (json_file).'1.2' | Should Be 1.2.4
-                (json_file).'1.3' | Should Be 1.3.1
-                (json_file).'1.4' | Should Be 1.4.0
+                (json_file).'1.3' | Should Be 1.3.2
+                (json_file).'1.4' | Should Be 1.4-beta1
             }
 
             It "does not update the package when remote version is not higher" {

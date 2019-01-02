@@ -32,6 +32,104 @@ Describe 'Update-AUPackages using streams' -Tag updateallstreams {
     }
 
     Context 'Plugins' {
+        It 'should execute text Report plugin' {
+            gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
+            $content -replace '@\{.+1\.3.+\}', "@{ Version = '1.3.2' }" | set content
+            $content -replace '@\{.+1\.2.+\}', "@{ Version = '1.2.4' }" | set content
+            $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
+
+            $Options.Report = @{
+                Type = 'text'
+                Path = "$global:au_Root\report.txt"
+            }
+
+            $res = updateall -NoPlugins:$false -Options $Options  6> $null
+
+            $pattern  = "\bFinished $pkg_no packages\b[\S\s]*"
+            $pattern += '\b1 updated\b[\S\s]*'
+            $pattern += '\b0 errors\b[\S\s]*'
+            $pattern += '\btest_package_with_streams_1 +True +1\.3\.2 +1\.3\.1\b[\S\s]*'
+            $pattern += "\btest_package_with_streams_2 +False +1\.4-beta1 +1\.4-beta1\b[\S\s]*"
+            $pattern += '\btest_package_with_streams_1\b[\S\s]*'
+            $pattern += '\bStream: 1\.2\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.2\.3\b[\S\s]*'
+            $pattern += '\bremote version: 1\.2\.4\b[\S\s]*'
+            $pattern += '\bNew version is available\b[\S\s]*'
+            $pattern += '\bStream: 1\.3\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.3\.1\b[\S\s]*'
+            $pattern += '\bremote version: 1\.3\.2\b[\S\s]*'
+            $pattern += '\bNew version is available\b[\S\s]*'
+            $pattern += '\bStream: 1\.4\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.4-beta1\b[\S\s]*'
+            $pattern += '\bremote version: 1\.4-beta1\b[\S\s]*'
+            $pattern += '\bNo new version found\b[\S\s]*'
+            $pattern += '\bPackage updated\b[\S\s]*'
+            $pattern += '\btest_package_with_streams_2\b[\S\s]*'
+            $pattern += '\bStream: 1\.2\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.2\.3\b[\S\s]*'
+            $pattern += '\bremote version: 1\.2\.3\b[\S\s]*'
+            $pattern += '\bNo new version found\b[\S\s]*'
+            $pattern += '\bStream: 1\.3\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.3\.1\b[\S\s]*'
+            $pattern += '\bremote version: 1\.3\.1\b[\S\s]*'
+            $pattern += '\bNo new version found\b[\S\s]*'
+            $pattern += '\bStream: 1\.4\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.4-beta1\b[\S\s]*'
+            $pattern += '\bremote version: 1\.4-beta1\b[\S\s]*'
+            $pattern += '\bNo new version found\b[\S\s]*'
+            $Options.Report.Path | Should Exist
+            $Options.Report.Path | Should FileContentMatchMultiline $pattern
+        }
+
+        It 'should execute markdown Report plugin' {
+            gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
+            $content -replace '@\{.+1\.3.+\}', "@{ Version = '1.3.2' }" | set content
+            $content -replace '@\{.+1\.2.+\}', "@{ Version = '1.2.4' }" | set content
+            $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
+
+            $Options.Report = @{
+                Type = 'markdown'
+                Path = "$global:au_Root\report.md"
+                Params = @{ Github_UserRepo = 'majkinetor/chocolatey' }
+            }
+
+            $res = updateall -NoPlugins:$false -Options $Options  6> $null
+
+            $pattern  = "\bFinished $pkg_no packages\b[\S\s]*"
+            $pattern += '\b1 updated\b[\S\s]*'
+            $pattern += '\b0 errors\b[\S\s]*'
+            $pattern += '\btest_package_with_streams_1\b.*\bTrue\b.*\bFalse\b.*\b1\.3\.2\b.*\b1\.3\.1\b[\S\s]*'
+            $pattern += "\btest_package_with_streams_2\b.*\bFalse\b.*\bFalse\b.*\b1\.4-beta1\b.*\b1\.4-beta1\b[\S\s]*"
+            $pattern += '\btest_package_with_streams_1\b[\S\s]*'
+            $pattern += '\bStream: 1\.2\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.2\.3\b[\S\s]*'
+            $pattern += '\bremote version: 1\.2\.4\b[\S\s]*'
+            $pattern += '\bNew version is available\b[\S\s]*'
+            $pattern += '\bStream: 1\.3\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.3\.1\b[\S\s]*'
+            $pattern += '\bremote version: 1\.3\.2\b[\S\s]*'
+            $pattern += '\bNew version is available\b[\S\s]*'
+            $pattern += '\bStream: 1\.4\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.4-beta1\b[\S\s]*'
+            $pattern += '\bremote version: 1\.4-beta1\b[\S\s]*'
+            $pattern += '\bNo new version found\b[\S\s]*'
+            $pattern += '\bPackage updated\b[\S\s]*'
+            $pattern += '\btest_package_with_streams_2\b[\S\s]*'
+            $pattern += '\bStream: 1\.2\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.2\.3\b[\S\s]*'
+            $pattern += '\bremote version: 1\.2\.3\b[\S\s]*'
+            $pattern += '\bNo new version found\b[\S\s]*'
+            $pattern += '\bStream: 1\.3\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.3\.1\b[\S\s]*'
+            $pattern += '\bremote version: 1\.3\.1\b[\S\s]*'
+            $pattern += '\bNo new version found\b[\S\s]*'
+            $pattern += '\bStream: 1\.4\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.4-beta1\b[\S\s]*'
+            $pattern += '\bremote version: 1\.4-beta1\b[\S\s]*'
+            $pattern += '\bNo new version found\b[\S\s]*'
+            $Options.Report.Path | Should Exist
+            $Options.Report.Path | Should FileContentMatchMultiline $pattern
+        }
 
         It 'should execute GitReleases plugin when there are updates' {
             gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content

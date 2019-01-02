@@ -3,7 +3,7 @@ $Title       = if ($Params.Title) { $Params.Title } else {  'Update-AUPackages' 
 
 #==============================================================================
 
-function title($txt) { "r`n{0}`r`n{1}`r`n" -f $txt,('-'*$txt.Length) }
+function title($txt) { "`r`n{0}`r`n{1}`r`n" -f $txt,('-'*$txt.Length) }
 function indent($txt, $level=4) { $txt -split "`n" | % { ' '*$level + $_ } }
 
 $now         = $Info.startTime.ToUniversalTime().ToString('yyyy-MM-dd HH:mm')
@@ -31,7 +31,7 @@ if ($Info.pushed) {
     $Info.result.pushed | select 'Name', 'Updated', 'Pushed', 'RemoteVersion', 'NuspecVersion' | ft | Out-String | set r
     indent $r 2
 
-    $ok | % { $_.Name; indent $_.Result; "" }
+    $Info.result.pushed | % { $_.Name; indent $_.Result; "" }
 }
 
 if ($Info.error_count.total) {
@@ -39,7 +39,7 @@ if ($Info.error_count.total) {
     $Info.result.errors | select 'Name', 'NuspecVersion', 'Error' | ft | Out-String | set r
     indent $r 2
 
-    $Info.result.errors | % { $_.Name; ident $_.Error; "" }
+    $Info.result.errors | % { $_.Name; indent $_.Error; "" }
 }
 
 

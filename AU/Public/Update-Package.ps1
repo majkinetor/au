@@ -459,7 +459,11 @@ function Update-Package {
         }
         $package.Updated = $false
         $package.Streams = $allStreams
-        $package.Streams.Values | ? { $_.Updated } | % { $package.Updated = $true }
+        $package.Streams.Values | ? { $_.Updated } | % {
+            $package.NuspecVersion = $_.NuspecVersion
+            $package.RemoteVersion = $_.RemoteVersion
+            $package.Updated = $true
+        }
     } else {
         '' | result
         set_latest $res $package.NuspecVersion
