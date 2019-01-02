@@ -104,7 +104,45 @@ Describe 'Update-AUPackages' -Tag updateall {
             (gc $TestDrive\tmp_test).Count | Should be 3
         }
 
-        It 'should execute Report plugin' {
+        It 'should execute text Report plugin' {
+            gc $global:au_Root\test_package_1\update.ps1 | set content
+            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | set content
+            $content | sc $global:au_Root\test_package_1\update.ps1
+
+            $Options.Report = @{
+                Type = 'text'
+                Path = "$global:au_Root\report.txt"
+            }
+
+            $res = updateall -NoPlugins:$false -Options $Options  6> $null
+
+            $pattern  = "\bFinished $pkg_no packages\b[\S\s]*"
+            $pattern += '\b1 updated\b[\S\s]*'
+            $pattern += '\b0 errors\b[\S\s]*'
+            $pattern += '\btest_package_1 +True +1\.3 +1\.2\.3\b[\S\s]*'
+            foreach ( $i in 2..$pkg_no ) {
+                $pattern += "\btest_package_$i +False +1\.2\.3 +1\.2\.3\b[\S\s]*"
+            }
+            $pattern += '\btest_package_1\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.2\.3\b[\S\s]*'
+            $pattern += '\bremote version: 1\.3\b[\S\s]*'
+            $pattern += '\bNew version is available\b[\S\s]*'
+            $pattern += '\bPackage updated\b[\S\s]*'
+            foreach ( $i in 2..$pkg_no ) {
+                $pattern += "\btest_package_$i\b[\S\s]*"
+                $pattern += '\bnuspec version: 1\.2\.3\b[\S\s]*'
+                $pattern += '\bremote version: 1\.2\.3\b[\S\s]*'
+                $pattern += '\bNo new version found\b[\S\s]*'
+            }
+            $Options.Report.Path | Should Exist
+            $Options.Report.Path | Should FileContentMatchMultiline $pattern
+        }
+
+        It 'should execute markdown Report plugin' {
+            gc $global:au_Root\test_package_1\update.ps1 | set content
+            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | set content
+            $content | sc $global:au_Root\test_package_1\update.ps1
+
             $Options.Report = @{
                 Type = 'markdown'
                 Path = "$global:au_Root\report.md"
@@ -113,10 +151,26 @@ Describe 'Update-AUPackages' -Tag updateall {
 
             $res = updateall -NoPlugins:$false -Options $Options  6> $null
 
-            Test-Path $Options.Report.Path | Should Be $true
-
-            $report = gc $Options.Report.Path 
-            ($report -match "test_package_[1-3]").Count | Should Be 9
+            $pattern  = "\bFinished $pkg_no packages\b[\S\s]*"
+            $pattern += '\b1 updated\b[\S\s]*'
+            $pattern += '\b0 errors\b[\S\s]*'
+            $pattern += '\btest_package_1\b.*\bTrue\b.*\bFalse\b.*\b1\.3\b.*\b1\.2\.3\b[\S\s]*'
+            foreach ( $i in 2..$pkg_no ) {
+                $pattern += "\btest_package_$i\b.*\bFalse\b.*\bFalse\b.*\b1\.2\.3\b.*\b1\.2\.3\b[\S\s]*"
+            }
+            $pattern += '\btest_package_1\b[\S\s]*'
+            $pattern += '\bnuspec version: 1\.2\.3\b[\S\s]*'
+            $pattern += '\bremote version: 1\.3\b[\S\s]*'
+            $pattern += '\bNew version is available\b[\S\s]*'
+            $pattern += '\bPackage updated\b[\S\s]*'
+            foreach ( $i in 2..$pkg_no ) {
+                $pattern += "\btest_package_$i\b[\S\s]*"
+                $pattern += '\bnuspec version: 1\.2\.3\b[\S\s]*'
+                $pattern += '\bremote version: 1\.2\.3\b[\S\s]*'
+                $pattern += '\bNo new version found\b[\S\s]*'
+            }
+            $Options.Report.Path | Should Exist
+            $Options.Report.Path | Should FileContentMatchMultiline $pattern
         }
 
         It 'should execute RunInfo plugin' {
