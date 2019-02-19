@@ -2,7 +2,6 @@
  # Author: Miodrag Milic <miodrag.milic@gmail.com>
  # Last Change: 08-May-2018
 
- 
 <#
 .SYNOPSIS
     Update all automatic packages
@@ -171,6 +170,38 @@ function Update-AUPackages {
         $package_name = Split-Path $package_path -Leaf
         Write-Verbose "Starting $package_name"
         Start-Job -Name $package_name {         #TODO: fix laxxed variables in job for BE and AE
+            function repeat_ignore([ScriptBlock] $Action) { # requires $Options
+                $run_no = 0
+                $run_max = if ($Options.RepeatOn) { if (!$Options.RepeatCount) { 2 } else { $Options.RepeatCount+1 } } else {1}
+
+                :main while ($run_no -lt $run_max) {
+                    $run_no++
+                    try {
+                        $res = & $Action 6> $out
+                        break main
+                    } catch {
+                        if ($run_no -ne $run_max) {
+                            foreach ($msg in $Options.RepeatOn) { 
+                                if ($_.Exception -notlike "*${msg}*") { continue }
+                                Write-Warning "Repeating $using:package_name ($run_no): $($_.Exception)"
+                                if ($Options.RepeatSleep) { Write-Warning "Sleeping $($Options.RepeatSleep) seconds before repeating"; sleep $Options.RepeatSleep }
+                                continue main
+                            }
+                        }
+                        foreach ($msg in $Options.IgnoreOn) { 
+                            if ($_.Exception -notlike "*${msg}*") { continue }
+                            Write-Warning "Ignoring $using:package_name ($run_no): $($_.Exception)"
+                            "AU ignored on: $($_.Exception)" | Out-File -Append $out
+                            $res = 'ignore'
+                            break main
+                        }
+                        $type = if ($res) { $res.GetType() }
+                        if ( "$type" -eq 'AUPackage') { $res.Error = $_ } else { return $_ }
+                    }
+                }
+                $res
+            }
+
             $Options = $using:Options
 
             cd $using:package_path
@@ -187,36 +218,8 @@ function Update-AUPackages {
                 . $s $using:package_name $Options
             }
             
-            $run_no = 0
-            $run_max = $Options.RepeatCount
-            $run_max = if ($Options.RepeatOn) { if (!$Options.RepeatCount) { 2 } else { $Options.RepeatCount+1 } } else {1}
-
-            :main while ($run_no -lt $run_max) {
-                $run_no++
-                $pkg = $null #test double report when it fails
-                try {
-                    $pkg = ./update.ps1 6> $out
-                    break main
-                } catch {
-                    if ($run_no -ne $run_max) {
-                        foreach ($msg in $Options.RepeatOn) { 
-                            if ($_.Exception -notlike "*${msg}*") { continue }
-                            Write-Warning "Repeating $using:package_name ($run_no): $($_.Exception)"
-                            if ($Options.RepeatSleep) { Write-Warning "Sleeping $($Options.RepeatSleep) seconds before repeating"; sleep $Options.RepeatSleep }
-                            continue main
-                        }
-                    }
-                    foreach ($msg in $Options.IgnoreOn) { 
-                        if ($_.Exception -notlike "*${msg}*") { continue }
-                        "AU ignored on: $($_.Exception)" | Out-File -Append $out
-                        $pkg = 'ignore'
-                        break main
-                    }
-                    if ($pkg) { $pkg.Error = $_ }
-                }
-            } 
+            $pkg = repeat_ignore { ./update.ps1 }
             if (!$pkg) { throw "'$using:package_name' update script returned nothing" }
-
             if (($pkg -eq 'ignore') -or ($pkg[-1] -eq 'ignore')) { return 'ignore' }
 
             $pkg  = $pkg[-1]
@@ -224,14 +227,20 @@ function Update-AUPackages {
             if ( "$type" -ne 'AUPackage') { throw "'$using:package_name' update script didn't return AUPackage but: $type" }
 
             if ($pkg.Updated -and $Options.Push) {
-                $pkg.Result += $r = Push-Package -All:$Options.PushAll
-                if ($LastExitCode -eq 0) {
-                    $pkg.Pushed = $true
-                } else {
-                    $pkg.Error = "Push ERROR`n" + ($r | select -skip 1)
+                $res = repeat_ignore { 
+                    $r = Push-Package -All:$Options.PushAll
+                    if ($LastExitCode -eq 0) { return $r } else { throw $r }
                 }
-            }
+                if (($res -eq 'ignore') -or ($res[-1] -eq 'ignore')) { return 'ignore' }
 
+                if ($res -is [System.Management.Automation.ErrorRecord]) {
+                    $pkg.Error = "Push ERROR`n" + $res
+                } else {
+                    $pkg.Pushed = $true 
+                    $pkg.Result += $res 
+                } 
+            }
+            
             if ($Options.AfterEach) {
                 $s = [Scriptblock]::Create( $Options.AfterEach )
                 . $s $using:package_name $Options
