@@ -10,6 +10,7 @@
 ### Bugfixes
   
   - Fixed header handling during request ([#164](https://github.com/majkinetor/au/issues/164))
+  - Push errors are not repeated or ignored on ([#175](https://github.com/majkinetor/au/issues/175))
 
 ## 2018.5.18
 
