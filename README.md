@@ -22,14 +22,14 @@ To see AU in action see [video tutorial](https://www.youtube.com/watch?v=m2XpV2L
 - Handles multiple streams with a single update script.
 - Automatically downloads installers and provides/verifies checksums for x32 and x64 versions.
 - Verifies URLs, nuspec versions, remote repository existence etc.
-- Automatically sets the Nuspec descriptions from a README.md files.
+- Automatically sets the nuspec descriptions from a README.md files.
 - Update single package or any subset of previously created AU packages with a single command.
 - Multithread support when updating multiple packages.
 - Repeat or ignore specific failures when updating multiple packages. 
 - Plugin system when updating everything, with few integrated plugins to send email notifications, save results to gist and push updated packages to git repository.
 - Use of global variables to change functionality.
 - Sugar functions for Chocolatey package maintainers.
-- Great performance - hundreeds of packages can be checked and updated in several minutes.
+- Great performance - hundreds of packages can be checked and updated in several minutes.
 
 
 ## Installation
@@ -88,7 +88,7 @@ Function returns HashTable containing search and replace data for any package fi
 
 Search and replace strings are operands for PowerShell [replace](http://www.regular-expressions.info/powershell.html) operator. You do not have to write them most of the time however, they are rarely changed.
 
-File paths are relative to the package directory. The function can use `$global:Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc. 
+File paths are relative to the package directory. The function can use `$global:Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `nuspecVersion` etc. 
 
 The following example illustrates the usage:
 
@@ -254,12 +254,12 @@ Updating files
 ...
 ```
 
-Force option changes how package version is used. Without force, the `NuspecVersion` determines what is going on. Normally, if `NuspecVersion` is lower or equal then the `RemoteVersion` update happens. With `Force` this changes:
+Force option changes how package version is used. Without force, the `nuspecVersion` determines what is going on. Normally, if `nuspecVersion` is lower then the `RemoteVersion` update happens. With `Force` this changes:
 
-1. If `NuspecVersion` is lower then `RemoteVersion`, Force is ignored and update happens as it would normally
-2. If `NuspecVersion` is the same as the `RemoteVersion`, the version will change to chocolatey fix notation.
-3. If the `NuspecVersion` is already using chocolatey fix notation, the version will be updated to fix notation for the current date.
-4. If the `NuspecVersion` is higher then the `RemoteVersion` update will happen but `RemoteVersion` will be used.
+1. If `nuspecVersion` is lower then `RemoteVersion`, Force is ignored and update happens as it would normally
+2. If `nuspecVersion` is the same as the `RemoteVersion`, the version will change to chocolatey fix notation.
+3. If the `nuspecVersion` is already using chocolatey fix notation, the version will be updated to fix notation for the current date.
+4. If the `nuspecVersion` is higher then the `RemoteVersion` update will happen but `RemoteVersion` will be used.
 
 Points 2-4 do not apply if you set the explicit version using the variable `au_Version`.
 
@@ -382,7 +382,7 @@ WARNING: Package restored and updates saved to: C:\Users\majkinetor\AppData\Loca
 
 You can update all packages and optionally push them to the Chocolatey repository with a single command. Function `Update-AUPackages` (alias `updateall`) will iterate over `update.ps1` scripts and execute each in a separate thread. If it detects that a package is updated it will optionally try to push it to the Chocolatey repository and may also run configured plugins.
 
-For the push to work, specify your Choocolatey API key in the file `api_key` in the script's directory (or its parent directory) or set the environment variable `$Env:api_key`. If none provided cached nuget key will be used.
+For the push to work, specify your Chocolatey API key in the file `api_key` in the script's directory (or its parent directory) or set the environment variable `$Env:api_key`. If none provided cached NuGet key will be used.
 
 The function will search for packages in the current directory. To override that, use global variable `$au_Root`:
 
@@ -534,11 +534,11 @@ Can't validate URL
 Exception calling "GetResponse" with "0" argument(s): "The remote server returned an error: (401) Unauthorized.":<url>
 ```
 
-you need to pass HTTP/HTTPS headers used for retreiving `url`/`url64bit` to `$Latest.Options.Headers` as `Hashtable`, where key is header name, and value are header itself. This may be `Authorization` or `Referer` header or any others.
+you need to pass HTTP/HTTPS headers used for retrieving `url`/`url64bit` to `$Latest.Options.Headers` as `Hashtable`, where key is header name, and value are header itself. This may be `Authorization` or `Referer` header or any others.
 
 ## Other functions
 
-Apart from the functions used in the updating process, there are few suggars for regular maintenance of the package:
+Apart from the functions used in the updating process, there are few sugars for regular maintenance of the package:
 
 - Test-Package  
 Quickly test install and/or uninstall of the package from the current directory with optional parameters. This function can be used to start testing in [chocolatey-test-environment](https://github.com/majkinetor/chocolatey-test-environment) via `Vagrant` parameter.
