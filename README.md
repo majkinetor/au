@@ -88,7 +88,7 @@ Function returns HashTable containing search and replace data for any package fi
 
 Search and replace strings are operands for PowerShell [replace](http://www.regular-expressions.info/powershell.html) operator. You do not have to write them most of the time however, they are rarely changed.
 
-File paths are relative to the package directory. The function can use `$global:Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `nuspecVersion` etc. 
+File paths are relative to the package directory. The function can use `$global:Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc. 
 
 The following example illustrates the usage:
 
@@ -254,12 +254,12 @@ Updating files
 ...
 ```
 
-Force option changes how package version is used. Without force, the `nuspecVersion` determines what is going on. Normally, if `nuspecVersion` is lower then the `RemoteVersion` update happens. With `Force` this changes:
+Force option changes how package version is used. Without force, the `NuspecVersion` determines what is going on. Normally, if `NuspecVersion` is lower then the `RemoteVersion` update happens. With `Force` this changes:
 
-1. If `nuspecVersion` is lower then `RemoteVersion`, Force is ignored and update happens as it would normally
-2. If `nuspecVersion` is the same as the `RemoteVersion`, the version will change to chocolatey fix notation.
-3. If the `nuspecVersion` is already using chocolatey fix notation, the version will be updated to fix notation for the current date.
-4. If the `nuspecVersion` is higher then the `RemoteVersion` update will happen but `RemoteVersion` will be used.
+1. If `NuspecVersion` is lower then `RemoteVersion`, Force is ignored and update happens as it would normally
+2. If `NuspecVersion` is the same as the `RemoteVersion`, the version will change to chocolatey fix notation.
+3. If the `NuspecVersion` is already using chocolatey fix notation, the version will be updated to fix notation for the current date.
+4. If the `NuspecVersion` is higher then the `RemoteVersion` update will happen but `RemoteVersion` will be used.
 
 Points 2-4 do not apply if you set the explicit version using the variable `au_Version`.
 
