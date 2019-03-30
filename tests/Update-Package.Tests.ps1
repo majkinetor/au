@@ -213,24 +213,24 @@ Describe 'Update-Package' -Tag update {
 
             It 'sets Force parameter from global variable au_Force if it is not bound' {
                 $global:au_Force = $true
-                $msg = "Parameter Force set from global variable au_Force: $au_Force"
+                $filter_msg = "Parameter Force set from global variable au_Force: $au_Force"
                 update -Verbose
-                Assert-MockCalled Write-Verbose -ParameterFilter { $Message -eq $msg }
+                Assert-MockCalled Write-Verbose -ParameterFilter { $Message -eq $filter_msg }
 
             }
 
             It "doesn't set Force parameter from global variable au_Force if it is bound" {
                 $global:au_Force = $true
-                $msg = "Parameter Force set from global variable au_Force: $au_Force"
+                $filter_msg = "Parameter Force set from global variable au_Force: $au_Force"
                 update -Verbose -Force:$false
-                Assert-MockCalled Write-Verbose -ParameterFilter { $Message -ne $msg }
+                Assert-MockCalled Write-Verbose -ParameterFilter { $Message -ne $filter_msg }
             }
 
             It 'sets Timeout parameter from global variable au_Timeout if it is not bound' {
                 $global:au_Timeout = 50
-                $msg = "Parameter Timeout set from global variable au_Timeout: $au_Timeout"
+                $filter_msg = "Parameter Timeout set from global variable au_Timeout: $au_Timeout"
                 update -Verbose
-                Assert-MockCalled Write-Verbose -ParameterFilter { $Message -eq $msg }
+                Assert-MockCalled Write-Verbose -ParameterFilter { $Message -eq $filter_msg }
             }
 
         }
