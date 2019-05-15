@@ -116,26 +116,31 @@ function Update-AUPackages {
             else {
                 Write-Verbose ($job.State + ' ' + $job.Name)
 
-                $pkg = $null
-                Receive-Job $job | set pkg
-                Remove-Job $job
-
-                $ignored = $pkg -eq 'ignore'
-                if ( !$pkg -or $ignored ) {
-                    $pkg = [AUPackage]::new( (Get-AuPackages $($job.Name)) )
-
-                    if ($ignored) {
-                        $pkg.Result = @('ignored', '') + (gc "$tmp_dir\$($pkg.Name)" -ea 0)
-                        $pkg.Ignored = $true
-                        $pkg.IgnoreMessage = $pkg.Result[-1]
-                    } elseif ($job.State -eq 'Stopped') {
-                        $pkg.Error = "Job terminated due to the $($Options.UpdateTimeout)s UpdateTimeout"
-                    } else {
-                        $pkg.Error = 'Job returned no object, Vector smash ?'
-                    }
+                if ($job.ChildJobs[0].JobStateInfo.Reason.Message) {
+                    $pkg = [AUPackage]::new((Get-AuPackages $job.Name))
+                    $pkg.Error = $job.ChildJobs[0].JobStateInfo.Reason.Message
                 } else {
-                    $pkg = [AUPackage]::new($pkg)
+                    $pkg = $null
+                    Receive-Job $job | set pkg
+
+                    $ignored = $pkg -eq 'ignore'
+                    if ( !$pkg -or $ignored ) {
+                        $pkg = [AUPackage]::new( (Get-AuPackages $($job.Name)) )
+
+                        if ($ignored) {
+                            $pkg.Result = @('ignored', '') + (gc "$tmp_dir\$($pkg.Name)" -ea 0)
+                            $pkg.Ignored = $true
+                            $pkg.IgnoreMessage = $pkg.Result[-1]
+                        } elseif ($job.State -eq 'Stopped') {
+                            $pkg.Error = "Job terminated due to the $($Options.UpdateTimeout)s UpdateTimeout"
+                        } else {
+                            $pkg.Error = 'Job returned no object, Vector smash ?'
+                        }
+                    } else {
+                        $pkg = [AUPackage]::new($pkg)
+                    }
                 }
+                Remove-Job $job
 
                 $jobseconds = ($job.PSEndTime.TimeOfDay - $job.PSBeginTime.TimeOfDay).TotalSeconds
                 $message = "[$($p)/$($aup.length)] " + $pkg.Name + ' '
@@ -196,7 +201,7 @@ function Update-AUPackages {
                             break main
                         }
                         $type = if ($res) { $res.GetType() }
-                        if ( "$type" -eq 'AUPackage') { $res.Error = $_ } else { return $_ }
+                        if ( "$type" -eq 'AUPackage') { $res.Error = $_ } else { throw }
                     }
                 }
                 $res
