@@ -4,8 +4,8 @@
 
 - `Get-RemoteChecksum`: New parameter `Headers`
 - Plugins:
-  - New plugin: [Gitter](PLUGINS.md#Gitter)
-  - New plugin: [Snippet]PLUGINS.md#Snippet)
+  - New plugin: Gitter
+  - New plugin: Snippet
 
 ### Bugfixes
   
