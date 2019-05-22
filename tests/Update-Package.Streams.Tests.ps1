@@ -312,6 +312,25 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 { update } | Should Throw "returned nothing"
             }
 
+            It 'supports returning "ignore"' {
+                function global:au_GetLatest { 'ignore' }
+                $res = update
+                $res | Should BeExactly 'ignore'
+            }
+
+            It 'supports returning "ignore" on specific streams' {
+                function global:au_GetLatest { @{ Streams = [ordered] @{
+                    '1.4' = @{ Version = '1.4.0' }
+                    '1.3' = 'ignore'
+                    '1.2' = @{ Version = '1.2.4' }
+                } } }
+                $res = update
+                $res.Streams.Count | Should Be 2
+                $res.Streams.Keys | Should Contain '1.4'
+                $res.Streams.Keys | Should Not Contain '1.3'
+                $res.Streams.Keys | Should Contain '1.2'
+            }
+
             It "supports properties defined outside streams" {
                 get_latest -Version 1.4.0
                 function au_BeforeUpdate { $global:Latest.Fake | Should Be 1 }

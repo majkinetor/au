@@ -32,6 +32,17 @@ Describe 'Update-AUPackages using streams' -Tag updateallstreams {
     }
 
     Context 'Plugins' {
+        It 'should ignore the package that returns "ignore"' {
+            gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
+            $content -replace 'update', "Write-Host 'test ignore'; 'ignore'" | set content
+            $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
+
+            $res = updateall -Options $Options -NoPlugins:$false 6>$null
+
+            $res[0].Ignored | Should Be $true
+            $res[0].IgnoreMessage | Should Be 'test ignore'
+        }
+
         It 'should execute text Report plugin' {
             gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
             $content -replace '@\{.+1\.3.+\}', "@{ Version = '1.3.2' }" | set content
