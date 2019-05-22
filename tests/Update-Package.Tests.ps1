@@ -287,6 +287,12 @@ Describe 'Update-Package' -Tag update {
                 update
             }
 
+            It 'supports returning "ignore"' {
+                function global:au_GetLatest { 'ignore' }
+                $res = update
+                $res | Should BeExactly 'ignore'
+            }
+
             It 'supports returning custom values' {
                 function global:au_GetLatest { @{ Version = '1.2'; NewValue = 1 } }
                 update
