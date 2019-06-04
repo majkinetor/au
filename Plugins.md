@@ -1,5 +1,10 @@
 # Plugins
 
+
+[Gist](#gist)   [Git](#git)   [GitReleases](#gitreleases)   [Gitter](#gitter)   [History](#history)   [Mail](#mail)  [Report](#report)   [RunInfo](#runinfo)   [Snippet](#snippet)
+
+---
+
 [AU plugins](https://github.com/majkinetor/au/blob/master/AU/Plugins) are [configured](https://github.com/majkinetor/au#plugins) using parameters passed in the HashTable contained in the Options under the key that is named by the plugin. So,`$Options.xyz=@{...}` is a plugin if `xyz.ps1` exists in a directory pointed to by the `PluginPath` updateall option. The AU will then run this script and pass it `$Options.xyz` HashTable as plugin specific options. AU comes with several integrated plugins that are described bellow.
 
 Default [update_all.ps1](https://github.com/majkinetor/au-packages-template/blob/master/update_all.ps1) uses environment variables to configure some options. If you use [AppVeyor](https://github.com/majkinetor/au/wiki/AppVeyor) set those variables in the [.appveyor.yml](https://github.com/majkinetor/au-packages-template/blob/master/.appveyor.yml) and to run it locally use [update_vars.ps1](https://github.com/majkinetor/au-packages-template/blob/master/update_vars_default.ps1).
