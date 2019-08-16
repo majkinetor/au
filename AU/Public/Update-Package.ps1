@@ -223,7 +223,7 @@ function Update-Package {
         $script:is_forced = $false
         if ([AUVersion] $Latest.Version -gt [AUVersion] $Latest.NuspecVersion) {
             if (!($NoCheckChocoVersion -or $Force)) {
-                if ( !$au_GalleryUrl ) { $au_GalleryUrl = 'https://chocolatey.org' } 
+                if ( !$Env:au_GalleryUrl ) { $Env:au_GalleryUrl = 'https://chocolatey.org' } 
                 $choco_url = "$au_GalleryUrl/packages/{0}/{1}" -f $global:Latest.PackageName, $package.RemoteVersion
                 try {
                     request $choco_url $Timeout | out-null
