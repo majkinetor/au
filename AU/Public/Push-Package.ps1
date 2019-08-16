@@ -26,7 +26,7 @@ function Push-Package() {
     if ( $push_force ) {
         if ( $SecureSource | select-string "The specified source `'$($push_url)`' is not secure." ) {
             Write-Output "Source is insecure. Will use -Force"
-            $ForceParam = '-Force'
+            $ForceParam = '--Force'
         } else {
             Clear-Variable -Name ForceParam
         }
