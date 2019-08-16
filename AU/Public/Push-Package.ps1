@@ -20,12 +20,26 @@ function Push-Package() {
     $push_url =  if ($Env:au_PushUrl) { $Env:au_PushUrl }
                  else { 'https://push.chocolatey.org' }
 
+    $push_force =  if ($Env:au_PushForce) { $true } else { $false }
+
+    $SecureSource = cpush --source $push_url
+    if ( $push_force ) {
+        if ( $SecureSource | select-string "The specified source `'$($push_url)`' is not secure." ) {
+            Write-Output "Source is insecure. Will use -Force"
+            $ForceParam = '--Force'
+        } else {
+            Clear-Variable -Name ForceParam
+        }
+    } else {
+        Clear-Variable -Name ForceParam
+    }
+
     $packages = ls *.nupkg | sort -Property CreationTime -Descending
     if (!$All) { $packages = $packages | select -First 1 }
     if (!$packages) { throw 'There is no nupkg file in the directory'}
     if ($api_key) {
-        $packages | % { cpush $_.Name --api-key $api_key --source $push_url }
+        $packages | % { cpush $_.Name --api-key $api_key --source $push_url $ForceParam }
     } else {
-        $packages | % { cpush $_.Name --source $push_url }
+        $packages | % { cpush $_.Name --source $push_url $ForceParam }
     }
 }
