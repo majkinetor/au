@@ -14,15 +14,20 @@ function Push-Package() {
         [switch] $All
     )
     $api_key =  if (Test-Path api_key) { gc api_key }
-                elseif (Test-Path ..\api_key) { gc ..\api_key }
-                elseif ($Env:api_key) { $Env:api_key }
+    elseif (Test-Path ..\api_key) { gc ..\api_key }
+    elseif ($Env:api_key) { $Env:api_key }
 
     $push_url =  if ($Env:au_PushUrl) { $Env:au_PushUrl }
                  else { 'https://push.chocolatey.org' }
 
-    $push_force =  if ($Env:au_PushForce) { $true } else { $false }
+    $push_force =  if ($Env:au_PushForce -eq 'true') { $true } else { $false }
 
-    $SecureSource = cpush --source $push_url
+    $SecureSource =  if ($api_key) {
+        $packages | % { cpush --api-key $api_key --source $push_url }
+    } else {
+        $packages | % { cpush --source $push_url }
+    }
+    
     if ( $push_force ) {
         if ( $SecureSource | select-string "The specified source `'$($push_url)`' is not secure." ) {
             Write-Output "Source is insecure. Will use -Force"
