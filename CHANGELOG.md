@@ -1,5 +1,10 @@
 # AU Project Changelog
 
+## NEXT
+
+- Plugins:
+   - New plugin: Gitlab
+
 ## 2019.5.22
 
 - `Get-RemoteChecksum`: New parameter `Headers`
