@@ -27,6 +27,15 @@ To set up plugin to create gist under your user name you need to give it your gi
 * To use it locally, just ensure `git push` doesn't require credentials and dont set any environment variables. 
 * To use on build server such as [[AppVeyor]], specify `$Env:username` and `$Env:password`. If you host git repository on Github its preferable to use personal access token. You can use the same token as with gist as long as _**public repo**_ scope is activated.
 
+## [GitLab](https://github.com/majkinetor/au/blob/master/AU/Plugins/GitLab.ps1)
+
+**Persist modified files**.
+
+* Same functionality as Git plugin, but tailored to HTTP(S) API-key pushes against a GitLab server.
+* To use on build server such as [[AppVeyor]], specify `$Env:gitlab_user`, `$Env:gitlab_apikey`, and `$Env:gitlab_pushurl`.
+* `pushurl` must be a full HTTP(S) URL to the repo; the same one you would use to clone it. Internal plugin logic will use this to reconstruct a compatible URL.
+
+
 ## [GitReleases](https://github.com/majkinetor/au/blob/master/AU/Plugins/GitReleases.ps1)
 
 **Creates Github release for updated packages**.
