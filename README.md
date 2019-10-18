@@ -345,7 +345,7 @@ In order to help working with versions, function `Get-Version` can be called in 
 
 **NOTES**: 
 - By default only the first updated stream is pushed per run of `updateall`. In order to push all of them add among its options `PushAll = $true`.
-- To force the update of the single stream using `IncludeStream` parameter. To do so on via commit message use `[AU package\stream]` syntax.
+- To force the update of the single stream, use `IncludeStream` parameter. To do so via commit message, use `[AU package\stream]` syntax.
 
 ```powershell
 PS> Get-Version 'v1.3.2.7rc1'
