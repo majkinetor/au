@@ -2,6 +2,7 @@
 
 ## NEXT
 
+- `Get-RemoteFiles` now considers `$Latest.Options.Headers`
 - Plugins:
    - New plugin: Gitlab
 

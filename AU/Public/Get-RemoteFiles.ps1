@@ -63,6 +63,10 @@ function Get-RemoteFiles {
 
     try {
         $client = New-Object System.Net.WebClient
+        
+        if ($Latest.Options.Headers) {
+            $Latest.Options.Headers.GetEnumerator() | % { $client.Headers.Add($_.Key, $_.Value) | Out-Null }
+        }
 
         if ($Latest.Url32) {
             $base_name = name4url $Latest.Url32
