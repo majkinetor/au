@@ -107,7 +107,7 @@ function Update-Package {
         "URL check" | result
         $Latest.Keys | ? {$_ -like 'url*' } | % {
             $url = $Latest[ $_ ]
-            if ($res = check_url $url -Options $Latest.Options) { throw "${res}:$url" } else { "  $url" | result }
+            if ($res = check_url $url -Options $Latest.Options) { throw "${res}: '$url' ($_)" } else { "  $url" | result }
         }
     }
 
