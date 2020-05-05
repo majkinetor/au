@@ -21,11 +21,11 @@ Describe 'Update-AUPackages using streams' -Tag updateallstreams {
             $nu = nuspec_file
             $nu.package.metadata.id = $name
             rm "$path\*.nuspec"
-            $nu.OuterXml | sc "$path\$name.nuspec"
+            $nu.OuterXml | Set-Content "$path\$name.nuspec"
             mv "$path\test_package_with_streams.json" "$path\$name.json"
 
             $module_path = Resolve-Path $PSScriptRoot\..\AU
-            "import-module '$module_path' -Force", (gc $path\update.ps1 -ea ignore) | sc $path\update.ps1
+            "import-module '$module_path' -Force", (gc $path\update.ps1 -ea ignore) | Set-Content $path\update.ps1
         }
 
         $Options = [ordered]@{}
@@ -35,7 +35,7 @@ Describe 'Update-AUPackages using streams' -Tag updateallstreams {
         It 'should ignore the package that returns "ignore"' {
             gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
             $content -replace 'update', "Write-Host 'test ignore'; 'ignore'" | set content
-            $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
+            $content | Set-Content $global:au_Root\test_package_with_streams_1\update.ps1
 
             $res = updateall -Options $Options -NoPlugins:$false 6>$null
 
@@ -47,7 +47,7 @@ Describe 'Update-AUPackages using streams' -Tag updateallstreams {
             gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
             $content -replace '@\{.+1\.3.+\}', "@{ Version = '1.3.2' }" | set content
             $content -replace '@\{.+1\.2.+\}', "@{ Version = '1.2.4' }" | set content
-            $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
+            $content | Set-Content $global:au_Root\test_package_with_streams_1\update.ps1
 
             $Options.Report = @{
                 Type = 'text'
@@ -96,7 +96,7 @@ Describe 'Update-AUPackages using streams' -Tag updateallstreams {
             gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
             $content -replace '@\{.+1\.3.+\}', "@{ Version = '1.3.2' }" | set content
             $content -replace '@\{.+1\.2.+\}', "@{ Version = '1.2.4' }" | set content
-            $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
+            $content | Set-Content $global:au_Root\test_package_with_streams_1\update.ps1
 
             $Options.Report = @{
                 Type = 'markdown'
@@ -146,7 +146,7 @@ Describe 'Update-AUPackages using streams' -Tag updateallstreams {
             gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
             $content -replace '@\{.+1\.3.+\}', "@{ Version = '1.3.2' }" | set content
             $content -replace '@\{.+1\.2.+\}', "@{ Version = '1.2.4' }" | set content
-            $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
+            $content | Set-Content $global:au_Root\test_package_with_streams_1\update.ps1
     
             $Options.GitReleases = @{
                 ApiToken    = 'apiToken'
@@ -179,7 +179,7 @@ Describe 'Update-AUPackages using streams' -Tag updateallstreams {
         gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
         $content -replace '@\{.+1\.3.+\}', "@{ Version = '1.3.2'; ChecksumType32 = 'sha256'; Checksum32 = '$choco_hash'}" | set content
         $content -replace 'update', "update -ChecksumFor 32" | set content
-        $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
+        $content | Set-Content $global:au_Root\test_package_with_streams_1\update.ps1
 
         $res = updateall -Options $Options 6> $null
         $res.Count | Should Be $pkg_no
@@ -189,7 +189,7 @@ Describe 'Update-AUPackages using streams' -Tag updateallstreams {
     It 'should limit update time' {
         gc $global:au_Root\test_package_with_streams_1\update.ps1 | set content
         $content -replace 'update', "sleep 10; update" | set content
-        $content | sc $global:au_Root\test_package_with_streams_1\update.ps1
+        $content | Set-Content $global:au_Root\test_package_with_streams_1\update.ps1
         $Options.UpdateTimeout = 5
 
         $res = updateall -Options $Options 3>$null 6> $null

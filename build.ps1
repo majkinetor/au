@@ -79,7 +79,7 @@ function create_help() {
 
     $help_dir = "$module_path/en-US"
     mkdir -Force $help_dir | Out-Null
-    gc $PSScriptRoot/README.md | select -Skip 4 | sc "$help_dir/about_${module_name}.help.txt" -Encoding ascii
+    gc $PSScriptRoot/README.md | select -Skip 4 | Set-Content "$help_dir/about_${module_name}.help.txt" -Encoding ascii
 }
 
 function create_manifest() {
