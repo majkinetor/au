@@ -18,12 +18,16 @@ param(
     [switch] $Clean,
 
     # Do not build chocolatey package
-    [switch] $NoChocoPackage
+    [switch] $NoChocoPackage,
+    
+    # Date from last commit
+    [switch] $LastCommitDate
 )
 
 $b = {
     if ($Clean) { git clean -Xfd -e vars.ps1; return }
     if ($ShortVersion) { $Version = [string] $Version = [Version](Get-Date).ToUniversalTime().ToString("yyyy.M.d") }
+    if ($LastCommitDate) { $Version = [string] $Version = [Version]$(git log -1 --date=short)[3].split(' ')[-1].replace("-",".") }
 
     $module_path    = "$PSScriptRoot/AU"
     $module_name    = Split-Path -Leaf $module_path
