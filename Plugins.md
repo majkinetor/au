@@ -1,7 +1,7 @@
 # Plugins
 
 
-[Gist](#gist)   [Git](#git)   [GitReleases](#gitreleases)   [Gitter](#gitter)   [History](#history)   [Mail](#mail)  [Report](#report)   [RunInfo](#runinfo)   [Snippet](#snippet)
+[Gist](#gist)   [Git](#git)   [GitLab](#gitlab)   [GitReleases](#gitreleases)   [Gitter](#gitter)   [History](#history)   [Mail](#mail)  [Report](#report)   [RunInfo](#runinfo)   [Snippet](#snippet)
 
 ---
 
