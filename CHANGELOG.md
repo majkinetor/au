@@ -3,8 +3,11 @@
 ## NEXT
 
 - `Get-RemoteFiles` now considers `$Latest.Options.Headers`
+- TLS settings updated ([#216](https://github.com/majkinetor/au/pull/216))
+- Set the AU version to the last commit date ([#217](https://github.com/majkinetor/au/pull/217))
 - Plugins:
-   - New plugin: Gitlab
+   - New plugin: Gitlab ([#195](https://github.com/majkinetor/au/pull/195))
+- Improved Powershell 7 compatibility ([#208](https://github.com/majkinetor/au/issues/208))
 
 ## 2019.5.22
 
