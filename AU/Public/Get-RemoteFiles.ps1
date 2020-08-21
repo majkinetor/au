@@ -61,14 +61,17 @@ function Get-RemoteFiles {
         rm -Force "$toolsPath\*.$ext" -ea ignore
     }
 
-    try {
-        $client = New-Object System.Net.WebClient
-        
+    function headers($client) {
         if ($Latest.Options.Headers) {
             $Latest.Options.Headers.GetEnumerator() | % { $client.Headers.Add($_.Key, $_.Value) | Out-Null }
         }
+    }
 
+    try {
+        $client = New-Object System.Net.WebClient
+        
         if ($Latest.Url32) {
+            headers($client)
             $base_name = name4url $Latest.Url32
             $file_name = "{0}{2}.{1}" -f $base_name, $ext, $(if ($NoSuffix) { '' } else {'_x32'})
             $file_path = "$toolsPath\$file_name"
@@ -81,6 +84,7 @@ function Get-RemoteFiles {
         }
 
         if ($Latest.Url64) {
+            headers($client)
             $base_name = name4url $Latest.Url64
             $file_name = "{0}{2}.{1}" -f $base_name, $ext, $(if ($NoSuffix) { '' } else {'_x64'})
             $file_path = "$toolsPath\$file_name"
