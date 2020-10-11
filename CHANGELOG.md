@@ -7,7 +7,7 @@
 - Set the AU version to the last commit date ([#217](https://github.com/majkinetor/au/pull/217))
 - Plugins:
    - New plugin: Gitlab ([#195](https://github.com/majkinetor/au/pull/195))
-   - Gist plugin: option for secret gist and Enterprise API
+   - Gist: option for secret gist and Enterprise API
 - Improved Powershell 7 compatibility ([#208](https://github.com/majkinetor/au/issues/208))
 
 ## 2019.5.22
