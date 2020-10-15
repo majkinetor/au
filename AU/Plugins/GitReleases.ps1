@@ -106,7 +106,7 @@ elseif (!$releaseHeader) {
 }
 
 if ($releaseType -eq 'date' -and !$releaseDescription) {
-    $releaseDescription = 'We had packages that was updated on <date>'
+    $releaseDescription = 'We had packages that were updated on <date>'
 }
 elseif (!$releaseDescription) {
     $releaseDescription = '<PackageName> was updated from version <NuspecVersion> to <RemoteVersion>'
