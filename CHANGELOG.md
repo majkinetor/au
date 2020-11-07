@@ -5,6 +5,7 @@
 - `Get-RemoteFiles` now considers `$Latest.Options.Headers`
 - TLS settings updated ([#216](https://github.com/majkinetor/au/pull/216))
 - Set the AU version to the last commit date ([#217](https://github.com/majkinetor/au/pull/217))
+- Support ChocolateyPackageFolder environment variable ([#255](https://github.com/majkinetor/au/pull/255))
 - Plugins:
    - New plugin: Gitlab ([#195](https://github.com/majkinetor/au/pull/195))
    - Gist: option for secret gist and Enterprise API
