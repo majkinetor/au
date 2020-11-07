@@ -121,7 +121,8 @@ function Update-Package {
             if ($ChecksumFor -eq 'none') { "Automatic checksum calculation is disabled"; return }
             if ($ChecksumFor -eq 'all')  { $arch = '32','64' } else { $arch = $ChecksumFor }
 
-            $pkg_path = [System.IO.Path]::GetFullPath("$Env:TEMP\chocolatey\$($package.Name)\" + $global:Latest.Version) #https://github.com/majkinetor/au/issues/32
+            $Env:ChocolateyPackageFolder = [System.IO.Path]::GetFullPath("$Env:TEMP\chocolatey\$($package.Name)") #https://github.com/majkinetor/au/issues/32
+            $pkg_path = Join-Path $Env:ChocolateyPackageFolder $global:Latest.Version
             mkdir -Force $pkg_path | Out-Null
 
             $Env:ChocolateyPackageName         = "chocolatey\$($package.Name)"
