@@ -10,6 +10,7 @@
    - New plugin: Gitlab ([#195](https://github.com/majkinetor/au/pull/195))
    - Gist: option for secret gist and Enterprise API
 - Improved Powershell 7 compatibility ([#208](https://github.com/majkinetor/au/issues/208))
+- Added a `Branch` parameter to GitReleases ([#227](https://github.com/majkinetor/au/issues/227))
 
 ## 2019.5.22
 
