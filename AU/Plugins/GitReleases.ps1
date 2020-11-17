@@ -25,7 +25,10 @@ param(
     [string]$dateFormat = '{0:yyyy-MM-dd}',
 
     # Force creating a release when a package have been updated and not just been pushed.
-    [switch]$Force
+    [switch]$Force,
+
+    # The name of the branch, to create the release at
+    [string]$Branch = 'master'
 )
 
 function GetOrCreateRelease() {
@@ -48,7 +51,7 @@ function GetOrCreateRelease() {
 
     $json = @{
         "tag_name"         = $tagName
-        "target_commitish" = "master"
+        "target_commitish" = $Branch
         "name"             = $releaseName
         "body"             = $releaseDescription
         "draft"            = $false
