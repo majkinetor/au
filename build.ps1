@@ -27,7 +27,7 @@ param(
 $b = {
     if ($Clean) { git clean -Xfd -e vars.ps1; return }
     if ($ShortVersion) { $Version = [string] $Version = [Version](Get-Date).ToUniversalTime().ToString("yyyy.M.d") }
-    if ($LastCommitDate) { $Version = [string] $Version = [Version]$((git log -1 --date=short) | Where-Object { $_ -match "date"}).split(' ')[-1].replace("-",".") }
+    if ($LastCommitDate) { $Version = [string] $Version = [Version]$(((git log -1 --date=short) | Where-Object { $_ -match "date:"}) | Select-Object -First 1).split(' ')[-1].replace("-",".") }
 
     $module_path    = "$PSScriptRoot/AU"
     $module_name    = Split-Path -Leaf $module_path
