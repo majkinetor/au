@@ -64,5 +64,7 @@ if ($ApiKey) {
 $Response = Invoke-WebRequest @params
 if ($Response.StatusCode -in @(200, 201, 304)) {
     $JsonResponse = $Response.Content | ConvertFrom-Json
-    Write-Output $JsonResponse.html_url
+    $GistURL = $JsonResponse.html_url
+    $Revision = $JsonResponse.history[0].version
+    Write-Output "$GistURL/$Revision"
 }
