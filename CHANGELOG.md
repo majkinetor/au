@@ -2,6 +2,8 @@
 
 ## NEXT
 
+- TLS settings updated ([#216](https://github.com/majkinetor/au/pull/233))
+
 ## 2020.11.21
 
 - `Get-RemoteFiles` now considers `$Latest.Options.Headers`
