@@ -383,7 +383,12 @@ function Update-Package {
     $global:Latest = @{PackageName = $package.Name}
 
     # https://github.com/majkinetor/au/issues/206
-    [System.Net.ServicePointManager]::SecurityProtocol = 'Tls,Tls11,Tls12,Tls13' #https://github.com/chocolatey/chocolatey-coreteampackages/issues/366
+
+    $AvailableTls = [enum]::GetValues('Net.SecurityProtocolType') # This way we do not try to add something that is not supported on every version of Windows like Tls13
+    #$AvailableTls = [enum]::GetValues('Net.SecurityProtocolType') | Where-Object { $_ -ge 'Tls' } If we want to enforce a minimum version
+    $AvailableTls.ForEach({[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor $_})
+    
+
     
     $module = $MyInvocation.MyCommand.ScriptBlock.Module
     "{0} - checking updates using {1} version {2}" -f $package.Name, $module.Name, $module.Version | result
