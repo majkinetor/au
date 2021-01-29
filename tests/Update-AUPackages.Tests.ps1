@@ -4,26 +4,26 @@ import-module $PSScriptRoot\..\AU
 Describe 'Update-AUPackages' -Tag updateall {
     $saved_pwd = $pwd
 
-    function global:nuspec_file() { [xml](gc $PSScriptRoot/test_package/test_package.nuspec) }
+    function global:nuspec_file() { [xml](Get-Content $PSScriptRoot/test_package/test_package.nuspec) }
     $pkg_no = 3
 
     BeforeEach {
         $global:au_Root      = "TestDrive:\packages"
         $global:au_NoPlugins = $true
 
-        rm -Recurse $global:au_root -ea ignore
+        Remove-Item -Recurse $global:au_root -ea ignore
         foreach ( $i in 1..$pkg_no ) {
             $name = "test_package_$i"
             $path = "$au_root\$name"
 
-            cp -Recurse -Force $PSScriptRoot\test_package $path
+            Copy-Item -Recurse -Force $PSScriptRoot\test_package $path
             $nu = nuspec_file
             $nu.package.metadata.id = $name
-            rm "$au_root\$name\*.nuspec"
+            Remove-Item "$au_root\$name\*.nuspec"
             $nu.OuterXml | Set-Content "$path\$name.nuspec"
 
             $module_path = Resolve-Path $PSScriptRoot\..\AU
-            "import-module '$module_path' -Force", (gc $path\update.ps1 -ea ignore) | Set-Content $path\update.ps1
+            "import-module '$module_path' -Force", (Get-Content $path\update.ps1 -ea ignore) | Set-Content $path\update.ps1
         }
 
         $Options = [ordered]@{}
@@ -77,8 +77,8 @@ Describe 'Update-AUPackages' -Tag updateall {
 
 
         It 'should ignore the package that returns "ignore"' {
-            gc $global:au_Root\test_package_1\update.ps1 | set content
-            $content -replace 'update', "Write-Host 'test ignore'; 'ignore'" | set content
+            Get-Content $global:au_Root\test_package_1\update.ps1 | Set-Variable content
+            $content -replace 'update', "Write-Host 'test ignore'; 'ignore'" | Set-Variable content
             $content | Set-Content $global:au_Root\test_package_1\update.ps1
 
             $res = updateall -Options $Options -NoPlugins:$false 6>$null
@@ -88,8 +88,8 @@ Describe 'Update-AUPackages' -Tag updateall {
         }
 
         It 'should repeat and ignore on specific error' {
-            gc $global:au_Root\test_package_1\update.ps1 | set content
-            $content -replace 'update', "1|Out-File -Append $TestDrive\tmp_test; throw 'test ignore'; update" | set content
+            Get-Content $global:au_Root\test_package_1\update.ps1 | Set-Variable content
+            $content -replace 'update', "1|Out-File -Append $TestDrive\tmp_test; throw 'test ignore'; update" | Set-Variable content
             $content | Set-Content $global:au_Root\test_package_1\update.ps1
 
             $Options.RepeatOn = @('test ignore')
@@ -101,12 +101,12 @@ Describe 'Update-AUPackages' -Tag updateall {
             $res[0].Ignored | Should Be $true
             $res[0].IgnoreMessage | Should BeLike 'AU ignored on*test ignore'
 
-            (gc $TestDrive\tmp_test).Count | Should be 3
+            (Get-Content $TestDrive\tmp_test).Count | Should be 3
         }
 
         It 'should execute text Report plugin' {
-            gc $global:au_Root\test_package_1\update.ps1 | set content
-            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | set content
+            Get-Content $global:au_Root\test_package_1\update.ps1 | Set-Variable content
+            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | Set-Variable content
             $content | Set-Content $global:au_Root\test_package_1\update.ps1
 
             $Options.Report = @{
@@ -139,8 +139,8 @@ Describe 'Update-AUPackages' -Tag updateall {
         }
 
         It 'should execute markdown Report plugin' {
-            gc $global:au_Root\test_package_1\update.ps1 | set content
-            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | set content
+            Get-Content $global:au_Root\test_package_1\update.ps1 | Set-Variable content
+            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | Set-Variable content
             $content | Set-Content $global:au_Root\test_package_1\update.ps1
 
             $Options.Report = @{
@@ -206,8 +206,8 @@ Describe 'Update-AUPackages' -Tag updateall {
         }
 
         It 'should execute GitReleases plugin per package when there are updates' {
-            gc $global:au_Root\test_package_1\update.ps1 | set content
-            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | set content
+            Get-Content $global:au_Root\test_package_1\update.ps1 | Set-Variable content
+            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | Set-Variable content
             $content | Set-Content $global:au_Root\test_package_1\update.ps1
             
             $Options.GitReleases = @{
@@ -234,8 +234,8 @@ Describe 'Update-AUPackages' -Tag updateall {
         }
 
         It 'should execute GitReleases plugin per date when there are updates' {
-            gc $global:au_Root\test_package_1\update.ps1 | set content
-            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | set content
+            Get-Content $global:au_Root\test_package_1\update.ps1 | Set-Variable content
+            $content -replace '@\{.+\}', "@{ Version = '1.3' }" | Set-Variable content
             $content | Set-Content $global:au_Root\test_package_1\update.ps1
             
             $Options.GitReleases = @{
@@ -256,11 +256,11 @@ Describe 'Update-AUPackages' -Tag updateall {
 
     It 'should update package with checksum verification mode' {
 
-        $choco_path = gcm choco.exe | % Source
-        $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | % Hash
-        gc $global:au_Root\test_package_1\update.ps1 | set content
-        $content -replace '@\{.+\}', "@{ Version = '1.3'; ChecksumType32 = 'sha256'; Checksum32 = '$choco_hash'}" | set content
-        $content -replace 'update', "update -ChecksumFor 32" | set content
+        $choco_path = Get-Command choco.exe | ForEach-Object Source
+        $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | ForEach-Object Hash
+        Get-Content $global:au_Root\test_package_1\update.ps1 | Set-Variable content
+        $content -replace '@\{.+\}', "@{ Version = '1.3'; ChecksumType32 = 'sha256'; Checksum32 = '$choco_hash'}" | Set-Variable content
+        $content -replace 'update', "update -ChecksumFor 32" | Set-Variable content
         $content | Set-Content $global:au_Root\test_package_1\update.ps1
 
         $res = updateall -Options $Options 6> $null
@@ -269,8 +269,8 @@ Describe 'Update-AUPackages' -Tag updateall {
     }
 
     It 'should limit update time' {
-        gc $global:au_Root\test_package_1\update.ps1 | set content
-        $content -replace 'update', "sleep 10; update" | set content
+        Get-Content $global:au_Root\test_package_1\update.ps1 | Set-Variable content
+        $content -replace 'update', "sleep 10; update" | Set-Variable content
         $content | Set-Content $global:au_Root\test_package_1\update.ps1
         $Options.UpdateTimeout = 5
 
@@ -283,19 +283,19 @@ Describe 'Update-AUPackages' -Tag updateall {
 
         $res = updateall -Options $Options 6> $null
 
-        lsau | measure | % Count | Should Be $pkg_no
+        lsau | Measure-Object | ForEach-Object Count | Should Be $pkg_no
         $res.Count | Should Be $pkg_no
         ($res.Result -match 'update is forced').Count | Should Be $pkg_no
-        ($res | ? Updated).Count | Should Be $pkg_no
+        ($res | Where-Object Updated).Count | Should Be $pkg_no
     }
 
     It 'should update no packages when none is newer' {
         $res = updateall 6> $null
 
-        lsau | measure | % Count | Should Be $pkg_no
+        lsau | Measure-Object | ForEach-Object Count | Should Be $pkg_no
         $res.Count | Should Be $pkg_no
         ($res.Result -match 'No new version found').Count | Should Be $pkg_no
-        ($res | ? Updated).Count | Should Be 0
+        ($res | Where-Object Updated).Count | Should Be 0
     }
 
     $saved_pwd = $pwd

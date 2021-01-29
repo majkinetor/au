@@ -27,7 +27,7 @@ Write-Host "Saving history to $Path"
 
 $res=[System.Collections.Specialized.OrderedDictionary]@{}
 $log = git --no-pager log -q --grep '^AU: ' --date iso | Out-String
-$all_commits = $log | sls 'commit(.|\n)+?(?=\ncommit )' -AllMatches
+$all_commits = $log | Select-String 'commit(.|\n)+?(?=\ncommit )' -AllMatches
 foreach ($commit in $all_commits.Matches.Value) {
     $commit = $commit -split '\n'
 
@@ -37,7 +37,7 @@ foreach ($commit in $all_commits.Matches.Value) {
     $report   = $commit[5].Replace('[skip ci]','').Trim()
     [array] $packages = ($commit[4] -replace '^\s+AU:.+?(-|:) |\[skip ci\]').Trim().ToLower()
 
-    $packages_md = $packages -split ' ' | % {
+    $packages_md = $packages -split ' ' | ForEach-Object {
         $first = $_.Substring(0,1).ToUpper(); $rest  = $_.Substring(1)
         if ($report) {
             "[$first]($report)[$rest](https://github.com/$Github_UserRepo/commit/$id)"
@@ -50,7 +50,7 @@ foreach ($commit in $all_commits.Matches.Value) {
     $res.$date += $packages_md
 }
 
-$res = $res.Keys | select -First $Lines | % { $r=[System.Collections.Specialized.OrderedDictionary]@{} } { $r[$_] = $res[$_] } {$r}
+$res = $res.Keys | Select-Object -First $Lines | ForEach-Object { $r=[System.Collections.Specialized.OrderedDictionary]@{} } { $r[$_] = $res[$_] } {$r}
 
 $history = @"
 # Update History

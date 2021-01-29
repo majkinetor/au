@@ -46,7 +46,7 @@ $($info.error_info | Out-String)
 "@
 }
 
-$Attachment | % { if ($_) { $msg.Attachments.Add($_)} }
+$Attachment | ForEach-Object { if ($_) { $msg.Attachments.Add($_)} }
 
 # Send mail message
 $smtp = new-object Net.Mail.SmtpClient($Server)

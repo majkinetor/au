@@ -45,7 +45,7 @@ if ($Artifacts.Count -eq 0)  { return }
 "`n==| Uploading files`n"
 foreach ($artifact in $Artifacts) {
     if (!$artifact -or !(Test-Path $artifact)) { throw "Artifact not found: $artifact" }
-    $name = gi $artifact | % Name
+    $name = Get-Item $artifact | ForEach-Object Name
 
     $params = @{
         Uri         = ($res.upload_url -replace '{.+}') + "?name=$name"

@@ -102,7 +102,7 @@ class AUVersion : System.IComparable {
     hidden [object[]] GetParts() {
         $result = @($this.Version)
         if ($this.Prerelease) {
-            $this.Prerelease -split '\.' | % {
+            $this.Prerelease -split '\.' | ForEach-Object {
                 # if identifier is exclusively numeric, cast it to an int
                 if ($_ -match '^[0-9]+$') {
                     $result += [int] $_

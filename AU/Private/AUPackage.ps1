@@ -21,7 +21,7 @@ class AUPackage {
         $this.Name = Split-Path -Leaf $Path
 
         $this.NuspecPath = '{0}\{1}.nuspec' -f $this.Path, $this.Name
-        if (!(gi $this.NuspecPath -ea ignore)) { throw 'No nuspec file found in the package directory' }
+        if (!(Get-Item $this.NuspecPath -ea ignore)) { throw 'No nuspec file found in the package directory' }
 
         $this.NuspecXml     = [AUPackage]::LoadNuspecFile( $this.NuspecPath )
         $this.NuspecVersion = $this.NuspecXml.package.metadata.version
@@ -55,7 +55,7 @@ class AUPackage {
         if (!(Test-Path $streamsPath)) { return $null }
         $res = [System.Collections.Specialized.OrderedDictionary] @{}
         $versions = Get-Content $streamsPath | ConvertFrom-Json
-        $versions.psobject.Properties | % {
+        $versions.psobject.Properties | ForEach-Object {
             $stream = $_.Name
             $res.Add($stream, @{ NuspecVersion = $versions.$stream })
         }
@@ -69,7 +69,7 @@ class AUPackage {
         if (!$this.Streams.Contains($s)) { $this.Streams.$s = @{} }
         if ($this.Streams.$s -ne 'ignore') { $this.Streams.$s.NuspecVersion = $v }
         $versions = [System.Collections.Specialized.OrderedDictionary] @{}
-        $this.Streams.Keys | % {
+        $this.Streams.Keys | ForEach-Object {
             $versions.Add($_, $this.Streams.$_.NuspecVersion)
         }
         $versions | ConvertTo-Json | Set-Content $this.StreamsPath -Encoding UTF8
@@ -78,28 +78,28 @@ class AUPackage {
     Backup()  { 
         $d = "$Env:TEMP\au\" + $this.Name
 
-        rm $d\* -Recurse -ea 0
-        cp . $d\_backup -Recurse 
+        Remove-Item $d\* -Recurse -ea 0
+        Copy-Item . $d\_backup -Recurse 
     }
 
     [string] SaveAndRestore() { 
         $d = "$Env:TEMP\au\" + $this.Name
 
-        cp . $d\_output -Recurse 
-        rm .\* -Recurse
-        cp $d\_backup\* . -Recurse 
+        Copy-Item . $d\_output -Recurse 
+        Remove-Item .\* -Recurse
+        Copy-Item $d\_backup\* . -Recurse 
         
         return "$d\_output"
     }
 
     AUPackage( [hashtable] $obj ) {
         if (!$obj) { throw 'Obj can not be empty' }
-        $obj.Keys | ? { $_ -ne 'Streams' } | % {
+        $obj.Keys | Where-Object { $_ -ne 'Streams' } | ForEach-Object {
             $this.$_ = $obj.$_
         }
         if ($obj.Streams) {
             $this.Streams = [System.Collections.Specialized.OrderedDictionary] @{}
-            $obj.Streams.psobject.Properties | % {
+            $obj.Streams.psobject.Properties | ForEach-Object {
                 $this.Streams.Add($_.Name, $_.Value)
             }
         }
@@ -107,7 +107,7 @@ class AUPackage {
 
     [hashtable] Serialize() {
         $res = @{}
-        $this | Get-Member -Type Properties | ? { $_.Name -ne 'Streams' } | % {
+        $this | Get-Member -Type Properties | Where-Object { $_.Name -ne 'Streams' } | ForEach-Object {
             $property = $_.Name
             $res.Add($property, $this.$property)
         }

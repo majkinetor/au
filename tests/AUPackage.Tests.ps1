@@ -46,10 +46,10 @@ Describe 'AUPackage' -Tag aupackage {
             $package = [AUPackage]::new($expected)
             $actual = $package.Serialize()
 
-            $expected.Keys | ? { $_ -ne 'Streams' } | % {
+            $expected.Keys | Where-Object { $_ -ne 'Streams' } | ForEach-Object {
                 $actual.$_ | Should Be $expected.$_
             }
-            $expected.Streams.psobject.Properties | % {
+            $expected.Streams.psobject.Properties | ForEach-Object {
                 $actual.Streams.$_ | Should Be $expected.Streams.$_
             }
         }
