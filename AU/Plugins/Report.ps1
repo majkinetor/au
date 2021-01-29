@@ -24,7 +24,7 @@ param(
 
 Write-Host "Saving $Type report: $Path"
 
-$Type = "$PSScriptRoot\Report\$Type.ps1"
+$Type = ([System.IO.Path]::Combine($PSScriptRoot, 'Report', "$Type.ps1"))
 if (!(Test-Path $Type )) { throw "Report type not found: '$Type" }
 
 $result = & $Type

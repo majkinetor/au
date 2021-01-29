@@ -250,7 +250,7 @@ function Update-Package {
         if ($WhatIf) { $package.Backup() }
         try {
             if (Test-Path Function:\au_BeforeUpdate) { 'Running au_BeforeUpdate' | result; au_BeforeUpdate $package | result }
-            if (!$NoReadme -and (Test-Path "$($package.Path)\README.md")) { Set-DescriptionFromReadme $package -SkipFirst 2 | result }        
+            if (!$NoReadme -and (Test-Path (Join-Path $package.Path 'README.md'))) { Set-DescriptionFromReadme $package -SkipFirst 2 | result }        
             update_files
             if (Test-Path Function:\au_AfterUpdate) { 'Running au_AfterUpdate' | result; au_AfterUpdate $package | result }
         

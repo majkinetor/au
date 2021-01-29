@@ -14,7 +14,7 @@ function Push-Package() {
         [switch] $All
     )
     $api_key =  if (Test-Path api_key) { Get-Content api_key }
-                elseif (Test-Path ..\api_key) { Get-Content ..\api_key }
+                elseif (Test-Path (Join-Path '..' 'api_key')) { Get-Content (Join-Path '..' 'api_key') }
                 elseif ($Env:api_key) { $Env:api_key }
 
     $push_url =  if ($Env:au_PushUrl) { $Env:au_PushUrl }

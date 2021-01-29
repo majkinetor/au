@@ -1,4 +1,4 @@
-. $PSScriptRoot\markdown_funcs.ps1
+. (Join-Path $PSScriptRoot 'markdown_funcs.ps1')
 
 $Github_UserRepo = $Params.Github_UserRepo
 $UserMessage     = $Params.UserMessage

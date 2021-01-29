@@ -88,8 +88,8 @@ function Update-AUPackages {
 
     Remove-Job * -force #remove any previously run jobs
 
-    $tmp_dir = "$ENV:Temp\chocolatey\au"
-    New-Item -Type Directory -ea 0 $tmp_dir | Out-Null
+    $tmp_dir = ([System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "chocolatey", "au"))
+    New-Item -Type Directory  -ea 0 $tmp_dir | Out-Null
     Get-ChildItem $tmp_dir | Where-Object PSIsContainer -eq $false | Remove-Item   #clear tmp dir files
 
     $aup = Get-AUPackages $Name
@@ -128,7 +128,7 @@ function Update-AUPackages {
                         $pkg = [AUPackage]::new( (Get-AuPackages $($job.Name)) )
 
                         if ($ignored) {
-                            $pkg.Result = @('ignored', '') + (Get-Content "$tmp_dir\$($pkg.Name)" -ea 0)
+                            $pkg.Result = @('ignored', '') + (Get-Content ([System.IO.Path]::Combine($tmp_dir, $pkg.Name)) -ea 0)
                             $pkg.Ignored = $true
                             $pkg.IgnoreMessage = $pkg.Result[-1]
                         } elseif ($job.State -eq 'Stopped') {
@@ -210,7 +210,7 @@ function Update-AUPackages {
             $Options = $using:Options
 
             Set-Location $using:package_path
-            $out = "$using:tmp_dir\$using:package_name"
+            $out = (Join-Path $using:tmp_dir $using:package_name)
 
             $global:au_Timeout = $Options.Timeout
             $global:au_Force   = $Options.Force
@@ -269,8 +269,8 @@ function Update-AUPackages {
 function run_plugins() {
     if ($NoPlugins) { return }
 
-    Remove-Item -Force -Recurse $tmp_dir\plugins -ea ig
-    New-Item -Type Directory -Force $tmp_dir\plugins | Out-Null
+    Remove-Item -Force -Recurse (Join-Path $tmp_dir 'plugins') -ea ig
+    New-Item -Type Directory -Force (Join-Path $tmp_dir 'plugins') | Out-Null
     foreach ($key in $Options.Keys) {
         $params = $Options.$key
         if ($params -isnot [HashTable]) { continue }
@@ -285,8 +285,8 @@ function run_plugins() {
 
         try {
             Write-Host "`nRunning $key"
-            & $plugin_path $Info @params *>&1 | Tee-Object $tmp_dir\plugins\$key | Write-Host
-            $info.plugin_results.$key += Get-Content $tmp_dir\plugins\$key -ea ig
+            & $plugin_path $Info @params *>&1 | Tee-Object ([System.IO.Path]::Combine($tmp_dir, 'plugins', $key)) | Write-Host
+            $info.plugin_results.$key += Get-Content ([System.IO.Path]::Combine($tmp_dir, 'plugins', $key)) -ea ig
         } catch {
             $err_lines = $_.ToString() -split "`n"
             Write-Host "  ERROR: " $(foreach ($line in $err_lines) { "`n" + ' '*4 + $line })
