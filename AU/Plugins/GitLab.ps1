@@ -35,7 +35,7 @@ if ($packages.Length -eq 0) { Write-Host "No package updated, skipping"; return 
 
 $root = Split-Path $packages[0].Path
 
-pushd $root
+Push-Location $root
 $origin  = git config --get remote.origin.url
 $origin -match '(?<=:/+)[^/]+' | Out-Null
 $machine = $Matches[0]
@@ -66,15 +66,15 @@ git pull -q origin $Branch
 
 ### Commit
 if  ($commitStrategy -like 'atomic*') {
-    $packages | % {
+    $packages | ForEach-Object {
         Write-Host "Adding update package to git repository: $($_.Name)"
         git add -u $_.Path
         git status
 
         Write-Host "Commiting $($_.Name)"
         $message = "AU: $($_.Name) upgraded from $($_.NuspecVersion) to $($_.RemoteVersion)"
-        $gist_url = $Info.plugin_results.Gist -split '\n' | select -Last 1
-        $snippet_url = $Info.plugin_results.Snippet -split '\n' | select -Last 1
+        $gist_url = $Info.plugin_results.Gist -split '\n' | Select-Object -Last 1
+        $snippet_url = $Info.plugin_results.Snippet -split '\n' | Select-Object -Last 1
         git commit -m "$message`n[skip ci] $gist_url $snippet_url" --allow-empty
 
         if ($commitStrategy -eq 'atomictag') {
@@ -85,13 +85,13 @@ if  ($commitStrategy -like 'atomic*') {
 }
 else {
     Write-Host "Adding updated packages to git repository: $( $packages | % Name)"
-    $packages | % { git add -u $_.Path }
+    $packages | ForEach-Object { git add -u $_.Path }
     git status
 
     Write-Host "Commiting"
     $message = "AU: $($packages.Length) updated - $($packages | % Name)"
-    $gist_url = $Info.plugin_results.Gist -split '\n' | select -Last 1
-    $snippet_url = $Info.plugin_results.Snippet -split '\n' | select -Last 1
+    $gist_url = $Info.plugin_results.Gist -split '\n' | Select-Object -Last 1
+    $snippet_url = $Info.plugin_results.Snippet -split '\n' | Select-Object -Last 1
     git commit -m "$message`n[skip ci] $gist_url $snippet_url" --allow-empty
 
 }
@@ -103,6 +103,6 @@ if ($commitStrategy -eq 'atomictag') {
     write-host 'Atomic Tag Push'
     git push -q --tags
 }
-popd
+Pop-Location
 
 git remote set-url origin $origin

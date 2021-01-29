@@ -5,20 +5,20 @@ Describe 'Update-Package' -Tag update {
     $saved_pwd = $pwd
 
     function global:get_latest($Version='1.3', $URL='test') {
-        "function global:au_GetLatest { @{Version = '$Version'; URL = '$URL'} }" | iex
+        "function global:au_GetLatest { @{Version = '$Version'; URL = '$URL'} }" | Invoke-Expression
     }
 
     function global:seach_replace() {
-        "function global:au_SearchReplace { @{} }" | iex
+        "function global:au_SearchReplace { @{} }" | Invoke-Expression
     }
 
-    function global:nuspec_file() { [xml](gc TestDrive:\test_package\test_package.nuspec) }
+    function global:nuspec_file() { [xml](Get-Content TestDrive:\test_package\test_package.nuspec) }
 
     BeforeEach {
-        cd $TestDrive
-        rm -Recurse -Force TestDrive:\test_package -ea ignore
-        cp -Recurse -Force $PSScriptRoot\test_package TestDrive:\test_package
-        cd $TestDrive\test_package
+        Set-Location $TestDrive
+        Remove-Item -Recurse -Force TestDrive:\test_package -ea ignore
+        Copy-Item -Recurse -Force $PSScriptRoot\test_package TestDrive:\test_package
+        Set-Location $TestDrive\test_package
 
         $global:au_Timeout             = 100
         $global:au_Force               = $false
@@ -29,8 +29,8 @@ Describe 'Update-Package' -Tag update {
         $global:au_WhatIf              = $false
         $global:au_NoReadme            = $false
 
-        rv -Scope global Latest -ea ignore
-        'BeforeUpdate', 'AfterUpdate' | % { rm "Function:/au_$_" -ea ignore }
+        Remove-Variable -Scope global Latest -ea ignore
+        'BeforeUpdate', 'AfterUpdate' | ForEach-Object { Remove-Item "Function:/au_$_" -ea ignore }
         get_latest
         seach_replace
     }
@@ -79,8 +79,8 @@ Describe 'Update-Package' -Tag update {
             }
 
             It 'automatically verifies the checksum' {
-                $choco_path = gcm choco.exe | % Source
-                $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | % Hash
+                $choco_path = Get-Command choco.exe | ForEach-Object Source
+                $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | ForEach-Object Hash
 
                 function global:au_GetLatest {
                     @{ PackageName = 'test'; Version = '1.3'; URL32=$choco_path; Checksum32 = $choco_hash }
@@ -243,7 +243,7 @@ Describe 'Update-Package' -Tag update {
             }
 
             It "throws if it can't find the nuspec file in the current directory" {
-                cd TestDrive:\
+                Set-Location TestDrive:\
                 { update } | Should Throw 'No nuspec file'
             }
 
@@ -261,7 +261,7 @@ Describe 'Update-Package' -Tag update {
         Context 'au_GetLatest' {
 
             It 'throws if au_GetLatest is not defined' {
-                rm Function:/au_GetLatest
+                Remove-Item Function:/au_GetLatest
                 { update } | Should Throw "'au_GetLatest' is not recognized"
             }
 
@@ -351,6 +351,6 @@ Describe 'Update-Package' -Tag update {
             }
         }
     }
-    cd $saved_pwd
+    Set-Location $saved_pwd
 }
 

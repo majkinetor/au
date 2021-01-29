@@ -16,18 +16,18 @@ param(
 $ErrorActionPreference = 'STOP'
 $git_url = 'https://github.com/majkinetor/au.git'
 
-if (!(gcm git -ea 0)) { throw 'Git must be installed' }
+if (!(Get-Command git -ea 0)) { throw 'Git must be installed' }
 [version]$git_version = (git --version) -replace 'git|version|\.windows'
 if ($git_version -lt [version]2.5) { throw 'Git version must be higher then 2.5' }
 
 $is_latest = [string]::IsNullOrWhiteSpace($Version)
 $is_branch = !($is_latest -or [version]::TryParse($Version, [ref]($_)))
 
-pushd $PSScriptRoot\..
+Push-Location $PSScriptRoot\..
 
-if ($is_latest) { $Version = (git tag | % { [version]$_ } | sort -desc | select -first 1).ToString() }
+if ($is_latest) { $Version = (git tag | ForEach-Object { [version]$_ } | Sort-Object -desc | Select-Object -first 1).ToString() }
 if ($is_branch) {
-    $branches = git branch -r -q | % { $_.Replace('origin/','').Trim() }
+    $branches = git branch -r -q | ForEach-Object { $_.Replace('origin/','').Trim() }
     if ($branches -notcontains $Version) { throw "AU branch '$Version' doesn't exist" }
     if ($Version -ne 'master') { git fetch -q origin "${Version}:${Version}" }
 } else {
@@ -41,7 +41,7 @@ $params = @{ Install = $true; NoChocoPackage = $true}
 if (!$is_branch) { $params.Version = $Version }
 
 "Build parameters:"
-$params.GetEnumerator() | % { "  {0,-20} {1}" -f $_.Key, $_.Value }
+$params.GetEnumerator() | ForEach-Object { "  {0,-20} {1}" -f $_.Key, $_.Value }
 ./build.ps1 @params
 
-popd
+Pop-Location

@@ -4,7 +4,7 @@ function request( [string]$Url, [int]$Timeout, $Options ) {
     if ($Timeout)  { $request.Timeout = $Timeout*1000 }
  
     if ($Options.Headers) { 
-        $Options.Headers.Keys | % { 
+        $Options.Headers.Keys | ForEach-Object { 
             if ([System.Net.WebHeaderCollection]::IsRestricted($_)) {
                 $key = $_.Replace('-','')
                 $request.$key = $Options.Headers[$_]

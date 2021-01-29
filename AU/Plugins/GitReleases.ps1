@@ -41,7 +41,7 @@ function GetOrCreateRelease() {
 
     try {
         Write-Verbose "Checking for a release using the tag: $tagName..."
-        $response = Invoke-RestMethod -UseBasicParsing -Uri "https://api.github.com/repos/$repository/releases/tags/$tagName" -Headers $headers | ? tag_name -eq $tagName
+        $response = Invoke-RestMethod -UseBasicParsing -Uri "https://api.github.com/repos/$repository/releases/tags/$tagName" -Headers $headers | Where-Object tag_name -eq $tagName
         if ($response) {
             return $response
         }
@@ -68,9 +68,9 @@ if ($packages.Length -eq 0) { Write-Host "No package updated, skipping"; return 
 
 $packagesToRelease = New-Object 'System.Collections.Generic.List[hashtable]'
 
-$packages | % {
+$packages | ForEach-Object {
     if ($_.Streams) {
-        $_.Streams.Values | ? { $_.Updated } | % {
+        $_.Streams.Values | Where-Object { $_.Updated } | ForEach-Object {
             $packagesToRelease.Add(@{
                     Name          = $_.Name
                     NuspecVersion = $_.NuspecVersion
@@ -134,7 +134,7 @@ if ($releaseType -eq 'date') {
 $uploadHeaders = $headers.Clone()
 $uploadHeaders['Content-Type'] = 'application/zip'
 
-$packagesToRelease | % {
+$packagesToRelease | ForEach-Object {
     # Because we grab all streams previously, we need to ignore
     # cases when a stream haven't been updated (no nupkg file created)
     if (!$_.NuFile) { return }
@@ -153,7 +153,7 @@ $packagesToRelease | % {
 
     $fileName = [System.IO.Path]::GetFileName($_.NuFile)
 
-    $existing = $release.assets | ? name -eq $fileName
+    $existing = $release.assets | Where-Object name -eq $fileName
     if ($existing) {
         Write-Verbose "Removing existing $fileName asset..."
         Invoke-RestMethod -UseBasicParsing -Uri $existing.url -method Delete -Headers $headers | Out-Null

@@ -28,11 +28,11 @@ function Get-AUPackages( [string[]] $Name ) {
     $root = $global:au_root
     if (!$root) { $root = $pwd }
 
-    ls $root\*\update.ps1 | % {
-        $packageDir = gi (Split-Path $_)
+    Get-ChildItem $root\*\update.ps1 | ForEach-Object {
+        $packageDir = Get-Item (Split-Path $_)
 
         if ($Name -and $Name.Length -gt 0) {
-            $m = $Name | ? { $packageDir.Name -like $_ }
+            $m = $Name | Where-Object { $packageDir.Name -like $_ }
             if (!$m) { return }
         }
 

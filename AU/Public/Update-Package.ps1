@@ -105,7 +105,7 @@ function Update-Package {
 
     function check_urls() {
         "URL check" | result
-        $Latest.Keys | ? {$_ -like 'url*' } | % {
+        $Latest.Keys | Where-Object {$_ -like 'url*' } | ForEach-Object {
             $url = $Latest[ $_ ]
             if ($res = check_url $url -Options $Latest.Options) { throw "${res}:$url" } else { "  $url" | result }
         }
@@ -123,7 +123,7 @@ function Update-Package {
 
             $Env:ChocolateyPackageFolder = [System.IO.Path]::GetFullPath("$Env:TEMP\chocolatey\$($package.Name)") #https://github.com/majkinetor/au/issues/32
             $pkg_path = Join-Path $Env:ChocolateyPackageFolder $global:Latest.Version
-            mkdir -Force $pkg_path | Out-Null
+            New-Item -Type Directory -Force $pkg_path | Out-Null
 
             $Env:ChocolateyPackageName         = "chocolatey\$($package.Name)"
             $Env:ChocolateyPackageVersion      = $global:Latest.Version.ToString()
@@ -138,9 +138,9 @@ function Update-Package {
                         $filePath = "$_" -replace 'au_break: '
                         if (!(Test-Path $filePath)) { throw "Can't find file path to checksum" }
 
-                        $item = gi $filePath
+                        $item = Get-Item $filePath
                         $type = if ($global:Latest.ContainsKey('ChecksumType' + $a)) { $global:Latest.Item('ChecksumType' + $a) } else { 'sha256' }
-                        $hash = (Get-FileHash $item -Algorithm $type | % Hash).ToLowerInvariant()
+                        $hash = (Get-FileHash $item -Algorithm $type | ForEach-Object Hash).ToLowerInvariant()
 
                         if (!$global:Latest.ContainsKey('ChecksumType' + $a)) { $global:Latest.Add('ChecksumType' + $a, $type) }
                         if (!$global:Latest.ContainsKey('Checksum' + $a)) {
@@ -157,20 +157,20 @@ function Update-Package {
         }
 
         function fix_choco {
-            Sleep -Milliseconds (Get-Random 500) #reduce probability multiple updateall threads entering here at the same time (#29)
+            Start-Sleep -Milliseconds (Get-Random 500) #reduce probability multiple updateall threads entering here at the same time (#29)
 
             # Copy choco modules once a day
             if (Test-Path $choco_tmp_path) {
-                $ct = gi $choco_tmp_path | % creationtime
-                if (((get-date) - $ct).Days -gt 1) { rm -recurse -force $choco_tmp_path } else { Write-Verbose 'Chocolatey copy is recent, aborting monkey patching'; return }
+                $ct = Get-Item $choco_tmp_path | ForEach-Object creationtime
+                if (((get-date) - $ct).Days -gt 1) { Remove-Item -recurse -force $choco_tmp_path } else { Write-Verbose 'Chocolatey copy is recent, aborting monkey patching'; return }
             }
 
             Write-Verbose "Monkey patching chocolatey in: '$choco_tmp_path'"
-            cp -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
-            if (Test-Path $Env:ChocolateyInstall\extensions) { cp -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions }
+            Copy-Item -recurse -force $Env:ChocolateyInstall\helpers $choco_tmp_path\helpers
+            if (Test-Path $Env:ChocolateyInstall\extensions) { Copy-Item -recurse -force $Env:ChocolateyInstall\extensions $choco_tmp_path\extensions }
 
             $fun_path = "$choco_tmp_path\helpers\functions\Get-ChocolateyWebFile.ps1"
-            (gc $fun_path) -replace '^\s+return \$fileFullPath\s*$', '  throw "au_break: $fileFullPath"' | Set-Content $fun_path -ea ignore
+            (Get-Content $fun_path) -replace '^\s+return \$fileFullPath\s*$', '  throw "au_break: $fileFullPath"' | Set-Content $fun_path -ea ignore
         }
 
         "Automatic checksum started" | result
@@ -242,7 +242,7 @@ function Update-Package {
 
         'New version is available' | result
 
-        $match_url = ($Latest.Keys | ? { $_ -match '^URL*' } | select -First 1 | % { $Latest[$_] } | split-Path -Leaf) -match '(?<=\.)[^.]+$'
+        $match_url = ($Latest.Keys | Where-Object { $_ -match '^URL*' } | Select-Object -First 1 | ForEach-Object { $Latest[$_] } | split-Path -Leaf) -match '(?<=\.)[^.]+$'
         if ($match_url -and !$Latest.FileType) { $Latest.FileType = $Matches[0] }
 
         if ($ChecksumFor -ne 'none') { get_checksum } else { 'Automatic checksum skipped' | result }
@@ -298,14 +298,14 @@ function Update-Package {
         $package.NuspecVersion = $latest.NuspecVersion
 
         $global:Latest = $global:au_Latest
-        $latest.Keys | % { $global:Latest.Remove($_) }
+        $latest.Keys | ForEach-Object { $global:Latest.Remove($_) }
         $global:Latest += $latest
     }
 
     function update_files( [switch]$SkipNuspecFile )
     {
         'Updating files' | result
-        '  $Latest data:' | result;  ($global:Latest.keys | sort | % { $v=$global:Latest[$_]; "    {0,-25} {1,-12} {2}" -f $_, "($( if ($v) { $v.GetType().Name } ))", $v }) | result
+        '  $Latest data:' | result;  ($global:Latest.keys | Sort-Object | ForEach-Object { $v=$global:Latest[$_]; "    {0,-25} {1,-12} {2}" -f $_, "($( if ($v) { $v.GetType().Name } ))", $v }) | result
 
         if (!$SkipNuspecFile) {
             "  $(Split-Path $package.NuspecPath -Leaf)" | result
@@ -331,14 +331,14 @@ function Update-Package {
         }
 
         $sr = au_SearchReplace
-        $sr.Keys | % {
+        $sr.Keys | ForEach-Object {
             $fileName = $_
             "  $fileName" | result
 
             # If not specifying UTF8 encoding, then UTF8 without BOM encoded files
             # is detected as ANSI
-            $fileContent = gc $fileName -Encoding UTF8
-            $sr[ $fileName ].GetEnumerator() | % {
+            $fileContent = Get-Content $fileName -Encoding UTF8
+            $sr[ $fileName ].GetEnumerator() | ForEach-Object {
                 ('    {0,-35} = {1}' -f $_.name, $_.value) | result
                 if (!($fileContent -match $_.name)) { throw "Search pattern not found: '$($_.name)'" }
                 $fileContent = $fileContent -replace $_.name, $_.value
@@ -347,14 +347,14 @@ function Update-Package {
             $useBomEncoding = if ($fileName.EndsWith('.ps1')) { $true } else { $false }
             $encoding = New-Object System.Text.UTF8Encoding($useBomEncoding)
             $output = $fileContent | Out-String
-            [System.IO.File]::WriteAllText((gi $fileName).FullName, $output, $encoding)
+            [System.IO.File]::WriteAllText((Get-Item $fileName).FullName, $output, $encoding)
         }
     }
 
     function result() {
         if ($global:Silent) { return }
 
-        $input | % {
+        $input | ForEach-Object {
             $package.Result += $_
             if (!$NoHostOutput) { Write-Host $_ }
         }
@@ -366,11 +366,11 @@ function Update-Package {
     } else { Write-Verbose 'Running inside the script' }
 
     # Assign parameters from global variables with the prefix `au_` if they are bound
-    (gcm $PSCmdlet.MyInvocation.InvocationName).Parameters.Keys | % {
+    (Get-Command $PSCmdlet.MyInvocation.InvocationName).Parameters.Keys | ForEach-Object {
         if ($PSBoundParameters.Keys -contains $_) { return }
-        $value = gv "au_$_" -Scope Global -ea Ignore | % Value
+        $value = Get-Variable "au_$_" -Scope Global -ea Ignore | ForEach-Object Value
         if ($value -ne $null) {
-            sv $_ $value
+            Set-Variable $_ $value
             Write-Verbose "Parameter $_ set from global variable au_${_}: $value"
         }
     }
@@ -378,7 +378,7 @@ function Update-Package {
     if ($WhatIf) {  Write-Warning "WhatIf passed - package files will not be changed" }
 
     $package = [AUPackage]::new( $pwd )
-    if ($Result) { sv -Scope Global -Name $Result -Value $package }
+    if ($Result) { Set-Variable -Scope Global -Name $Result -Value $package }
 
     $global:Latest = @{PackageName = $package.Name}
 
@@ -393,7 +393,7 @@ function Update-Package {
     $module = $MyInvocation.MyCommand.ScriptBlock.Module
     "{0} - checking updates using {1} version {2}" -f $package.Name, $module.Name, $module.Version | result
     try {
-        $res = au_GetLatest | select -Last 1
+        $res = au_GetLatest | Select-Object -Last 1
         $global:au_Latest = $global:Latest
         if ($res -eq $null) { throw 'au_GetLatest returned nothing' }
 
@@ -417,7 +417,7 @@ function Update-Package {
         # Streams are expected to be sorted starting with the most recent one
         $streams = @($res.Streams.Keys)
         # In case of HashTable (i.e. not sorted), let's sort streams alphabetically descending
-        if ($res.Streams -is [HashTable]) { $streams = $streams | sort -Descending }
+        if ($res.Streams -is [HashTable]) { $streams = $streams | Sort-Object -Descending }
 
         if ($IncludeStream) {
             if ($IncludeStream -isnot [string] -and $IncludeStream -isnot [double] -and $IncludeStream -isnot [Array]) {
@@ -426,24 +426,24 @@ function Update-Package {
             if ($IncludeStream -is [double]) { $IncludeStream = $IncludeStream -as [string] }
             if ($IncludeStream -is [string]) { 
                 # Forcing type in order to handle case when only one version is included
-                [Array] $IncludeStream = $IncludeStream -split ',' | % { $_.Trim() }
+                [Array] $IncludeStream = $IncludeStream -split ',' | ForEach-Object { $_.Trim() }
             }
         } elseif ($Force) {
             # When forcing update, a single stream is expected
             # By default, we take the first one (i.e. the most recent one)
-            $IncludeStream = @($streams | select -First 1)
+            $IncludeStream = @($streams | Select-Object -First 1)
         }
         if ($Force -and (!$IncludeStream -or $IncludeStream.Length -ne 1)) { throw 'A single stream must be included when forcing package update' }
 
-        if ($IncludeStream) { $streams = @($streams | ? { $_ -in $IncludeStream }) }
+        if ($IncludeStream) { $streams = @($streams | Where-Object { $_ -in $IncludeStream }) }
         # Let's reverse the order in order to process streams starting with the oldest one
         [Array]::Reverse($streams)
 
-        $res.Keys | ? { $_ -ne 'Streams' } | % { $global:au_Latest.Remove($_) }
+        $res.Keys | Where-Object { $_ -ne 'Streams' } | ForEach-Object { $global:au_Latest.Remove($_) }
         $global:au_Latest += $res
 
         $allStreams = [System.Collections.Specialized.OrderedDictionary] @{}
-        $streams | % {
+        $streams | ForEach-Object {
             $stream = $res.Streams[$_]
 
             '' | result
@@ -470,7 +470,7 @@ function Update-Package {
         }
         $package.Updated = $false
         $package.Streams = $allStreams
-        $package.Streams.Values | ? { $_.Updated } | % {
+        $package.Streams.Values | Where-Object { $_.Updated } | ForEach-Object {
             $package.NuspecVersion = $_.NuspecVersion
             $package.RemoteVersion = $_.RemoteVersion
             $package.Updated = $true

@@ -1,4 +1,4 @@
-# Author: Thomas Démoulins <tdemoulins@gmail.com>
+# Author: Thomas DÃ©moulins <tdemoulins@gmail.com>
 
 <#
 .SYNOPSIS
@@ -42,7 +42,7 @@ function Get-Version {
     )
     if ($Delimiter) {
         $delimiters = $Delimiter -join ''
-        @('\', ']', '^', '-') | % { $delimiters = $delimiters.Replace($_, "\$_") }
+        @('\', ']', '^', '-') | ForEach-Object { $delimiters = $delimiters.Replace($_, "\$_") }
         $regex = $Version | Select-String -Pattern "[$delimiters](\d+\.\d+[^$delimiters]*)[$delimiters]" -AllMatches
         foreach ($match in $regex.Matches) {
             $reference = [ref] $null

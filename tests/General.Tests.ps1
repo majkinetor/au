@@ -5,15 +5,15 @@ Describe 'General' {
     $saved_pwd = $pwd
 
     BeforeEach {
-        cd TestDrive:\
-        rm -Recurse -Force TestDrive:\test_package -ea ignore
-        cp -Recurse -Force $PSScriptRoot\test_package TestDrive:\test_package
+        Set-Location TestDrive:\
+        Remove-Item -Recurse -Force TestDrive:\test_package -ea ignore
+        Copy-Item -Recurse -Force $PSScriptRoot\test_package TestDrive:\test_package
     }
 
     It 'considers au_root global variable when looking for packages' {
         $path = 'TestDrive:\packages\test_package2'
-        mkdir $path -Force
-        cp -Recurse -Force $PSScriptRoot\test_package\* $path
+        New-Item -Type Directory $path -Force
+        Copy-Item -Recurse -Force $PSScriptRoot\test_package\* $path
 
         $global:au_root = Split-Path $path
         $res = lsau
@@ -22,5 +22,5 @@ Describe 'General' {
         $res[0].Name | Should Be 'test_package2'
     }
 
-    cd $saved_pwd
+    Set-Location $saved_pwd
 }

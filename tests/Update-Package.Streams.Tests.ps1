@@ -21,28 +21,28 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             $streams.Add($stream, $s)
         }
         $command = "function global:au_GetLatest { @{ Fake = 1; Streams = [ordered] @{`n"
-        foreach ($item in ($streams.Keys| sort { ConvertTo-AUVersion $_ } -Descending)) {
+        foreach ($item in ($streams.Keys| Sort-Object { ConvertTo-AUVersion $_ } -Descending)) {
             $command += "'$item' = @{Version = '$($streams.$item.Version)'; URL32 = '$($streams.$item.URL32)'"
             if ($streams.$item.Checksum32) { $command += "; Checksum32 = '$($streams.$item.Checksum32)'" }
             $command += "}`n"
         }
         $command += "} } }"
-        $command | iex
+        $command | Invoke-Expression
     }
 
     function global:seach_replace() {
-        "function global:au_SearchReplace { @{} }" | iex
+        "function global:au_SearchReplace { @{} }" | Invoke-Expression
     }
 
-    function global:nuspec_file() { [xml](gc TestDrive:\test_package_with_streams\test_package_with_streams.nuspec) }
+    function global:nuspec_file() { [xml](Get-Content TestDrive:\test_package_with_streams\test_package_with_streams.nuspec) }
 
-    function global:json_file() { (gc TestDrive:\test_package_with_streams\test_package_with_streams.json) | ConvertFrom-Json }
+    function global:json_file() { (Get-Content TestDrive:\test_package_with_streams\test_package_with_streams.json) | ConvertFrom-Json }
 
     BeforeEach {
-        cd $TestDrive
-        rm -Recurse -Force TestDrive:\test_package_with_streams -ea ignore
-        cp -Recurse -Force $PSScriptRoot\test_package_with_streams TestDrive:\test_package_with_streams
-        cd $TestDrive\test_package_with_streams
+        Set-Location $TestDrive
+        Remove-Item -Recurse -Force TestDrive:\test_package_with_streams -ea ignore
+        Copy-Item -Recurse -Force $PSScriptRoot\test_package_with_streams TestDrive:\test_package_with_streams
+        Set-Location $TestDrive\test_package_with_streams
 
         $global:au_Timeout             = 100
         $global:au_Force               = $false
@@ -54,8 +54,8 @@ Describe 'Update-Package using streams' -Tag updatestreams {
         $global:au_WhatIf              = $false
         $global:au_NoReadme            = $false
 
-        rv -Scope global Latest -ea ignore
-        'BeforeUpdate', 'AfterUpdate' | % { rm "Function:/au_$_" -ea ignore }
+        Remove-Variable -Scope global Latest -ea ignore
+        'BeforeUpdate', 'AfterUpdate' | ForEach-Object { Remove-Item "Function:/au_$_" -ea ignore }
         get_latest
         seach_replace
     }
@@ -142,8 +142,8 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             }
 
             It 'automatically verifies the checksum' {
-                $choco_path = gcm choco.exe | % Source
-                $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | % Hash
+                $choco_path = Get-Command choco.exe | ForEach-Object Source
+                $choco_hash = Get-FileHash $choco_path -Algorithm SHA256 | ForEach-Object Hash
 
                 get_latest -Version 1.2.4 -URL32 $choco_path -Checksum32 $choco_hash
 
@@ -270,7 +270,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
             }
 
             It "uses version 0.0 if it can't find the json file in the current directory" {
-                rm *.json
+                Remove-Item *.json
                 update *> $null
                 $global:Latest.NuspecVersion | Should Be '0.0'
             }
@@ -384,7 +384,7 @@ Describe 'Update-Package using streams' -Tag updatestreams {
                 function global:au_GetLatest { @{ Streams = $return_value } }
                 function checkLatest {
                     $return_latest = $return_value[$global:Latest.Stream]
-                    $return_latest.Keys | % {
+                    $return_latest.Keys | ForEach-Object {
                         $global:Latest[$_] | Should BeOfType $return_latest[$_].GetType()
                         $global:Latest[$_] | Should BeExactly $return_latest[$_]
                     }
@@ -396,5 +396,5 @@ Describe 'Update-Package using streams' -Tag updatestreams {
         }
     }
 
-    cd $saved_pwd
+    Set-Location $saved_pwd
 }

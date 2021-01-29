@@ -29,9 +29,9 @@ param(
 )
 
 # Create snippet
-ls $Path | % {
+Get-ChildItem $Path | ForEach-Object {
     $file_name = Split-Path $_ -Leaf
-    $content = gc $_ -Raw
+    $content = Get-Content $_ -Raw
     $snippet = '{"content": "' + $content + '"}'
     }
 

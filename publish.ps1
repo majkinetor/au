@@ -21,7 +21,7 @@ $p = {
 
 
     if (!(Test-Path $build_dir)) { throw "Build for that version doesn't exist" }
-    if (!(gcm git)) {throw "Git is not installed. Use Chocolatey to install it: cinst git" }
+    if (!(Get-Command git)) {throw "Git is not installed. Use Chocolatey to install it: cinst git" }
 
     if (Test-Path $PSScriptRoot/vars.ps1) { . $PSScriptRoot/vars.ps1 }
 
@@ -36,18 +36,18 @@ function git_tag() {
     if (!$Tag) { Write-Host "Creating git tag disabled"; return }
     Write-Host "Creating git tag for version $version"
 
-    pushd $PSScriptRoot
+    Push-Location $PSScriptRoot
     git status
     git tag $version
     git push --tags
-    popd
+    Pop-Location
 }
 
 
 function get_release_notes() {
     $changelog_path = Resolve-Path $PSScriptRoot\CHANGELOG.md
 
-    $clog = gc $changelog_path -Raw
+    $clog = Get-Content $changelog_path -Raw
     $res = $clog -match "(?<=## $version)(.|\n)+?(?=\n## )"
     if (!$res) { throw "Version $version header can't be found in the CHANGELOG.md" }
     $Matches[0]
@@ -93,7 +93,7 @@ function Publish-Chocolatey() {
 }
 
 function test-var() {
-     $input | % { if (!(Test-Path Env:$_)) {throw "Environment Variable $_ must be set"} }
+     $input | ForEach-Object { if (!(Test-Path Env:$_)) {throw "Environment Variable $_ must be set"} }
 }
 
 & $p
