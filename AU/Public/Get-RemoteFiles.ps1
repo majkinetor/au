@@ -58,7 +58,8 @@ function Get-RemoteFiles {
 
     if ($Purge) {
         Write-Host 'Purging' $ext
-        Remove-Item -Force "$toolsPath\*.$ext" -ea ignore
+        $purgePath = "$toolsPath{0}*.$ext" -f [IO.Path]::DirectorySeparatorChar
+        Remove-Item -Force $purgePath -ea ignore
     }
 
     function headers($client) {
@@ -74,7 +75,7 @@ function Get-RemoteFiles {
             headers($client)
             $base_name = name4url $Latest.Url32
             $file_name = "{0}{2}.{1}" -f $base_name, $ext, $(if ($NoSuffix) { '' } else {'_x32'})
-            $file_path = "$toolsPath\$file_name"
+            $file_path = Join-Path $toolsPath $file_name
 
             Write-Host "Downloading to $file_name -" $Latest.Url32
             $client.DownloadFile($Latest.URL32, $file_path)
@@ -87,7 +88,7 @@ function Get-RemoteFiles {
             headers($client)
             $base_name = name4url $Latest.Url64
             $file_name = "{0}{2}.{1}" -f $base_name, $ext, $(if ($NoSuffix) { '' } else {'_x64'})
-            $file_path = "$toolsPath\$file_name"
+            $file_path = Join-Path $toolsPath $file_name
 
             Write-Host "Downloading to $file_name -" $Latest.Url64
             $client.DownloadFile($Latest.URL64, $file_path)

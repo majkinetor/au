@@ -28,7 +28,7 @@ function Get-AUPackages( [string[]] $Name ) {
     $root = $global:au_root
     if (!$root) { $root = $pwd }
 
-    Get-ChildItem $root\*\update.ps1 | ForEach-Object {
+    Get-ChildItem ([System.IO.Path]::Combine($root, '*', 'update.ps1')) | ForEach-Object {
         $packageDir = Get-Item (Split-Path $_)
 
         if ($Name -and $Name.Length -gt 0) {
