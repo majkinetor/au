@@ -2,6 +2,7 @@
 
 ## NEXT
 
+- Linux support ([#234](https://github.com/majkinetor/au/pull/234))
 - TLS settings updated ([#216](https://github.com/majkinetor/au/pull/233))
 
 ## 2020.11.21
