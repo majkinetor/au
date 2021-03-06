@@ -15,6 +15,9 @@ param(
     # Force git commit when package is updated but not pushed.
     [switch] $Force,
 
+    # Add the package to the repository if it was created during the update process.
+    [switch] $AddNew,
+
     # Commit strategy: 
     #  single    - 1 commit with all packages
     #  atomic    - 1 commit per package    
@@ -52,11 +55,16 @@ Write-Host "Executing git pull"
 git checkout -q $Branch
 git pull -q origin $Branch
 
+$gitAddArgs = @()
+if (-not $AddNew)
+{
+    $gitAddArgs += @('--update')
+}
 
 if  ($commitStrategy -like 'atomic*') {
     $packages | ForEach-Object {
         Write-Host "Adding update package to git repository: $($_.Name)"
-        git add -u $_.Path
+        git add @gitAddArgs $_.Path
         git status
 
         Write-Host "Commiting $($_.Name)"
@@ -73,7 +81,7 @@ if  ($commitStrategy -like 'atomic*') {
 }
 else {
     Write-Host "Adding updated packages to git repository: $( $packages | % Name)"
-    $packages | ForEach-Object { git add -u $_.Path }
+    $packages | ForEach-Object { git add @gitAddArgs $_.Path }
     git status
 
     Write-Host "Commiting"
