@@ -20,7 +20,12 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $module_name = 'AU'
-$module_dst  = "$Env:ProgramFiles\WindowsPowerShell\Modules"
+
+if ($PSVersionTable.PSEdition -ne "Core") {
+    $module_dst  = "$Env:ProgramFiles\WindowsPowerShell\Modules"
+} else {
+    $module_dst  = "$Env:ProgramFiles\PowerShell\Modules"
+}
 
 Remove-Item -Force -Recurse "$module_dst\$module_name" -ErrorAction ignore
 if ($Remove) { remove-module $module_name -ea ignore; Write-Host "Module $module_name removed"; return }
@@ -40,6 +45,8 @@ $module_path = Resolve-Path $module_path
 if (!(Test-Path $module_path)) { throw "Module path invalid: '$module_path'" }
 
 Write-Host "Module path: '$module_path'"
+
+New-Item -ItemType Directory "$module_dst/$module_name" -ErrorAction Ignore | Out-Null
 
 Copy-Item -Recurse -Force  $module_path $module_dst
 
