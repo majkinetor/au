@@ -51,8 +51,10 @@ if ($User -and $Password) {
     Add-Content "$env:USERPROFILE\.git-credentials" "https://${Password}:x-oauth-basic@$machine`n"
 }
 
+Write-Host "Checking out & resetting $Branch branch"
+git checkout -q -B $Branch
+
 Write-Host "Executing git pull"
-git checkout -q $Branch
 git pull -q origin $Branch
 
 $gitAddArgs = @()
@@ -92,7 +94,7 @@ else {
 
 }
 Write-Host "Pushing changes"
-git push -q
+git push -q origin $Branch
 if ($commitStrategy -eq 'atomictag') {
     write-host 'Atomic Tag Push'
     git push -q --tags
