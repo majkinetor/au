@@ -18,9 +18,9 @@ param(
     # Add the package to the repository if it was created during the update process.
     [switch] $AddNew,
 
-    # Commit strategy: 
+    # Commit strategy:
     #  single    - 1 commit with all packages
-    #  atomic    - 1 commit per package    
+    #  atomic    - 1 commit per package
     #  atomictag - 1 commit and tag per package
     [ValidateSet('single', 'atomic', 'atomictag')]
     [string]$commitStrategy = 'single',
@@ -92,7 +92,7 @@ else {
 
 }
 Write-Host "Pushing changes"
-git push -q 
+git push -q
 if ($commitStrategy -eq 'atomictag') {
     write-host 'Atomic Tag Push'
     git push -q --tags
