@@ -1,7 +1,7 @@
 # Plugins
 
 
-[Gist](#gist)   [Git](#git)   [GitLab](#gitlab)   [GitReleases](#gitreleases)   [Gitter](#gitter)   [History](#history)   [Mail](#mail)  [Report](#report)   [RunInfo](#runinfo)   [Snippet](#snippet)
+[Gist](#gist)   [Git](#git)   [GitLab](#gitlab)   [GitReleases](#gitreleases)   [Gitter](#gitter)   [History](#history)   [Mail](#mail)  [PullRequest](#pullrequest) [Report](#report)   [RunInfo](#runinfo)   [Snippet](#snippet)
 
 ---
 
@@ -73,6 +73,13 @@ This plugin requires Git plugin and that clone is done with adequate depth.
 
 * If you use Google mail for error notifications on a build server such as AppVeyor, Google may block authentication from unknown device. To receive those emails enable less secure apps - see [Allowing less secure apps to access your account](https://support.google.com/accounts/answer/6010255?hl=en). 
 * If you do not want to use your private email for this, create a new Google account and redirect its messages to your private one. This wont affect you if you run the scripts from your own machine from which you usually access the email.
+
+## [PullRequest](https://github.com/majkinetor/au/blob/master/AU/Plugins/PullRequest.ps1)
+
+**Create GitHub pull request for the updated packages**.
+
+The plugin will open a GitHub pull request for the commits created by the Git plugin, which of course needs to run first.
+It has options to add assignees and reviewers to the created pull request and, supports on-prem GitHub Enterprise Server.
 
 ## [Report](https://github.com/majkinetor/au/blob/master/AU/Plugins/Report.ps1)
 
