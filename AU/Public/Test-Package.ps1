@@ -48,16 +48,16 @@ function Test-Package {
 
     if (!$Install -and !$Uninstall) { $Install = $true }
 
-    if (!$Nu) { $dir = gi $pwd }
+    if (!$Nu) { $dir = Get-Item $pwd }
     else {
         if (!(Test-Path $Nu)) { throw "Path not found: $Nu" }
-        $Nu = gi $Nu
+        $Nu = Get-Item $Nu
         $dir = if ($Nu.PSIsContainer) { $Nu; $Nu = $null } else { $Nu.Directory }
     }
 
     if (!$Nu) {
-        $Nu = gi $dir/*.nupkg | sort -Property CreationTime -Descending | select -First 1
-        if (!$Nu) { $Nu = gi $dir/*.nuspec }
+        $Nu = Get-Item $dir/*.nupkg | Sort-Object -Property CreationTime -Descending | Select-Object -First 1
+        if (!$Nu) { $Nu = Get-Item $dir/*.nuspec }
         if (!$Nu) { throw "Can't find nupkg or nuspec file in the directory" }
     }
 
@@ -65,7 +65,7 @@ function Test-Package {
         Write-Host "Nuspec file given, running choco pack"
         choco pack -r $Nu.FullName --OutputDirectory $Nu.DirectoryName | Write-Host
         if ($LASTEXITCODE -ne 0) { throw "choco pack failed with $LastExitCode"}
-        $Nu = gi "$($Nu.DirectoryName)\*.nupkg" | sort -Property CreationTime -Descending | select -First 1
+        $Nu = Get-Item ([System.IO.Path]::Combine($Nu.DirectoryName, '*.nupkg')) | Sort-Object -Property CreationTime -Descending | Select-Object -First 1
     } elseif ($Nu.Extension -ne '.nupkg') { throw "File is not nupkg or nuspec file" }
 
     #At this point Nu is nupkg file
@@ -85,15 +85,15 @@ function Test-Package {
 
         if (!$VagrantNoClear)  {
             Write-Host 'Removing existing vagrant packages'
-            rm $Vagrant\packages\*.nupkg -ea ignore
-            rm $Vagrant\packages\*.xml   -ea ignore
+            Remove-Item ([System.IO.Path]::Combine($Vagrant, 'packages', '*.nupkg')) -ea ignore
+            Remove-Item ([System.IO.Path]::Combine($Vagrant, 'packages', '*.xml'))   -ea ignore
         }
 
-        cp $Nu $Vagrant\packages
+        Copy-Item $Nu (Join-Path $Vagrant 'packages')
         $options_file = "$package_name.$package_version.xml"
-        @{ Install = $Install; Uninstall = $Uninstall; Parameters = $Parameters } | Export-CliXML "$Vagrant\packages\$options_file"
+        @{ Install = $Install; Uninstall = $Uninstall; Parameters = $Parameters } | Export-CliXML ([System.IO.Path]::Combine($Vagrant, 'packages', $options_file))
         if ($VagrantOpen) {
-            start powershell -Verb Open -ArgumentList "-NoProfile -NoExit -Command `$Env:http_proxy=`$Env:https_proxy=`$Env:ftp_proxy=`$Env:no_proxy=''; cd $Vagrant; vagrant up"
+            Start-Process powershell -Verb Open -ArgumentList "-NoProfile -NoExit -Command `$Env:http_proxy=`$Env:https_proxy=`$Env:ftp_proxy=`$Env:no_proxy=''; cd $Vagrant; vagrant up"
         } else {
             powershell -NoProfile -Command "`$Env:http_proxy=`$Env:https_proxy=`$Env:ftp_proxy=`$Env:no_proxy=''; cd $Vagrant; vagrant up"
         }

@@ -17,10 +17,10 @@ function md_code($Text) {
 function md_table($result, $Columns, $MaxErrorLength=150) {
     if (!$Columns) { $Columns = 'Name', 'Updated', 'Pushed', 'RemoteVersion', 'NuspecVersion', 'Error' }
     $res = '|' + ($Columns -join '|') + "|`r`n"
-    $res += ((1..$Columns.Length | % { '|---' }) -join '') + "|`r`n"
+    $res += ((1..$Columns.Length | ForEach-Object { '|---' }) -join '') + "|`r`n"
 
-    $result | % {
-        $o = $_ | select `
+    $result | ForEach-Object {
+        $o = $_ | Select-Object `
                 @{ N='Icon'
                    E={'<img src="{0}" width="{1}" height="{1}"/>' -f $_.NuspecXml.package.metadata.iconUrl, $IconSize }
                 },
@@ -32,7 +32,7 @@ function md_table($result, $Columns, $MaxErrorLength=150) {
                         $r  = "[{0}](#{1})" -f $_.Updated, $_.Name.Replace('.','').ToLower()
                         $r += if ($_.Updated) { ' &#x1F538;' }
                         $r += if ($_.Streams) { ' &#x1F544;' }
-                        $r += if (ls $_.Path -Recurse -Include VERIFICATION.txt) { ' &#x1F4E5;' }
+                        $r += if (Get-ChildItem $_.Path -Recurse -Include VERIFICATION.txt) { ' &#x1F4E5;' }
                         $r
                     }
                 },
@@ -55,7 +55,7 @@ function md_table($result, $Columns, $MaxErrorLength=150) {
                 'Ignored',
                 'IgnoreMessage'
 
-        $res += ((1..$Columns.Length | % { $col = $Columns[$_-1]; '|' + $o.$col }) -join '') + "|`r`n"
+        $res += ((1..$Columns.Length | ForEach-Object { $col = $Columns[$_-1]; '|' + $o.$col }) -join '') + "|`r`n"
     }
 
     $res

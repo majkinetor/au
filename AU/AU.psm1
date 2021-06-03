@@ -2,5 +2,5 @@
 
 $paths = "Private", "Public"
 foreach ($path in $paths) {
-    Get-ChildItem $PSScriptRoot\$path\*.ps1 | ForEach-Object { . $_.FullName }
+    Get-ChildItem ([System.IO.Path]::Combine($PSScriptRoot, $path, '*.ps1')) | ForEach-Object { . $_.FullName }
 }

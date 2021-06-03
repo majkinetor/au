@@ -1,4 +1,4 @@
-. $PSScriptRoot\markdown_funcs.ps1
+. (Join-Path $PSScriptRoot 'markdown_funcs.ps1')
 
 $Github_UserRepo = $Params.Github_UserRepo
 $UserMessage     = $Params.UserMessage
@@ -10,13 +10,13 @@ $Title           = if ($Params.Title) { $Params.Title } else {  'Update-AUPackag
 #=======================================================================================
 
 $now             = $Info.startTime.ToUniversalTime().ToString('yyyy-MM-dd HH:mm')
-$au_version      = gmo au -ListAvailable | % Version | select -First 1 | % { "$_" }
+$au_version      = Get-Module au -ListAvailable | ForEach-Object Version | Select-Object -First 1 | ForEach-Object { "$_" }
 $package_no      = $Info.result.all.Length
 
 $update_all_url  = if ($Github_UserRepo) {"https://github.com/$Github_UserRepo/blob/master/update_all.ps1" } else { "https://github.com/majkinetor/au-packages-template/blob/master/update_all.ps1" }
 
-$icon_ok = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_ok.png'
-$icon_er = 'https://cdn.rawgit.com/majkinetor/au/master/AU/Plugins/Report/r_er.png'
+$icon_ok = 'https://cdn.jsdelivr.net/gh/majkinetor/au@master/AU/Plugins/Report/r_ok.png'
+$icon_er = 'https://cdn.jsdelivr.net/gh/majkinetor/au@master/AU/Plugins/Report/r_er.png'
 
 "# $Title"
 
@@ -55,8 +55,8 @@ if ($Info.pushed) {
 
 if ($Info.error_count.total) {
     md_title Errors
-    md_table $Info.result.errors -Columns ($columns + 'Error' | ? { ('Updated', 'Pushed') -notcontains $_ } )
-    $Info.result.errors | % {
+    md_table $Info.result.errors -Columns ($columns + 'Error' | Where-Object { ('Updated', 'Pushed') -notcontains $_ } )
+    $Info.result.errors | ForEach-Object {
         md_title $_.Name -Level 3
         md_code "$($_.Error)"
     }
@@ -70,7 +70,7 @@ if ($Info.result.ignored) {
 if ($Info.result.ok) {
     md_title OK
     md_table $Info.result.ok -Columns $columns
-    $Info.result.ok | % {
+    $Info.result.ok | ForEach-Object {
         md_title $_.Name -Level 3
         md_code $_.Result
     }

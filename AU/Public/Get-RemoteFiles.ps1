@@ -40,7 +40,7 @@ function Get-RemoteFiles {
 
     function name4url($url) {
         if ($FileNameBase) { return $FileNameBase }
-        $res = $url -split '/' | select -Last 1 -Skip $FileNameSkip
+        $res = $url -split '/' | Select-Object -Last 1 -Skip $FileNameSkip
         $res -replace '\.[^.]+$'
     }
 
@@ -50,7 +50,7 @@ function Get-RemoteFiles {
         if ($url -match '(?<=\.)[^.]+$') { return $Matches[0] }
     }
 
-    mkdir tools -ea 0 | Out-Null
+    New-Item -Type Directory tools -ea 0 | Out-Null
     $toolsPath = Resolve-Path tools
     
     $ext = ext
@@ -58,12 +58,13 @@ function Get-RemoteFiles {
 
     if ($Purge) {
         Write-Host 'Purging' $ext
-        rm -Force "$toolsPath\*.$ext" -ea ignore
+        $purgePath = "$toolsPath{0}*.$ext" -f [IO.Path]::DirectorySeparatorChar
+        Remove-Item -Force $purgePath -ea ignore
     }
 
     function headers($client) {
         if ($Latest.Options.Headers) {
-            $Latest.Options.Headers.GetEnumerator() | % { $client.Headers.Add($_.Key, $_.Value) | Out-Null }
+            $Latest.Options.Headers.GetEnumerator() | ForEach-Object { $client.Headers.Add($_.Key, $_.Value) | Out-Null }
         }
     }
 
@@ -74,11 +75,11 @@ function Get-RemoteFiles {
             headers($client)
             $base_name = name4url $Latest.Url32
             $file_name = "{0}{2}.{1}" -f $base_name, $ext, $(if ($NoSuffix) { '' } else {'_x32'})
-            $file_path = "$toolsPath\$file_name"
+            $file_path = Join-Path $toolsPath $file_name
 
             Write-Host "Downloading to $file_name -" $Latest.Url32
             $client.DownloadFile($Latest.URL32, $file_path)
-            $global:Latest.Checksum32 = Get-FileHash $file_path -Algorithm $Algorithm | % Hash
+            $global:Latest.Checksum32 = Get-FileHash $file_path -Algorithm $Algorithm | ForEach-Object Hash
             $global:Latest.ChecksumType32 = $Algorithm
             $global:Latest.FileName32 = $file_name
         }
@@ -87,11 +88,11 @@ function Get-RemoteFiles {
             headers($client)
             $base_name = name4url $Latest.Url64
             $file_name = "{0}{2}.{1}" -f $base_name, $ext, $(if ($NoSuffix) { '' } else {'_x64'})
-            $file_path = "$toolsPath\$file_name"
+            $file_path = Join-Path $toolsPath $file_name
 
             Write-Host "Downloading to $file_name -" $Latest.Url64
             $client.DownloadFile($Latest.URL64, $file_path)
-            $global:Latest.Checksum64 = Get-FileHash $file_path -Algorithm $Algorithm | % Hash
+            $global:Latest.Checksum64 = Get-FileHash $file_path -Algorithm $Algorithm | ForEach-Object Hash
             $global:Latest.ChecksumType64 = $Algorithm
             $global:Latest.FileName64 = $file_name
         }

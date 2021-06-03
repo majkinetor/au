@@ -26,7 +26,7 @@ if (!$WebHookUrl) { return } # If we don't have a webhookurl we can't push statu
 $updatedPackages   = @($Info.result.updated).Count
 $publishedPackages = @($Info.result.pushed).Count
 $failedPackages    = $Info.error_count.total
-$gistUrl           = $Info.plugin_results.Gist -split '\n' | select -Last 1
+$gistUrl           = $Info.plugin_results.Gist -split '\n' | Select-Object -Last 1
 $packageCount      = $Info.result.all.Length
 
 $gitterMessage     = ($MessageFormat -f $packageCount, $updatedPackages, $publishedPackages, $failedPackages, $gistUrl)

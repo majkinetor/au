@@ -10,12 +10,12 @@ param(
 $module_name = Split-Path -Leaf $ModulePath
 
 Write-Verbose "Getting public module functions"
-$functions = ls $ModulePath\Public\*.ps1 | % { $_.Name -replace '\.ps1$' }
+$functions = Get-ChildItem $ModulePath\Public\*.ps1 | ForEach-Object { $_.Name -replace '\.ps1$' }
 if ($functions.Count -eq 0) { throw 'No public functions to export' }
 
 Write-Verbose "Getting public module aliases"
 try { import-module $ModulePath -force } catch { throw $_ }
-$aliases = Get-Alias | ? { $_.Source -eq $module_name -and ($functions -contains $_.Definition) }
+$aliases = Get-Alias | Where-Object { $_.Source -eq $module_name -and ($functions -contains $_.Definition) }
 
 Write-Verbose "Generating module manifest"
 $params = @{

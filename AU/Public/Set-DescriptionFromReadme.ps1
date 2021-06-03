@@ -25,9 +25,9 @@ function Set-DescriptionFromReadme{
 
     "Setting package description from $ReadmePath"
 
-    $description = gc $ReadmePath -Encoding UTF8
+    $description = Get-Content $ReadmePath -Encoding UTF8
     $endIdx = $description.Length - $SkipLast
-    $description = $description | select -Index ($SkipFirst..$endIdx) | Out-String
+    $description = $description | Select-Object -Index ($SkipFirst..$endIdx) | Out-String
 
     $cdata = $Package.NuspecXml.CreateCDataSection($description)
     $xml_Description = $Package.NuspecXml.GetElementsByTagName('description')[0]
