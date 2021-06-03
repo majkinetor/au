@@ -6,6 +6,9 @@
 - TLS settings updated ([#216](https://github.com/majkinetor/au/pull/233))
 - Plugins:
   - `Git`: Added `AddNew` parameter to allow adding new packages, created by the AU script ([#239](https://github.com/majkinetor/au/issues/239))
+  - `Git`: Changed `Branch` parameter to create branch if it doesnt exist
+  - `History`: Changed so it looks into all branches for AU commit messages
+
 
 ## 2020.11.21
 

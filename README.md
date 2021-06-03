@@ -1,10 +1,10 @@
 [![build](https://ci.appveyor.com/api/projects/status/github/majkinetor/au?svg=true)](https://ci.appveyor.com/project/majkinetor/au)   [![chat](https://img.shields.io/badge/gitter-join_chat-1dce73.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSIwIiB5PSI1IiBmaWxsPSIjZmZmIiB3aWR0aD0iMSIgaGVpZ2h0PSI1Ii8%2BPHJlY3QgeD0iMiIgeT0iNiIgZmlsbD0iI2ZmZiIgd2lkdGg9IjEiIGhlaWdodD0iNyIvPjxyZWN0IHg9IjQiIHk9IjYiIGZpbGw9IiNmZmYiIHdpZHRoPSIxIiBoZWlnaHQ9IjciLz48cmVjdCB4PSI2IiB5PSI2IiBmaWxsPSIjZmZmIiB3aWR0aD0iMSIgaGVpZ2h0PSI0Ii8%2BPC9zdmc%2B&logoWidth=8)](https://gitter.im/chocolatey_au/Lobby)   [![license](https://img.shields.io/badge/license-GPL2-blue.svg)](https://raw.githubusercontent.com/majkinetor/au/master/license.txt)
-[![](http://transparent-favicon.info/favicon.ico)](#) 
-[![](http://transparent-favicon.info/favicon.ico)](#) 
-[![](http://transparent-favicon.info/favicon.ico)](#) 
-[![](http://transparent-favicon.info/favicon.ico)](#) 
-[![](http://transparent-favicon.info/favicon.ico)](#) 
-[![](http://transparent-favicon.info/favicon.ico)](#) 
+[![](http://transparent-favicon.info/favicon.ico)](#)
+[![](http://transparent-favicon.info/favicon.ico)](#)
+[![](http://transparent-favicon.info/favicon.ico)](#)
+[![](http://transparent-favicon.info/favicon.ico)](#)
+[![](http://transparent-favicon.info/favicon.ico)](#)
+[![](http://transparent-favicon.info/favicon.ico)](#)
 [![](https://img.shields.io/badge/donate-patreon-blue.svg?longCache=true&style=for-the-badge)](https://www.patreon.com/majkinetor)
 
 ---
@@ -13,7 +13,7 @@
 
 This PowerShell module implements functions that can be used to automate [Chocolatey](https://chocolatey.org) package updates.
 
-To learn more about Chocolatey automatic packages, please refer to the relevant [documentation](https://github.com/chocolatey/choco/wiki/AutomaticPackages).  
+To learn more about Chocolatey automatic packages, please refer to the relevant [documentation](https://github.com/chocolatey/choco/wiki/AutomaticPackages).
 To see AU in action see [video tutorial](https://www.youtube.com/watch?v=m2XpV2LxyEI&feature=youtu.be).
 
 ## Features
@@ -25,7 +25,7 @@ To see AU in action see [video tutorial](https://www.youtube.com/watch?v=m2XpV2L
 - Automatically sets the nuspec descriptions from a README.md files.
 - Update single package or any subset of previously created AU packages with a single command.
 - Multithread support when updating multiple packages.
-- Repeat or ignore specific failures when updating multiple packages. 
+- Repeat or ignore specific failures when updating multiple packages.
 - Plugin system when updating everything, with few integrated plugins to send email notifications, save results to gist and push updated packages to git repository.
 - Use of global variables to change functionality.
 - Sugar functions for Chocolatey package maintainers.
@@ -37,8 +37,8 @@ To see AU in action see [video tutorial](https://www.youtube.com/watch?v=m2XpV2L
 AU module requires minimally PowerShell version 5: `$host.Version -ge '5.0'`
 
 To install it, use one of the following methods:
-- PowerShell Gallery: [`Install-Module au`](https://www.powershellgallery.com/packages/AU).  
-- Chocolatey:  [`cinst au`](https://chocolatey.org/packages/au). 
+- PowerShell Gallery: [`Install-Module au`](https://www.powershellgallery.com/packages/AU).
+- Chocolatey:  [`cinst au`](https://chocolatey.org/packages/au).
 - [Download](https://github.com/majkinetor/au/releases/latest) latest 7z package or latest build [artifact](https://ci.appveyor.com/project/majkinetor/au/build/artifacts).
 
 
@@ -52,7 +52,7 @@ The AU uses `update.ps1` script that package maintainers should create in the pa
 
 To write the package update script, it is generally required to implement 2 functions: `au_GetLatest` and `au_SearchReplace`.
 
-### `au_GetLatest`  
+### `au_GetLatest`
 
 This function is used to get the latest package information.
 
@@ -70,9 +70,9 @@ function global:au_GetLatest {
 
 The returned version is later compared to the one in the nuspec file and if remote version is higher, the files will be updated. The returned keys of this HashTable are available via global variable `$global:Latest` (along with some keys that AU generates). You can put whatever data you need in the returned HashTable - this data can be used later in `au_SearchReplace`.
 
-### `au_SearchReplace`  
+### `au_SearchReplace`
 
-Function returns HashTable containing search and replace data for any package file in the form:  
+Function returns HashTable containing search and replace data for any package file in the form:
 
 ```powershell
     @{
@@ -88,7 +88,7 @@ Function returns HashTable containing search and replace data for any package fi
 
 Search and replace strings are operands for PowerShell [replace](http://www.regular-expressions.info/powershell.html) operator. You do not have to write them most of the time however, they are rarely changed.
 
-File paths are relative to the package directory. The function can use `$global:Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc. 
+File paths are relative to the package directory. The function can use `$global:Latest` variable to get any type of information obtained when `au_GetLatest` was executed along with some AU generated data such as `PackageName`, `NuspecVersion` etc.
 
 The following example illustrates the usage:
 
@@ -103,11 +103,11 @@ function global:au_SearchReplace {
 }
 ```
 
-Here, line of the format `$url32 = '<package_url>'` in the file `tools\chocolateyInstall.ps1` will have its quoted string replaced with latest URL (#1). The next line replaces value of the variable `$checksum32` on the start of the line with the latest checksum that is automatically injected in the `$Latest` variable by the AU framework (#2). Replacement of the latest version in the nuspec file is handled automatically. 
+Here, line of the format `$url32 = '<package_url>'` in the file `tools\chocolateyInstall.ps1` will have its quoted string replaced with latest URL (#1). The next line replaces value of the variable `$checksum32` on the start of the line with the latest checksum that is automatically injected in the `$Latest` variable by the AU framework (#2). Replacement of the latest version in the nuspec file is handled automatically.
 
 **NOTE**: The search and replace works on lines, multiple lines can not be matched with single regular expression.
 
-### Update 
+### Update
 
 With above functions implemented calling the `Update-Package` (alias `update`) function from the AU module will update the package when needed.
 
@@ -149,7 +149,7 @@ This is best understood via the example - take a look at the real life package [
 
 ### Automatic package description from README.md
 
-If a package directory contains the `README.md` file, its content will be automatically set as description of the package with first 2 lines omitted - you can put on those lines custom content that will not be visible in the package description. 
+If a package directory contains the `README.md` file, its content will be automatically set as description of the package with first 2 lines omitted - you can put on those lines custom content that will not be visible in the package description.
 
 To disable this option use `-NoReadme` switch with the `Update-Package` function. You can still call it manually from within `au_AfterUpdate`, which you may want to do in order to pass custom parameters to it:
 
@@ -180,10 +180,10 @@ The `update` function does the following checks:
 
 - The `$Latest.Version` will be checked to match a valid nuspec pattern.
 - Any hash key that starts with the word `Url`, will be checked for existence and MIME textual type, since binary is expected here.
-- If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existence of this package version (this works for unpublished packages too). This allows multiple users to update same set of packages without a conflict. Besides, this feature makes it possible not to persist state between the updates as once the package is updated and pushed, the next update will not push the package again. To persist the state of updated packages you can use for instance [Git](https://github.com/majkinetor/au/blob/master/AU/Plugins/Git.ps1) plugin which saves the updated and published packages to the git repository. 
+- If the remote version is higher then the nuspec version, the Chocolatey site will be checked for existence of this package version (this works for unpublished packages too). This allows multiple users to update same set of packages without a conflict. Besides, this feature makes it possible not to persist state between the updates as once the package is updated and pushed, the next update will not push the package again. To persist the state of updated packages you can use for instance [Git](https://github.com/majkinetor/au/blob/master/AU/Plugins/Git.ps1) plugin which saves the updated and published packages to the git repository.
 - The regex patterns in `au_SearchReplace` will be checked for existence.
 
-If any of the checks fails, package will not get updated. This feature releases you from the worries about how precise is your pattern match in both `au_` functions - if for example, a vendor site changes, the package update will fail because of the wrongly parsed data. 
+If any of the checks fails, package will not get updated. This feature releases you from the worries about how precise is your pattern match in both `au_` functions - if for example, a vendor site changes, the package update will fail because of the wrongly parsed data.
 
 For some packages, you may want to disable some of the checks by specifying additional parameters of the `update` function (not all can be disabled):
 
@@ -263,7 +263,7 @@ Force option changes how package version is used. Without force, the `NuspecVers
 
 Points 2-4 do not apply if you set the explicit version using the variable `au_Version`.
 
-[Chocolatey fix notation](https://github.com/chocolatey/choco/wiki/CreatePackages#package-fix-version-notation) changes a version so that current date is added in the _revision_ component of the package version in the format `yyyyMMdd`. More precisely: 
+[Chocolatey fix notation](https://github.com/chocolatey/choco/wiki/CreatePackages#package-fix-version-notation) changes a version so that current date is added in the _revision_ component of the package version in the format `yyyyMMdd`. More precisely:
 
 - chocolatey _fix version_ always ends up in to the _Revision_ part of the package version;
 - existing _fix versions_ are changed to contain the current date;
@@ -273,7 +273,7 @@ Force can be triggered also from the `au_GetLatest` function. This may be needed
 
 ### Global variables
 
-To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up any **already unset** `update` parameter via global variable. The names of global variables are the same as the names of parameters with the prefix `au_`. As an example, the following code will change the update behavior so that URL is not checked for existence and MIME type and update is forced: 
+To avoid changing the `./update.ps1` when troubleshooting or experimenting you can set up any **already unset** `update` parameter via global variable. The names of global variables are the same as the names of parameters with the prefix `au_`. As an example, the following code will change the update behavior so that URL is not checked for existence and MIME type and update is forced:
 
     $au_NoCheckUrl = $au_Force = $true
     ./update.ps1
@@ -284,7 +284,7 @@ This is the same as if you added the parameters to `update` function inside the 
 
 however, its way easier to setup global variable with manual intervention on multiple packages.
 
-There is also a special variable `$au_GalleryUrl` using which you can change the URL that is used to check if package is already pushed. It defaults to https://chocolatey.org and you can change it if you need to this option for 3rd party or internal package repositories. 
+There is also a special variable `$au_GalleryUrl` using which you can change the URL that is used to check if package is already pushed. It defaults to https://chocolatey.org and you can change it if you need to this option for 3rd party or internal package repositories.
 
 ### Reusing the AU updater with metapackages
 
@@ -306,7 +306,7 @@ Embedded packages do not download software from the Internet but contain binarie
 
 AU function `Get-RemoteFiles` can download files and save them in the package's `tools` directory. It does that by using the `$Latest.URL32` and/or `$Latest.URL64`.
 
-The following example downloads files inside `au_BeforeUpdate` function which is called before the package files are updated with the latest data (function is not called if no update is available): 
+The following example downloads files inside `au_BeforeUpdate` function which is called before the package files are updated with the latest data (function is not called if no update is available):
 
 ```powershell
 function global:au_BeforeUpdate() {
@@ -315,9 +315,9 @@ function global:au_BeforeUpdate() {
 }
 ```
 
-This function will also set the appropriate `$Latest.ChecksumXX`. 
+This function will also set the appropriate `$Latest.ChecksumXX`.
 
-**NOTE**: There is no need to use automatic checksum when embedding because `Get-RemoteFiles` will do it, so always use parameter `-ChecksumFor none`. 
+**NOTE**: There is no need to use automatic checksum when embedding because `Get-RemoteFiles` will do it, so always use parameter `-ChecksumFor none`.
 
 ### Streams
 
@@ -343,7 +343,7 @@ Streams can be also used to manage multiple related packages as a single package
 
 In order to help working with versions, function `Get-Version` can be called in order to parse [semver](http://semver.org/) versions in a flexible manner. It returns an `AUVersion` object with all the details about the version. Furthermore, this object can be compared and sorted.
 
-**NOTES**: 
+**NOTES**:
 - By default only the first updated stream is pushed per run of `updateall`. In order to push all of them add among its options `PushAll = $true`.
 - To force the update of the single stream, use `IncludeStream` parameter. To do so via commit message, use `[AU package\stream]` syntax.
 
@@ -373,10 +373,10 @@ Successfully created package 'C:\au-packages\copyq\copyq.3.0.1.20170523.nupkg'
 WARNING: Package restored and updates saved to: C:\Users\majkinetor\AppData\Local\Temp\au\copyq\_output
 ```
 
-**NOTES**: 
+**NOTES**:
 - The inline editing is intentional design choice so that AU, its plugins and user scripts can use latest package data, such as latest version, checksum etc.
 - WhatIf can be used when updating all packages.
-- Since WhatIf saves the original package before the update and restores it after the update, interruption at specific time can cause package files to be left unrestored. In that case you can manually restore the package from `$Env:TEMP\au\<package_name>\_backup` directory. This is in general not very likely however, because restore happens very quickly after the update. 
+- Since WhatIf saves the original package before the update and restores it after the update, interruption at specific time can cause package files to be left unrestored. In that case you can manually restore the package from `$Env:TEMP\au\<package_name>\_backup` directory. This is in general not very likely however, because restore happens very quickly after the update.
 
 ## Updating all packages
 
@@ -396,7 +396,7 @@ The function will search for packages in the current directory. To override that
 
     Updating 6 automatic packages at 2016-09-16 22:03:33
     Push is enabled
-       copyq is updated to 2.6.1 and pushed 
+       copyq is updated to 2.6.1 and pushed
        dngrep had errors during update
            Can't validate URL 'https://github.com/dnGrep/dnGrep/releases/download/v2.8.16.0/dnGREP.2.8.16.x64.msi'
            Exception calling "GetResponse" with "0" argument(s): "The operation has timed out"
@@ -425,13 +425,13 @@ It is possible to specify a custom user logic in `Options` parameter - every key
         Timeout = 100
         Threads = 15
         Push    = $true
-          
+
         # Save text report in the local file report.txt
         Report = @{
             Type = 'text'
             Path = "$PSScriptRoot\report.txt"
         }
-        
+
         # Then save this report as a gist using your api key and gist id
         Gist = @{
             ApiKey = $Env:github_api_key
@@ -444,7 +444,7 @@ It is possible to specify a custom user logic in `Options` parameter - every key
             User = ''
             Password = $Env:github_api_key
         }
-        
+
         # Then save run info which can be loaded with Import-CliXML and inspected
         RunInfo = @{
             Path = "$PSScriptRoot\update_info.xml"
@@ -466,7 +466,7 @@ It is possible to specify a custom user logic in `Options` parameter - every key
     }
 ```
 
-The plugins above - `Report`, `Gist`,`Git`,`RunInfo` and `Mail` -  are executed in the given order (hence the `[ordered]` flag) and AU passes them given options and saves the run results. 
+The plugins above - `Report`, `Gist`,`Git`,`RunInfo` and `Mail` -  are executed in the given order (hence the `[ordered]` flag) and AU passes them given options and saves the run results.
 
 To add custom plugins, specify additional plugin search path via `$Options.PluginPath`. Plugin is a normal PowerShell script and apart from parameters given in its HashTable the AU will send it one more parameter `$Info` that contains current run info. The name of the script file must be the same as that of the key which value is used to pass the parameters to the plugin. If a key with the value of type `[HashTable]` doesn't point to existing PowerShell script it is not considered to be an AU plugin.
 
@@ -479,7 +479,7 @@ For more information take a look at the [plugins documentation](https://github.c
 
 ### Make a script
 
-Its desirable to put everything in a single script `update_all.ps1` so it can be scheduled and called with the given options. Rename `update_all_default.ps1` and uncomment and set the options you need. 
+Its desirable to put everything in a single script `update_all.ps1` so it can be scheduled and called with the given options. Rename `update_all_default.ps1` and uncomment and set the options you need.
 
 To make a local scheduled task, use the following code in the directory where your `update_all.ps1` script is found to install it:
 
@@ -498,7 +498,7 @@ When errors occur during the `updateall` operation, email will be sent to the ow
         $ignore = 'Unable to connect to the remote server'
         if ($_ -match $ignore) { Write-Host $ignore; 'ignore' }  else { throw $_ }
     }
-    
+
 
 The package will get shown in the report as [ignored](https://gist.github.com/gep13/bd2eaa76f2a9ab739ca0544c502dca6e/db5313020d882945d8fcc3a10f5176263bb837a6#quicktime) and no errors will be shown.
 
@@ -510,7 +510,7 @@ If some errors occur in multiple packages, you can make `updateall` **repeat and
 IgnoreOn = @(                                      #Error message parts to set the package ignore status
     'Timeout'
     'Access denied'
-)                                  
+)
 RepeatOn = @(                                      #Error message parts on which to repeat package updater
     'Unable to create secure channel'
     'Could not establish trust relationship'
@@ -536,22 +536,34 @@ Exception calling "GetResponse" with "0" argument(s): "The remote server returne
 
 you need to pass HTTP/HTTPS headers used for retrieving `url`/`url64bit` to `$Latest.Options.Headers` as `Hashtable`, where key is header name, and value are header itself. This may be `Authorization` or `Referer` header or any others.
 
+## Linux support
+
+AU is almost 100% usable on Linux platforms using pwsh.
+
+The following notes apply to Linux environments:
+
+1. Do not use automatic checksum. Use `-ChecksumFor None` instead and handle cheksum manually using `Get-RemoteFiles` or similar
+2. Check out how to [install choco on linux platforms](https://github.com/chocolatey/choco#other-platforms)
+3. Nuspec `files` element directory separator needs to be changed to a forward slash manually
+
+See details on adequate [issue](https://github.com/majkinetor/au/issues/234).
+
 ## Other functions
 
 Apart from the functions used in the updating process, there are few sugars for regular maintenance of the package:
 
-- Test-Package  
+- Test-Package
 Quickly test install and/or uninstall of the package from the current directory with optional parameters. This function can be used to start testing in [chocolatey-test-environment](https://github.com/majkinetor/chocolatey-test-environment) via `Vagrant` parameter.
 
-- Push-Package  
+- Push-Package
 Push the latest package using your API key.
 
-- Get-AuPackages (alias `gau` or `lsau`)  
+- Get-AuPackages (alias `gau` or `lsau`)
 Returns the list of the packages which have `update.ps1` script in its directory and which name doesn't start with '_'.
 
 ## Community
 
-- [Wormies AU Helpers](https://github.com/WormieCorp/Wormies-AU-Helpers)  
+- [Wormies AU Helpers](https://github.com/WormieCorp/Wormies-AU-Helpers)
 Helper scripts to make maintaining packages using AU even easier
-- [Chocolatey Core Community Maintainers Team Packages](https://github.com/chocolatey/chocolatey-coreteampackages)  
+- [Chocolatey Core Community Maintainers Team Packages](https://github.com/chocolatey/chocolatey-coreteampackages)
 The [largest](https://gist.github.com/choco-bot/a14b1e5bfaf70839b338eb1ab7f8226f) repository of AU packages by far
