@@ -1,5 +1,9 @@
 # AU Project Changelog
 
+## 2021.7.18
+
+- Fixed bad packaging of previous version
+
 ## 2021.6.27
 
 - Linux support ([#234](https://github.com/majkinetor/au/pull/234))
