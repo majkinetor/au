@@ -224,8 +224,11 @@ function Update-Package {
         $script:is_forced = $false
         if ([AUVersion] $Latest.Version -gt [AUVersion] $Latest.NuspecVersion) {
             if (!($NoCheckChocoVersion -or $Force)) {
-                if ( !$au_GalleryUrl ) { $au_GalleryUrl = 'https://chocolatey.org' } 
-                $choco_url = "$au_GalleryUrl/packages/{0}/{1}" -f $global:Latest.PackageName, $package.RemoteVersion
+                if ( !$au_GalleryPackageRootUrl ) { 
+                    if ( $au_GalleryUrl ) { $au_GalleryPackageRootUrl = "$au_GalleryUrl/packages" }
+                    else { $au_GalleryPackageRootUrl = 'https://chocolatey.org/packages' }
+                }
+                $choco_url = "$au_GalleryPackageRootUrl/{0}/{1}" -f $global:Latest.PackageName, $package.RemoteVersion
                 try {
                     request $choco_url $Timeout | out-null
                     "New version is available but it already exists in the Chocolatey community feed (disable using `$NoCheckChocoVersion`):`n  $choco_url" | result
