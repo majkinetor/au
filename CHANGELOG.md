@@ -1,5 +1,10 @@
 # AU Project Changelog
 
+## NEXT
+
+- Added `$au_GalleryPackageRootUrl` as a slightly more flexible alternative to `$au_GalleryUrl` ([#250](https://github.com/majkinetor/au/pull/255))
+  - `$au_GalleryUrl` is still maintained for compatibility
+
 ## 2021.7.18
 
 - Fixed bad packaging of previous version
