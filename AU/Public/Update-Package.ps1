@@ -225,8 +225,7 @@ function Update-Package {
         if ([AUVersion] $Latest.Version -gt [AUVersion] $Latest.NuspecVersion) {
             if (!($NoCheckChocoVersion -or $Force)) {
                 if ( !$au_GalleryPackageRootUrl ) { 
-                    if ( $au_GalleryUrl ) { $au_GalleryPackageRootUrl = "$au_GalleryUrl/packages" }
-                    else { $au_GalleryPackageRootUrl = 'https://chocolatey.org/packages' }
+                    $au_GalleryPackageRootUrl = if ($au_GalleryUrl) { "$au_GalleryUrl/packages" } else { 'https://chocolatey.org/packages' }
                 }
                 $choco_url = "$au_GalleryPackageRootUrl/{0}/{1}" -f $global:Latest.PackageName, $package.RemoteVersion
                 try {
