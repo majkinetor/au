@@ -284,9 +284,12 @@ This is the same as if you added the parameters to `update` function inside the 
 
 however, its way easier to setup global variable with manual intervention on multiple packages.
 
-There is also a special variable `$au_GalleryPackageRootUrl` that can be added to `update.ps1` to change the URL that is used to check if package is already pushed. It defaults to `https://chocolatey.org/packages` and you can change it if you need this option for 3rd party or internal package repositories.
+There is also a special variable `$au_GalleryPackageRootUrl` that can be added to `update.ps1` to change the URL that is used to check if package is already pushed. It defaults to `https://chocolatey.org/packages`, but you can change it if you need this option for 3rd party or internal package repositories.
 
-> Note: The `$au_GalleryUrl` variable also performs this function, but `$au_GalleryPackageRootUrl` allows more flexibility for 3rd party package repositories.  The `$au_GalleryUrl` will still work for compatibility, but makes assumptions about the URL that may not work in all situations.  
+* When updating all packages, `Update-AUPackages` (alias `updateall`), you should specify it as an environment variable.
+* When adding to `update.ps1` you can specify it as a global variable, and it will override the environment setting.
+
+> Note: The `$au_GalleryUrl` global variable also performs this function, but `$au_GalleryPackageRootUrl` allows more flexibility for internal and 3rd party package repositories.  The `$au_GalleryUrl` will still work for compatibility, but makes assumptions about the URL that may not work in all situations.  
 
 ### Reusing the AU updater with metapackages
 
