@@ -6,6 +6,9 @@
   - `$au_GalleryUrl` global variable is still maintained for compatibility
   - Can specify as an environment variable `$env:au_GalleryPackageRootUrl` when working with Update-AUPackages (update_all.ps1) ([#254](https://github.com/majkinetor/au/issues/254))
   - Can specify as a global variable in update.ps1 to override on per package basis.
+- Report plugin
+  - `Package_Source_Root_Url` param added so links can be configured for non-Github users. ([#257](https://github.com/majkinetor/au/issues/257))
+  - `Package_Source_Branch` parameter added to configure the branch name for the package source. ([#244](https://github.com/majkinetor/au/issues/244))
 
 ## 2021.7.18
 

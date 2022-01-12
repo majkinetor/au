@@ -18,6 +18,11 @@ function md_table($result, $Columns, $MaxErrorLength=150) {
     if (!$Columns) { $Columns = 'Name', 'Updated', 'Pushed', 'RemoteVersion', 'NuspecVersion', 'Error' }
     $res = '|' + ($Columns -join '|') + "|`r`n"
     $res += ((1..$Columns.Length | ForEach-Object { '|---' }) -join '') + "|`r`n"
+    if ( !$au_GalleryPackageRootUrl ) { 
+        $au_GalleryPackageRootUrl = if ($env:au_GalleryPackageRootUrl) { $env:au_GalleryPackageRootUrl } else { 
+                if ($au_GalleryUrl) { "$au_GalleryUrl/packages" } else { 'https://chocolatey.org/packages' }
+        }
+    }
 
     $result | ForEach-Object {
         $o = $_ | Select-Object `
@@ -25,7 +30,7 @@ function md_table($result, $Columns, $MaxErrorLength=150) {
                    E={'<img src="{0}" width="{1}" height="{1}"/>' -f $_.NuspecXml.package.metadata.iconUrl, $IconSize }
                 },
                 @{ N='Name'
-                   E={'[{0}](https://chocolatey.org/packages/{0}/{1})' -f $_.Name, $(if ($_.Updated) { $_.RemoteVersion } else {$_.NuspecVersion }) }
+                   E={"[{0}]($au_GalleryPackageRootUrl/{0}/{1})" -f $_.Name, $(if ($_.Updated) { $_.RemoteVersion } else {$_.NuspecVersion }) }
                 },
                 @{ N='Updated'
                    E={

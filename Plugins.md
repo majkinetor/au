@@ -80,6 +80,21 @@ This plugin requires Git plugin and that clone is done with adequate depth.
 
 The plugin saves state of all packages in a file that can be used locally or uploaded via other plugins to remote (such as Gist or Mail).
 
+Report Types and Params:
+
+* **Markdown:** - Markdown report with links
+  * *Github_UserRepo* - Use in generating the display name of the link to the package source.  (Also used to generate the link address when Package_Source_Root_Url is not specified.)
+  * *IconSize* - Size of package icons.  Defaults to 32.
+  * *NoAppVeyor* - Set to $true if not using AppVeyor.
+  * *NoIcons* - Set to $true to remove package icons.
+  * *Package_Source_Branch* - Used in generating link back to update_all script.  Defaults to master.
+  * *Package_Source_Root_Url* - Use in generating links to the package source.  Link addresses default to `https://github.com/<Github_UserRepo>`.
+  * *Title* - Title for the report.
+  * *UserMessage* - Specify to add a message at the top of the report.
+* **Text:** - Simple plain text report.
+  * *Title* - Title for the report.
+  * *UserMessage* - Specify to add a message at the top of the report.
+
 ## [RunInfo](https://github.com/majkinetor/au/blob/master/AU/Plugins/RunInfo.ps1)
 
 **Save run info to the file and exclude sensitive information**.
