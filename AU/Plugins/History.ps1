@@ -19,9 +19,14 @@ param(
     #Github user repository, used to create commit links
     $Github_UserRepo = 'chocolatey/chocolatey-coreteampackages',
 
+    #Package Source Repository Root URL.  Use for non-github source repositories. (If specified used to create commit links instead of Github_UserRepo.)
+    $Package_Source_Root_Url,
+
     #File path where to save the markdown report
     $Path = "Update-History.md"
 )
+
+if (!$Package_Source_Root_Url) {$Package_Source_Root_Url = "https://github.com/$Github_UserRepo"}
 
 Write-Host "Saving history to $Path"
 
@@ -40,9 +45,9 @@ foreach ($commit in $all_commits.Matches.Value) {
     $packages_md = $packages -split ' ' | ForEach-Object {
         $first = $_.Substring(0,1).ToUpper(); $rest  = $_.Substring(1)
         if ($report) {
-            "[$first]($report)[$rest](https://github.com/$Github_UserRepo/commit/$id)"
+            "[$first]($report)[$rest]($Package_Source_Root_Url/commit/$id)"
         } else {
-            "[$_](https://github.com/$Github_UserRepo/commit/$id)"
+            "[$_]($Package_Source_Root_Url/commit/$id)"
         }
     }
 

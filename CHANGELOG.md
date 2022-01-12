@@ -9,6 +9,8 @@
 - Report plugin
   - `Package_Source_Root_Url` param added so links can be configured for non-Github users. ([#257](https://github.com/majkinetor/au/issues/257))
   - `Package_Source_Branch` parameter added to configure the branch name for the package source. ([#244](https://github.com/majkinetor/au/issues/244))
+- History plugin
+  - `Package_Source_Root_Url` param added so links can be configured for non-Github users.
 
 ## 2021.7.18
 
