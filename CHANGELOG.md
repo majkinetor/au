@@ -6,6 +6,8 @@
   - `$au_GalleryUrl` global variable is still maintained for compatibility
   - Can specify as an environment variable `$env:au_GalleryPackageRootUrl` when working with Update-AUPackages (update_all.ps1) ([#254](https://github.com/majkinetor/au/issues/254))
   - Can specify as a global variable in update.ps1 to override on per package basis.
+- Plugins:
+    - History plugin now ignores merges ([#258](https://github.com/majkinetor/au/issues/258))
 
 ## 2021.7.18
 
