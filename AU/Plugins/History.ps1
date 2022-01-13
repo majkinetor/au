@@ -31,7 +31,7 @@ if (!$Package_Source_Root_Url) {$Package_Source_Root_Url = "https://github.com/$
 Write-Host "Saving history to $Path"
 
 $res=[System.Collections.Specialized.OrderedDictionary]@{}
-$log = git --no-pager log -q --grep '^AU: ' --date iso --all | Out-String
+$log = git --no-pager --no-merges log -q --grep '^AU: ' --date iso --all | Out-String
 $all_commits = $log | Select-String 'commit(.|\n)+?(?=\ncommit )' -AllMatches
 foreach ($commit in $all_commits.Matches.Value) {
     $commit = $commit -split '\n'
