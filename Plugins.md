@@ -80,7 +80,7 @@ This plugin requires Git plugin and that clone is done with adequate depth.
 
 The plugin saves state of all packages in a file that can be used locally or uploaded via other plugins to remote (such as Gist or Mail).
 
-Report Types and Params:
+Report Types and associated Params:
 
 * **Markdown:** - Markdown report with links
   * *Github_UserRepo* - Use in generating the display name of the link to the package source.  (Also used to generate the link address when Package_Source_Root_Url is not specified.)
