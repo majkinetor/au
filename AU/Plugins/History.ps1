@@ -19,14 +19,19 @@ param(
     #Github user repository, used to create commit links
     $Github_UserRepo = 'chocolatey/chocolatey-coreteampackages',
 
+    #Package Source Repository Root URL.  Use for non-github source repositories. (If specified used to create commit links instead of Github_UserRepo.)
+    $PackageSourceRootUrl,
+
     #File path where to save the markdown report
     $Path = "Update-History.md"
 )
 
+if (!$PackageSourceRootUrl) {$PackageSourceRootUrl = "https://github.com/$Github_UserRepo"}
+
 Write-Host "Saving history to $Path"
 
 $res=[System.Collections.Specialized.OrderedDictionary]@{}
-$log = git --no-pager --no-merges log -q --grep '^AU: ' --date iso --all | Out-String
+$log = git --no-pager log -q --grep '^AU: ' --date iso --no-merges --all | Out-String
 $all_commits = $log | Select-String 'commit(.|\n)+?(?=\ncommit )' -AllMatches
 foreach ($commit in $all_commits.Matches.Value) {
     $commit = $commit -split '\n'
@@ -40,9 +45,9 @@ foreach ($commit in $all_commits.Matches.Value) {
     $packages_md = $packages -split ' ' | ForEach-Object {
         $first = $_.Substring(0,1).ToUpper(); $rest  = $_.Substring(1)
         if ($report) {
-            "[$first]($report)[$rest](https://github.com/$Github_UserRepo/commit/$id)"
+            "[$first]($report)[$rest]($PackageSourceRootUrl/commit/$id)"
         } else {
-            "[$_](https://github.com/$Github_UserRepo/commit/$id)"
+            "[$_]($PackageSourceRootUrl/commit/$id)"
         }
     }
 
