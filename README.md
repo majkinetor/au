@@ -338,7 +338,7 @@ Though a `Hashtable` can be returned for streams, it is recommended to return an
 
 Latest stream versions are kept in the `<package_name>.json` file in the package directory. For real life example take a look at the [Python3](https://github.com/chocolatey/chocolatey-coreteampackages/blob/master/automatic/python3/update.ps1) package updater which automatically finds available python 3 streams and keeps them [up to date](https://gist.github.com/a14b1e5bfaf70839b338eb1ab7f8226f/78cdc99c2d7433d26c65bc721c26c1cc60ccca3d#python3).
 
-Streams can be also used to manage multiple related packages as a single package. [LibreOffice](https://github.com/chocolatey/chocolatey-coreteampackages/blob/master/automatic/libreoffice/update.ps1) package updater uses streams to manage [two different](https://gist.github.com/choco-bot/a14b1e5bfaf70839b338eb1ab7f8226f/78cdc99c2d7433d26c65bc721c26c1cc60ccca3d#libreoffice) variants of the software (prior to streams this was handled via 2 packages.)
+Streams can be also used to manage multiple related packages as a single package. [LibreOffice](https://github.com/chocolatey-community/chocolatey-packages/blob/master/automatic/libreoffice-streams/update.ps1) package updater uses streams to manage [two different](https://gist.github.com/choco-bot/a14b1e5bfaf70839b338eb1ab7f8226f/78cdc99c2d7433d26c65bc721c26c1cc60ccca3d#libreoffice) variants of the software (prior to streams this was handled via 2 packages.)
 
 In order to help working with versions, function `Get-Version` can be called in order to parse [semver](http://semver.org/) versions in a flexible manner. It returns an `AUVersion` object with all the details about the version. Furthermore, this object can be compared and sorted.
 
