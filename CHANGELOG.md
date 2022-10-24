@@ -1,6 +1,8 @@
 # AU Project Changelog
 
-## NEXT
+The AU project is now archived and there will be no new versions.
+
+## 2022.10.24
 
 - Added `$au_GalleryPackageRootUrl` as a slightly more flexible alternative to `$au_GalleryUrl` ([#250](https://github.com/majkinetor/au/issues/250))
   - `$au_GalleryUrl` global variable is still maintained for compatibility
